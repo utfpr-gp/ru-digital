@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="description" content="Programming forum about Java powered by Spring Framework"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <title>RU Digital</title>
+      <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	 <script type="text/javascript" th:src="@{/js/cloudinary-jquery-file-upload.min.js}"></script>
+   
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+ 
+</head>
+<body>
+<script type="text/javascript">
+function upload(){
+	document.getElementById("arquivo").click();
+}
+
+$(document).ready(function(){
+    $("#arquivo").on('change',function(){
+    	document.getElementById("enviar").click();
+    });
+});
+</script>
+<style>
+table, tr  {
+	border-bottom: 0px !important;
+}
+hr.style-hr {
+    border: 1;
+    height: 1;
+    box-shadow: 0 0 10px 10px #ffc107;
+}
+hr.style-hr:after {
+    content: "§";
+}
+
+
+
+hr.style-eight:after {
+    content: "§";
+    /* display: inline-block; */
+    position: relative;
+    top: -0.9em;
+    font-size: 1.5em;
+    padding: 0 0.25em;
+    background: white;
+    
+}
+
+
+
+hr.style-eight {
+    overflow: visible;
+    padding: 0;
+    border: none;
+    border-top: medium double #ffc107;
+    color: #ffc107;
+    text-align: center;
+}
+
+
+
+.page-footer .footer-copyright{
+color: black;
+}
+nav ul a {
+font-size: 18px;
+color: black;
+}
+::-webkit-input-placeholder { /* WebKit browsers */
+    color:    red;
+     opacity: 1 !important;
+}
+</style>
+    <nav style="background-color: #ffc107;">
+        <div class="nav-wrapper">
+            <div class="container">
+                <ul id="nav-left" class="left hide-on-med-and-down">
+                    <li><a th:href="@{'/user/home'}">Conta</a></li>
+                    <li><a th:href="@{'/user/edit'}">Editar</a></li>
+                    <li><a th:href="@{'/admin/consumo'}">Consumo</a></li>
+                    <li><a th:href="@{'/admin/credits'}">Créditos</a></li>
+                </ul>
+                <ul id="nav-right" class="right hide-on-med-and-down">
+   
+                    <li><a th:href="@{'/logout'}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main layout:fragment="content">
+        <p>Default content</p>
+    </main>
+    <footer class="page-footer" style="background-color: #ffc107;">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="black-text">Java Forum</h5>
+                    <p class="black-text">Programming forum about Java powered by Spring Framework</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                    <h5 class="black-text">Links</h5>
+                    <ul>
+                        <li><a class="black-text" href="https://github.com/plkpiotr">Github</a></li>
+                        <li><a class="black-text" href="https://forum.pasja-informatyki.pl/user/plkpiotr">Pasja Informatyki</a></li>
+                        <li><a class="black-text" href="https://plus.google.com/u/0/100065018101140624093">Google+</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                All rights reserved &nbsp;|&nbsp; plkpiotr &nbsp;|&nbsp; 09/2017
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

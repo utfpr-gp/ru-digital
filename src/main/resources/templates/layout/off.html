@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="description" content="Programming forum about Java powered by Spring Framework"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <title>RU Digital</title>
+      <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.js"></script>
+
+<script type="text/javascript" >
+auxcpf = false;
+auxra = false;
+auxemail = false;
+function verificaCampos(){
+	document.getElementById('botdb').disabled=true;
+	var cpf = document.getElementById("cpf").value;
+	var ra =document.getElementById("ra").value;
+	var name =document.getElementById("name").value;
+	var pass =document.getElementById("pass").value;
+	var confirm =document.getElementById("confirm").value;
+	var email =document.getElementById("email").value;
+	if ((ra || cpf !=null) && (ra || cpf != ""))
+		if ((name && pass && confirm && email !=null) && (name && pass && confirm && email != ""))
+			if (confirm == pass)
+				if (validateEmail(email))
+					if ((document.getElementById('yesStudent').checked && auxra) || (document.getElementById('yesVisitor').checked && auxcpf))
+						if (auxemail)
+							document.getElementById('botdb').disabled=false;
+							
+	
+	
+}
+
+
+function checkcpf(){
+	
+	var z = false;
+	var x = document.getElementById("cpf").value;
+	
+	var documento = x.match(/\d/g);
+
+	if (documento == null){
+		$("div#cpfscs").hide();
+		$("div#cpferror").show();
+		auxcpf = false;
+		verificaCampos();
+	}
+	if(documento!=null)
+	documento = documento.join("");
+	if (documento!=null && documento.toString().length == 11){
+		$.ajax({
+	   	    type : "GET",
+	   	    url : "/userexists",
+	   	    data : {
+	   	    "documento" : documento.toString()
+	   	    },
+	   	    success: function(data){
+	  				if (data){
+	  					$("div#cpfscs").hide();
+	  					$("div#cpferror").show();
+	  					auxcpf = false;
+	  					verificaCampos();
+	  				}
+	  					
+	  				else{
+	  					$("div#cpferror").hide();
+	  					$("div#cpfscs").show();
+	  					auxcpf = true;
+	  					verificaCampos();
+	  				}		
+	   	    }
+	   	});
+	}
+	else{
+		$("div#cpfscs").hide();
+		$("div#cpferror").show();
+		auxcpf = false;
+		verificaCampos();
+	}
+		
+}
+
+function chechdoc(){
+	var z = false;
+	var x = document.getElementById("ra").value;
+	var documento = x.match(/\d/g);
+
+	if (documento == null){
+		$("div#docscs").hide();
+		$("div#docerror").show();
+		auxra= false;
+		verificaCampos();
+	}
+	if(documento!=null)
+	documento = documento.join("");
+	
+	if (documento!=null && documento.toString().length == 7){
+		$.ajax({
+	   	    type : "GET",
+	   	    url : "/userexists",
+	   	    data : {
+	   	    "documento" : documento.toString()
+	   	    },
+	   	    success: function(data){
+	  				if (data){
+	  					$("div#docscs").hide();
+	  					$("div#docerror").show();
+	  					auxra = false;
+	  					verificaCampos();
+	  				}
+	  					
+	  				else{
+	  					$("div#docerror").hide();
+	  					$("div#docscs").show();
+	  					auxra= true;
+	  					verificaCampos();
+	  				}		
+	   	    }
+	   	});
+	}
+	else{
+		$("div#docscs").hide();
+		$("div#docerror").show();
+		auxra = false;
+		verificaCampos();
+	}
+		
+}
+
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
+
+function confirmPass(){
+	var pass = document.getElementById("pass").value;
+	var tam = (pass + "").length;
+	
+	var confirm = document.getElementById("confirm").value;
+	if (pass!=confirm || tam < 5){
+		$("div#passscs").hide();
+		$("div#passerror").show();
+	}
+	else{
+		$("div#passerror").hide();
+		$("div#passscs").show();
+	}
+}
+function checemail(){
+	var z = false;
+	var x = document.getElementById("email").value;
+
+		$.ajax({
+	   	    type : "GET",
+	   	    url : "/emailexists",
+	   	    data : {
+	   	    "documento" : x.toString()
+	   	    },
+	   	    success: function(data){
+	  				if (data){
+	  					$("div#emailerror").show();
+	  					$("div#emailscs").hide();
+	  					auxemail = false;
+	  					verificaCampos();
+	  				}		
+	  				else{
+	  					if(validateEmail(x)){
+	  						$("div#emailerror").hide();
+	  						$("div#emailscs").show();
+	  						auxemail = true;
+	  						verificaCampos();
+	  						
+	  					}
+	  					else{
+	  						$("div#emailerror").show();
+	  						$("div#emailscs").hide();
+	  						auxemail = false;
+	  						verificaCampos();
+	  					}
+	  						
+	  				}
+	  					
+	   	    }
+	   	});
+
+		
+}
+
+
+
+function submit(){
+	document.getElementById('hid').value = document.getElementById('ra').value + document.getElementById('cpf').value;
+}
+jQuery(function($){
+	   $("#cpf").mask("999.999.999-99");
+	});
+jQuery(function($){
+	   $("#ra").mask("999999-9");
+	});
+function yesnoCheck() {
+    if (document.getElementById('yesStudent').checked) {
+    	if (document.getElementById('ra').value == null || document.getElementById('ra').value == "")
+    	{
+    		$("div#docscs").hide();
+    		$("div#docerror").show();
+    	}
+    	document.getElementById('cpf').value = "";
+    	$('#cpf').removeAttr('value');
+        document.getElementById('ifStudent').style.display = 'block';
+       
+        document.getElementById('ifVisitor').style.display = 'none';
+        
+    } 
+    if (document.getElementById('yesVisitor').checked) {
+    	if (document.getElementById('cpf').value == null || document.getElementById('cpf').value == "")
+    	{
+    		$("div#cpfscs").hide();
+    		$("div#cpferror").show();
+    	}
+    	
+    	 document.getElementById('ra').value = "";
+         $('#ra').removeAttr('value');
+        document.getElementById('ifStudent').style.display = 'none';
+        document.getElementById('ifVisitor').style.display = 'block';
+    } 
+}
+</script>
+<style>
+table, tr  {
+	border-bottom: 0px !important;
+}
+.page-footer .footer-copyright{
+color: black;
+}
+nav ul a {
+font-size: 18px;
+}
+::-webkit-input-placeholder { /* WebKit browsers */
+    color:    black;
+     opacity: 1 !important;
+}
+</style>
+</head>
+<body>
+    <nav style="background-color: #ffc107;">
+        <div class="nav-wrapper">
+            <div class="container">
+                <ul id="nav-left" class="left hide-on-med-and-down">
+                    <li><a th:href="@{'/'}">Login</a></li>
+                    <li><a th:href="@{'/registration'}">Cadastrar</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main layout:fragment="content">
+        <p>Default content</p>
+    </main>
+    <footer class="page-footer" style="background-color: #ffc107;">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="black-text">Java Forum</h5>
+                    <p class="black-text">Programming forum about Java powered by Spring Framework</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                    <h5 class="black-text">Links</h5>
+                    <ul>
+                        <li><a class="black-text" href="https://github.com/plkpiotr">Github</a></li>
+                        <li><a class="black-text" href="https://forum.pasja-informatyki.pl/user/plkpiotr">Pasja Informatyki</a></li>
+                        <li><a class="black-text" href="https://plus.google.com/u/0/100065018101140624093">Google+</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                All rights reserved &nbsp;|&nbsp; plkpiotr &nbsp;|&nbsp; 09/2017
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

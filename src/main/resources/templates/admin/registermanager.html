@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/online">
+<head>
+    <meta charset="utf-8"/>
+    <title>Register | JF</title>
+</head>
+<body>
+    <main layout:fragment="content">
+    <div class="row">
+    	 <h3 style="margin-bottom: 0px;" >CADASTRAR GERENTE</h3>
+         <hr  class="col s5  style-eight" >
+    </div>
+    <div class="row">
+    
+        <article class="container col s6 offset-s3" style="padding-top: 3%;">
+           
+            <section>
+               	<form autocomplete="off" action="#" th:action="@{/admin/registermanager}"
+					th:object="${user}" method="post" class="form-horizontal"
+					role="form">
+
+					<div class="form-group">
+						<div class="col-sm-9">
+						<label th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
+								class="validation-message"></label>
+						<input type="text" th:field="*{name}" placeholder="Nome"
+								class="form-control" /> 
+						</div>
+					</div>
+
+					
+					<div class="form-group">
+						<div class="col-sm-9">
+							<input type="text" th:field="*{email}" placeholder="Email"
+								class="form-control" /> <label
+								th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+								class="validation-message"></label>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-9">
+							<input type="password" th:field="*{password}"
+								placeholder="Senha" class="form-control" /> <label
+								th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
+								class="validation-message"></label>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-9">
+							<button type="submit" style="float:right;" class="btn btn-primary btn-block">Cadastrar</button>
+						</div>
+					</div>
+					
+					<span th:utext="${successMessage}"></span>
+					
+					
+				</form>
+            </section>
+        </article>
+        </div>
+    </main>
+</body>
+</html>

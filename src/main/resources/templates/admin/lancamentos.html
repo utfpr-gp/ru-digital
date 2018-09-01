@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>Admin Page</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/home.css}" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<script	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ <script type="text/javascript" th:src="@{/js/jquery-3.2.0.min.js}"></script>
+  <!--Import https://www.devbridge.com/sourcery/components/jquery-autocomplete/#-->
+  <script type="text/javascript" th:src="@{/js/jquery.autocomplete.js}"></script>
+<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
+</head>
+
+<body>
+<script th:inline="javascript">
+/*<![CDATA[*/
+	
+	
+function lancar(){
+                alert("Before Ajax..!");
+                var k = document.getElementById('x').value;
+                k = parseFloat(k);
+                alert(k);
+                $.ajax({  
+                    type : 'POST',  
+                    url : "/admin/lancar",
+                    data : {
+                        my: my,
+                        k: k
+                    },
+ 
+                });
+                alert("onUnLoad Bye");
+            }	
+function mud (){
+	var inputCount = document.getElementById('content').getElementsByTagName('input').length;
+	var a = parseInt(inputCount);
+	var b =  0 ;
+	var c = 0;
+	for( i =0; i<a + 1 + contador ; i++){
+		var z = $('#'+i +' option:selected').text();
+		var t = $("#"+ i).val();
+		if (t!= "" && t!=null){
+			var w = t.split("|").pop();
+			t = t.split('|')[0];
+		}
+		my[i] = w;
+		
+		if (!isNaN(parseFloat(t))){
+			b = parseFloat(t);
+			c = c + b;
+		}
+		
+		
+	}
+	document.getElementById('x').value = c;	
+}
+function addRow() {
+	
+	var inputCount = document.getElementById('content').getElementsByTagName('input').length;
+	
+	var z = $('#0 option:selected').text();
+	var t = $("#0").val();
+	var a = parseInt(inputCount);
+	var x = $('#0').clone().appendTo('#content');
+	var ty = $('#id0').clone().appendTo('#content');
+	a++;
+	x.attr("id",  a);
+	ty.attr("id",  "id"+  a);
+	mud();
+   
+}
+function teste(){
+	alert("OK");
+}
+
+function removeRow(id) {
+	contador++;
+	 id = id. substring(2, id.length);
+	 
+	alert("A"  + contador);
+	document.getElementById(""+ id).remove();
+	
+	document.getElementById("id"+ id).remove();
+	
+	mud();
+    
+	return false; 
+ }
+
+
+
+/*]]>*/
+</script>
+	<div class="container">
+		<input type="text"  id="w-input-search" value="">
+		<form th:action="@{/logout}" method="get">
+			<button class="btn btn-md btn-danger btn-block" name="registration"
+				type="Submit">Logout</button>
+		</form>    
+		
+		
+		
+		<div class="panel-group" style="margin-top:40px">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<span th:utext="${userName}"></span>
+				</div>
+				<div class="panel-body">
+					<img th:src="@{/images/beer.jpg}" class="img-responsive center-block" width="400" height="400" alt="Beer" /> 
+				</div>
+				<p class="admin-message-text text-center" th:utext="${adminMessage}"></p>
+			</div>
+		</div>
+		
+				
+	
+			
+                  
+		<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+	    <form th:object="${user}" th:action="@{/admin/search}" method="get" onsubmit="mud();">
+        <input type="text" name="email" id="email" th:value="${email}"/>
+        <input  type="submit" value="Search"  />
+       
+            <h2>Students List</h2>
+            <table class="table table-striped">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                     <th>Sobrnome</th>
+                      <th>Documento</th>
+                     <th>Saldo</th>
+                </tr>
+                <tr th:each="u: ${user}">
+                    <td th:text="${u.getName()}">name</td>
+                    <td th:text="${u.getEmail()}">email</td>
+                    <td th:text="${u.getLastName()}">sobrenome</td>
+                    <td th:text="${u.getDocument()}">documento</td>f
+                    <td th:text="${u.getBalance()}">saldo</td>
+                </tr>
+            </table>
+            
+        </form>
+        <div th:if="${user.getDocument() != null}" >
+        			<form th:action="@{/admin/lancar}" method="post" >
+			<input type="text" name="x" id="x" />
+			<select style="margin: 20px; margin-right: 0px;"    th:field="*{products}" id="0"  class="browser-default" onchange="mud();">
+                         <option th:each="country : ${products}"
+                            th:value="${country.getValue()} + '|' + ${country.getId()}"
+                            th:utext="${country.getName()}"
+                            
+                            />
+                  </select>		
+                  
+                  
+           <input type="button" value="+" onclick="addRow();">       
+            <input type="button" value="-" style="margin: 20px; margin-left: 0px; " id="id0" onclick="removeRow(this.id);">  
+			<p id="p"></p>
+			<div id="content" class="cc" >
+
+			</div>  
+			<input type="submit" value="eviar" onclick="lancar();"/>   
+			</form>
+        </div>
+			</div>
+		</div>
+	</div>
+		
+		
+	</div>
+</body>
+<script>
+  
+$(document).ready(function() {
+contador = 0;
+my = [];
+	$('#email').autocomplete({
+		serviceUrl: 'getlist',
+		paramName: "tagName",
+		delimiter: ",",
+	   transformResult: function(response) {
+		    	
+		return {      	
+		  //must convert json to javascript object before process
+		  suggestions: $.map($.parseJSON(response), function(item) {
+		            	
+		      return { value: item.tagName, data: item.id };
+		   })
+		            
+		 };
+		        
+            }
+		    
+	 });
+				
+  });
+</script>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="description" content="Programming forum about Java powered by Spring Framework"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <title>RU Digital</title>
+       <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script type="text/javascript" th:src="@{/js/jquery-3.2.0.min.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.autocomplete.js}"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    
+    
+    <script>
+  
+
+</script>    
+    
+    
+<style>
+table, tr  {
+	border-bottom: 0px !important;
+}
+.page-footer .footer-copyright{
+color: black;
+}
+.collection .collection-item.avatar p {
+margin-left: 50px !important;
+}
+
+.collection .collection-item.avatar:not(.circle-clipper)>.circle, .collection .collection-item.avatar :not(.circle-clipper)>.circle {
+width: 100px !important;
+height: 100px !important;
+}
+nav ul a {
+font-size: 18px;
+color: black;
+}
+::-webkit-input-placeholder { /* WebKit browsers */
+    color:    black;
+     opacity: 1 !important;
+}
+
+
+
+</style>
+<script>
+
+
+function enviar(){
+	$("#enviarmodal").click ();
+}
+function pegarImagem(){
+	alert();
+}
+$(document).ready(function() {
+	$('#modal6').modal();
+	 var x = document.getElementById('logado').value;
+	 $.ajax({
+	   	    type : "GET",
+	   	    url : "/finduser",
+	   	    data : {
+	   	    "x" : x
+	   	    },
+	   	    success: function(z){
+	   	    	document.getElementById("cloud").src="http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/" + z;
+	   	    }
+	   	});
+	$('#modal4').modal();
+	$('#modal5').modal();
+	
+	$("#busca").click(function() {  
+		$("#enviarbuscar").click ();
+	});
+	$("#creditos").click(function() {
+		var  el = document.getElementById('creditos');
+		 if ( $( this ).hasClass( "ativo" ) )
+			document.getElementById("creditos").classList.remove("ativo");
+		else
+			document.getElementById("creditos").classList.add("ativo");
+		 document.getElementById("consumo").classList.remove("ativo");
+		$("#showconsumo").css("display","none");
+		var disp = document.getElementById('showcreditos').style.display;
+		
+		$("#outro").maskMoney();
+		
+		 if (disp === ""){
+				$("#showcreditos").css("display","none");
+				
+			}
+		 else{
+			 $( "#showcreditos" ).show( "slow", function() {
+				    // Animation complete.
+				 window.scrollTo(0,document.body.scrollHeight/3);
+				  });
+		 }
+	});
+	 $("#consumo").click(function() {
+		 if ( $( this ).hasClass( "ativo" ) )
+				document.getElementById("consumo").classList.remove("ativo");
+			else
+				document.getElementById("consumo").classList.add("ativo");
+		 document.getElementById("creditos").classList.remove("ativo"); 
+		 $("#outrodebito").maskMoney();
+		 $("#showcreditos").css("display","none");
+		var disp = document.getElementById('showconsumo').style.display;
+		 if (disp === ""){
+				$("#showconsumo").css("display","none");
+			}
+		 else{
+			 $( "#showconsumo" ).show( "slow", function() {
+				    // Animation complete.
+				 window.scrollTo(0,document.body.scrollHeight/3);
+				  });
+		 }
+		
+	    });
+		
+    $('#autocomplete-input').devbridgeAutocomplete({
+        serviceUrl: '/suggestion',
+        paramName: 'searchstr',
+        delimiter: ",",
+ 	    transformResult: function(response) {
+ 		var aux = document.getElementById('autocomplete-input').value;  
+ 		var tam = document.getElementById('autocomplete-input').value.length;
+ 		var res = aux.substring(0, tam);
+ 		return {      	
+ 		  //must convert json to javascript object before process
+ 		  suggestions: $.map($.parseJSON(response), function(item) {
+ 			  var x = item.tagName.substring(0, tam);
+ 			  if (x === aux)
+ 		      return { value: item.tagName, data: item.id };
+ 		   })
+ 		            
+ 		 };
+ 		        
+             }
+    });
+
+  });
+$(document).ready(function(){
+    $('.sidenav').sidenav();
+  });
+	
+</script>
+
+
+
+</head>
+
+
+<body>
+
+    <ul id="slide-out" class="sidenav">
+      <li><a href="#!">First Sidebar Link</a></li>
+      <li><a href="#!">Second Sidebar Link</a></li>
+      <li class="no-padding">
+        <ul class="collapsible collapsible-accordion">
+          <li>
+            <a class="collapsible-header">Dropdown<i class="material-icons">arrow_drop_down</i></a>
+            <div class="collapsible-body">
+              <ul>
+                <li><a href="#!">First</a></li>
+                <li><a href="#!">Second</a></li>
+                <li><a href="#!">Third</a></li>
+                <li><a href="#!">Fourth</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </li>
+    </ul>
+   
+    <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+          
+    <nav style="background-color: #ffc107;">
+        <div class="nav-wrapper">
+            <div class="container">
+           <input  th:value="${#authentication.name}" id="logado"  style="display: none;"/>  
+                <ul id="nav-left" class="left hide-on-med-and-down">
+                    <li><a th:href="@{'/admin'}">Conta</a></li>
+                    <li><a th:href="@{'/admin/registermanager'}">Cadastrar Gerentes</a></li>
+                    <li><a th:href="@{'/admin/controle'}">Controle</a></li>
+                    <li><a th:href="@{'/admin/botoes'}">Botoes</a></li>
+                </ul>
+                <ul id="nav-right" class="right hide-on-med-and-down">
+   				
+                    <li style="margin-top: 10px;"> 
+                    <img    id="cloud"
+	                		
+	                		 class="circle" style=" width: 50px; " />
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main layout:fragment="content">
+        <p>Default content</p>
+    </main>
+    <footer class="page-footer" style="background-color: #ffc107;">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="black-text">Java Forum</h5>
+                    <p class="black-text">Programming forum about Java powered by Spring Framework</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                    <h5 class="black-text">Links</h5>
+                    <ul>
+                        <li><a class="black-text" href="https://github.com/plkpiotr">Github</a></li>
+                        <li><a class="black-text" href="https://forum.pasja-informatyki.pl/user/plkpiotr">Pasja Informatyki</a></li>
+                        <li><a class="black-text" href="https://plus.google.com/u/0/100065018101140624093">Google+</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                All rights reserved &nbsp;|&nbsp; plkpiotr &nbsp;|&nbsp; 09/2017
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
+ 

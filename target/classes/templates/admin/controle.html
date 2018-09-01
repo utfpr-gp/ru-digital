@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/autocomplete">
+<head>
+    <meta charset="utf-8"/>
+    <title>Register | JF</title>
+
+    <script type="text/javascript" th:src="@{/js/jquery.autocomplete.js}"></script>
+<style>
+hr.style-seven {
+    
+     border: 0;
+    height: 0;
+box-shadow: 5px 5px 15px 5px #ffb300;
+    text-align: center;
+}
+
+hr.style-after:after {
+    content: "Opções";
+    /* display: inline-block; */
+    position: relative;
+    top: -0.7em;
+    left: -0.7em;
+    font-size: 1.5em;
+    padding: 0 0.25em;
+    background: white;
+}
+hr.style-after2:after {
+    content: "Valor";
+}
+
+.tabs .indicator { display: none; }
+.tabs .tab a.active { border-bottom: 2px solid #f6b2b5; }
+
+.ativo{
+    border-bottom: 5px solid red;
+}
+</style>
+
+<script >
+var p = "inicio";
+var iddebito = -1;
+if ( window.history.replaceState ) { // para evitar que o formulario seja enviado novamente no ctrl f5
+	  window.history.replaceState( null, null, window.location.href );
+}
+
+function informacaoBotao(id){ 
+  idbutton = id;
+  iduser = document.getElementById('sela').value;
+  document.getElementById("iduser").value = iduser;
+  document.getElementById("idbutton").value = idbutton;
+  $("#consumos").click();	
+  
+
+}
+
+function mostrarDebito(id){
+	w =  document.getElementById(id + "valorbotao").value
+	document.getElementById('outrodebito').value = w;
+	iddebito = id;
+	
+}
+
+function mostrarDebitoatual(){
+	
+	if (iddebito!=-1)
+	informacaoBotao(iddebito);
+	else
+		alert(iddebito);
+}
+
+function atualizaoutro(){
+	iddebito = -1;
+}
+
+$(function(){
+    $(function(){
+    	var status = $("#status").val();
+    	if (status !=null && status != "")
+    		$('#modal5').modal('open');
+    });
+});
+
+function wait(ms){
+	   var start = new Date().getTime();
+	   var end = start;
+	   while(end < start + ms) {
+	     end = new Date().getTime();
+	  }
+	}
+function manual(){
+	document.getElementById('manualoff').style.display="none";
+	$('#outro').fadeOut(0, function(){
+		document.getElementById('manualoff').style.display="block";
+		});
+	wait(600);
+	p = "botao";
+}
+function mostrartot(x){
+	var z = document.getElementById('outro').value;
+	if (z == "")
+		return;
+	if (p == "botao")
+		$("#enviarmodal2").click();
+	else{
+		document.getElementById('vl').value = z;
+		document.getElementById('balance').value = z;
+		$('#modal4').modal('open');
+	}
+		
+}
+function input(){
+	p = "input";
+}
+function inserircreditos(x){
+	if (x == -1){
+		x = document.getElementById('outro').value;
+	}else{
+		document.getElementById('outro').value = x + ".00";
+	}
+	document.getElementById('vl').value = x;
+	document.getElementById('balance').value = x;
+	document.getElementById('balance2').value = x;
+	$('#outro').fadeIn("slow");
+
+}
+</script>
+</head>
+
+<body>
+
+    <main layout:fragment="content">
+ 
+    <header class="row">
+                <div th:if="${users == null && usernotfound == null}" class="col s7 offset-s5">
+                  	 <img   
+	                		src="https://picsum.photos/200/300/?random"
+	                		style="font-size: 100px;" />
+    				
+				</div>
+				
+				
+				<p th:if="${usernotfound}"><i class="col s8 offset-s4 material-icons" style="font-size: 350px;">mood_bad</i></p>
+            	<p th:if="${usernotfound}" class="col s8 offset-s4 " style="font-weight: bold;">Cliente não encotrado. Verifique o campo informado</p>
+            </header>
+        <article class="container" style="padding-top: 3%;">
+            
+            <section >
+			
+            </section>
+			
+		
+           	<div class="container">
+		<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+
+	    <form th:object="${users}" th:action="@{/admin/searchuser}" method="get">
+         <div class="col s10">
+         		<input type="text" name="email" id="autocomplete-input"  th:value="${email}" placeholder="Ra ou CPF" />
+       
+         </div>
+          <div class="col s2">
+          <label  >
+          
+          		<a class="waves-effect waves-light btn-floating btn-large amber accent-3 "><i class="material-icons" style="font-size: 35px; color: black ;" id="busca">search</i></a>
+          </label>
+	  
+          </div>
+         
+        <input type="submit" value="Search" id="enviarbuscar" style="display: none;" />
+       
+             
+        </form>
+        <input  id="status" type="hidden" name="status" th:value="${status}"/>
+		</div>
+		</div>
+	</div>
+	
+	
+	 <ul  >
+	 <li class="row" th:each="u: ${users}" style="">
+	
+     <img   
+	                		th:attr="src='http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${u.getImage() }}"
+	                		 class="col s7 offset-s5 circle" style="height: 100px; width: 120px;" />
+ 	
+    
+     </li>
+	 </ul>
+  <ul class="collection" th:if = "${users != null}">
+    <li class="collection-item avatar row" th:each="u: ${users}" style="height: 100px;">
+     <input class="title" id="sela"  style="display:none;"   th:value="${users.getId()}"/>
+     
+      <div class="col s4 offset-s2" style="font-weight: bold;">NOME: </div>
+      <div class="col s4"> <span class="title" th:text="${u.getName()}"></span></div>
+        <div class="col s4 offset-s2" style="font-weight: bold;">EMAIL: </div>
+      <div class="col s4"> <span class="title" th:text="${u.getEmail()}"></span></div>
+        <div class="col s4 offset-s2" style="font-weight: bold;">RA|CPF: </div>
+      <div class="col s4"> <span class="title" th:text="${u.getDocument()}"></span></div>
+      
+     
+    </li>
+  </ul>
+
+	 <ul  >
+	 <li class="row" th:each="u: ${users}" style="">
+	<div class="col s4 offset-s3 " style="font-size: 32px; font-weight: bold;">SALDO: </div>
+      <div class="col s3"> <i class="material-icons" style="font-size: 27px; ">attach_money</i> <span style="font-size: 32px; font-weight: bold;" class="title" th:text="${u.getBalance()}"> </span></div>
+      
+    
+     </li>
+	 </ul>
+	 <hr  class="col s2  style-eight"  class="style-seven" >
+
+  <span class="title"  th:text="${userDetails}"></span>
+  
+  
+    
+   
+    <div class="row" style="margin-top : 70px;" th:if="${users != null && usernotfound == null}">
+		<div class="col s12 no-padding">
+			<ul class="tabs tabs-fixed-width tab-demo z-depth-1">
+				<li class="tab active"><a href="#test4" id="consumo">Consumo</a></li>
+				<li class="tab" id="creds"><a href="#test4" id="creditos">Créditos</a></li>
+			</ul>
+		</div>
+ 	</div>
+   
+   
+    		<div  style="display: none; " id="showconsumo">
+    		<div class="row "  >
+		    <div style="padding-top: 40px; padding-bottom: 40px;">
+		    <hr  class="col s2  style-eight"  class="style-seven style-after" >
+		   </div> 
+ 					<div th:each="b: ${buttons}">
+ 					<input style="display: none;" th:id="${b.getId()} + 'valorbotao'" th:value="${b.getValue()}"  />
+	 				<a th:id="${b.getId()}" class="amber accent-3 btn-large col s3  "   onclick="mostrarDebito(this.id);"><span th:text="${b.getName()}" ></span><i class="material-icons right">restaurant</i></a>
+	            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+	            	</div>
+	            		
+            </div>
+            
+            
+            <div class="row">
+		           <hr  class="col s12  style-eight"  class="style-seven style-after style-after2" style="margin-bottom: 30px;" >
+		            	<input class="col s4"  type="text" name="outrodebito" onclick="atualizaoutro();" id="outrodebito" style="font-size: 45px; font-weight: bold;"  placeholder="Valor"  />
+	            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+	            		<a  class="light-blue accent-2 btn-large col s2  " id="btdebito" onclick="mostrarDebitoatual()"  ><span th:text="DEBITAR" ></span><i class="material-icons right">money_off</i></a>
+	            	
+            	
+		    </div>
+            </div>
+            <div class="row " style="display: none;" id="showcreditos" >
+ 				<div style="padding-top: 40px; padding-bottom: 40px;">
+		    <hr  class="col s2  style-eight"  class="style-seven style-after" >
+		   </div> 
+ 				<div class="row" >
+ 					<div id="manualoff">
+ 					
+		 				<a  class="amber accent-3  btn-large col s2 " onclick="manual(); inserircreditos(2); "  ><span th:text="2" ></span><i class="material-icons right">monetization_on</i></a>
+		            	<p class="col s1" style= "margin-bottom: 10%;" ></p>
+		            	<a  class="amber accent-3  btn-large col s2  " onclick="manual();inserircreditos(5);" ><span th:text="5" ></span><i class="material-icons right">monetization_on</i></a>
+		            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+		            	<a  class="amber accent-3  btn-large col s2  "onclick="manual();inserircreditos(10);"  ><span th:text="10" ></span><i class="material-icons right">monetization_on</i></a>
+		            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+		            	<a  class="amber accent-3  btn-large col s2  " onclick="manual();inserircreditos(15);" ><span th:text="15" ></span><i class="material-icons right">monetization_on</i></a>
+		            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+		            	<a  class="amber accent-3 btn-large col s2  " onclick="manual();inserircreditos(20);"  ><span th:text="20" ></span><i class="material-icons right">monetization_on</i></a>
+		            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+		            	<a  class="amber accent-3 btn-large col s2  " onclick="manual();inserircreditos(25);" ><span th:text="25" ></span><i class="material-icons right">monetization_on</i></a>
+		            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+		            	<a  class="amber accent-3 btn-large col s2  "  onclick="manual();inserircreditos(50);"><span th:text="50" ></span><i class="material-icons right">monetization_on</i></a>
+		            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+		            	<a  class="amber accent-3  btn-large col s2  " onclick="manual();inserircreditos(100);"  ><span th:text="100" ></span><i class="material-icons right">monetization_on</i></a>
+		            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+		            </div>
+		          </div>
+		          <div class="row">
+		           <hr  class="col s12  style-eight"  class="style-seven style-after style-after2" style="margin-bottom: 30px;" >
+		            	<input class="col s4"  type="text" name="outro" onclick="input();" id="outro" style="font-size: 45px; font-weight: bold;"  placeholder="Valor"  />
+	            		<p class="col s1" style= "margin-bottom: 10%;"></p>
+	            		<a  class="green darken-3  btn-large col s2  " id="btoutro" onclick="mostrartot(-1);"  ><span th:text="CREDITAR" ></span><i class="material-icons right">monetization_on</i></a>
+	            	
+            	
+		          </div>
+            </div>
+
+ <form autocomplete="off" action="#" th:action="@{/admin/insertcredit}" method="post" th:object="${user}" role="form" style="display: none;">
+  <input id="aux2" th:if="${users != null}" th:value="${users.document}" style="display:none;" name="users.document" />
+  		<input id="balance2"  name="balance" th:value="${balance}"  />
+  	  <a href="#"  onclick="enviar();" style="color: green; float: right;" > <i class="material-icons" style=" font-size: 50px;">check</i></a>
+  	 <input type="submit" id="enviarmodal2"  value="Creditar"/>
+ </form >	
+              
+<div id="modal4" class="modal" style=" width: 25% !important ; height: 35% !important ;  overflow-y: hidden !important ; background-color: #e8f5e9;">
+ 	
+  <div class="row">
+  <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat" style="float:right;">X</a>
+  </div>
+  	   
+  <form autocomplete="off" action="#" th:action="@{/admin/insertcredit}" method="post" th:object="${user}" role="form">
+  <div class="row">
+  <h6 class="col s9 offset-s3">Confirmar creditos</h6>
+  <input id="aux" value="" style= "display: none;"/>
+  <input id="aux" th:if="${users != null}" th:value="${users.document}" style="display:none;" name="users.document" />
+  
+  	<div class="col s12">
+  		<table  cellspacing="0" cellpadding="0">
+  			<tr class="col s9 offset-s3" style="border: none;">
+  				<td ><i class="material-icons">attach_money</i></td>
+  				<td ><input id="vl"  style="border: none; font-size:45px; color: #212121;" disabled="disabled"/></td>
+  				
+  			</tr>
+  			
+  		</table>
+  		<input id="balance"  name="balance" th:value="${balance}"  style="display: none;" />
+  		 
+  		 
+  	</div>
+  	  <div class="col s12">
+  	  <a href="#" class="modal-action modal-close waves-effect" onclick="event.preventDefault(); editButton();" style="float:left; color: red;"> <i class="material-icons" style=" font-size: 50px;">cancel</i></a>
+  	  <a href="#"  onclick="enviar();" style="color: green; float: right;" > <i class="material-icons" style=" font-size: 50px;">check</i></a>
+  	 <input type="submit" id="enviarmodal" style="display: none;" value="Creditar"/>
+  	</div>
+  </div>
+  
+ </form >								
+</div> 
+
+
+
+
+
+
+<div id="modal5" class="modal" style=" width: 25% !important ; height: 35% !important ;  overflow-y: hidden !important ; background-color: #e8f5e9;">
+ 	
+  <div class="row">
+  <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat" style="float:right;">X</a>
+  </div>
+  <div class="center-align" >
+  <span  id="status"   th:text="${status}"> </span>
+  </div>
+  <div class="center-align"  >	   	   
+  	<a href="#"  style="color: green; "  th:if="${status != 'Saldo Insuficiente!'}" > 
+  	<i class="material-icons" style=" font-size: 120px;">check</i></a>
+  	<a href="#"  style="color: red; "  th:if="${status == 'Saldo Insuficiente!'}" > 
+  	<i class="material-icons" style=" font-size: 120px;">error_outline</i></a>
+  </div>	
+</div>
+
+
+
+
+
+
+
+
+<form th:action="@{/admin/consumo}" method="post" style="display: none;">
+	
+	<input type="text" th:value="${idbutton}" name="idbutton" id="idbutton"  />
+	<input type="text" th:value="${iduser}" name="iduser" id="iduser" />
+	<input type="submit" value="enviar" id="consumos" />
+</form>
+
+        </article>
+    </main>
+    
+
+ 
+</body>
+
+
+</html>

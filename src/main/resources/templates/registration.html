@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/off"
+	
+	>
+<head>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+	<title>Registration Form</title>
+	</head>
+<body>
+	<form th:action="@{/}" method="get">
+		<button class="btn btn-md btn-warning btn-block" type="Submit">Go To Login Page</button>
+	</form>	
+	
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.js"></script>
+
+<!-- 
+<h1>Upload to Cloudinary using only jQuery</h1>
+<div>
+<p>
+
+<label for="cloud_name">Cloud name: <input type="text" name="cloud_name" id="cloud_name"></label></p>
+</div>
+<form action="" id="upload">
+  <fieldset>
+    <legend>Upload example</legend>
+    <p>
+      <label for="upload_preset">Unsigned upload Preset: <input type="text" name="upload_preset" id="upload_preset">(set it <a href="https://cloudinary.com/console/settings/upload#upload_presets">here</a>)</label>
+    </p>
+    <p>
+      <label >Select your photo:
+      <input type="file" name="file" id="file"></label>
+    </p>
+    
+    <p>
+      <input type="submit" value="Submit" />
+    </p>
+  </fieldset>
+</form>
+ -->
+
+
+<main layout:fragment="content" class="container">
+        <section class="row">
+<style>
+textarea, input {
+  padding:10px;
+	font-family: FontAwesome, "Open Sans", Verdana, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}</style>
+	<div class="container">
+		<div class="row">
+				<form autocomplete="off" action="#" th:action="@{/registration}" id="myForm"
+					th:object="${user}" method="post" class="form-horizontal"
+					role="form">
+					<h3>Cadstre-se aqui</h3>
+					<input  id="hid" type="hidden" value="2"  name="hid" />
+					<div class="form-group" onclick="yesnoCheck();">
+						<label><input type="radio" name="document" id="yesStudent" checked  /><span>Aluno</span> </label>	
+						<label><input type="radio" name="document" id="yesVisitor"  /><span>Visitante</span>	</label>
+					</div>
+						
+					
+					<label th:if="${#fields.hasErrors('document')}" th:errors="*{document}"
+								class="validation-message"></label>
+					<div id="ifStudent" class="form-group">
+						
+						<div class="col s9">
+						
+						<input type="text" th:field="*{document}" placeholder="&#xf2c2; RA" id="ra"  onblur="chechdoc() ; verificaCampos(); "
+								class="form-control" />
+						</div>
+						<div class="col s1" style="margin-top: 10px;" id="docerror">
+							 <i class="material-icons" style="font-size: 30px;">error</i>
+						</div>
+						<div class="col s1" style="margin-top: 10px;" style="display: none;" id="docscs">
+							 <i class="material-icons" style="font-size: 30px;">check</i>
+						</div>
+					</div>
+					<div id="ifVisitor" style="display:none;" class="form-group">
+						
+						<div class="col s9">
+						
+						<input type="text" th:field="*{document}" placeholder="&#xf2c2; CPF" id="cpf" onblur="checkcpf(); verificaCampos(); "
+								class="form-control" /> 
+						</div>
+						<div class="col s2" style="margin-top: 10px;" id="cpferror">
+							 <i class="material-icons" style="font-size: 30px;">error</i>
+						</div>
+						<div class="col s2" style="margin-top: 10px;" style="display: none;" id="cpfscs">
+							 <i class="material-icons" style="font-size: 30px;">check</i>
+						</div>
+						
+					</div>
+					<div class="form-group">
+						
+						<div class="col s9">
+						
+						<label th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
+								class="validation-message"></label>
+						<input type="text" th:field="*{name}" placeholder="&#xf0f0; Nome" id="name" onblur="verificaCampos();"
+								class="form-control" /> 
+						</div>
+						
+					</div>
+
+				
+					<div class="form-group">
+					
+						<div class="col s9">
+							<input type="text" th:field="*{email}" placeholder="&#xf0e0; Email" id="email" onblur="checemail(); verificaCampos(); "
+								class="form-control" /> <label
+								th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+								class="validation-message"></label>
+						</div>
+						<div class="col s1" style="margin-top: 10px;" id="emailerror">
+							 <i class="material-icons" style="font-size: 30px;">error</i>
+						</div>
+						<div class="col s1" style="margin-top: 10px;" style="display: none;" id="emailscs">
+							 <i class="material-icons" style="font-size: 30px;">check</i>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col s9">
+							<input type="password" th:field="*{password}" id="pass" onblur="confirmPass(); verificaCampos();"
+								placeholder="&#xf084; Senha" class="form-control" /> <label
+								th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
+								class="validation-message"></label>
+						</div>
+					</div>
+					
+						<div class="form-group">
+						<div class="col s9">
+							<input type="password" name="confirm" id="confirm" onblur="confirmPass(); verificaCampos();  " 
+								placeholder="&#xf01e; Confirme a senha" class="form-control" /> <label
+								
+								class="validation-message"></label>
+						</div>
+						<div class="col s1" style="margin-top: 10px;" id="passerror">
+							 <i class="material-icons" style="font-size: 30px;">error</i>
+						</div>
+						<div class="col s1" style="margin-top: 10px;" style="display: none;" id="passscs">
+							 <i class="material-icons" style="font-size: 30px;">check</i>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col s9" onclick="submit();">
+							<button type="submit" class="btn btn-primary btn-block" id="botdb" disabled="disabled">Cadastrar</button>
+						</div>
+						
+					</div>
+					
+					<span th:utext="${successMessage}"></span>
+					
+					
+				</form>
+			</div>
+		</div>
+
+	</section>
+	</main>
+</body>
+</html>
+

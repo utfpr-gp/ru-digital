@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<main layout:fragment="content">
+        <article class="container" style="padding-top: 3%;">
+            <header class="row">
+                <div class="col s12">
+                    <h3 class="center">Register</h3>
+                    <h5 class="center">Sign up to the Java Forum</h5>
+                </div>
+            </header>
+            <section>
+               	<form autocomplete="off" action="#" th:action="@{/manager/product}"
+					th:object="${product}" method="post" class="form-horizontal"
+					role="form">
+					<h2>Registration Form</h2>
+					<div class="form-group">
+						<div class="col-sm-9">
+						<label th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
+								class="validation-message"></label>
+						<input type="text" th:field="*{name}" placeholder="Name"
+								class="form-control" /> 
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-9">
+						<label	th:if="${#fields.hasErrors('description')}" th:errors="*{description}"
+								class="validation-message"></label>
+							<input type="text" th:field="*{description}"
+								placeholder="Description" class="form-control" /> 
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-9">
+							<button type="submit" class="btn btn-primary btn-block">Cadastrar Produto</button>
+						</div>
+					</div>
+					
+					<span th:utext="${successMessage}"></span>
+					
+					
+				</form>
+            </section>
+        </article>
+    </main>
+</body>
+</html>

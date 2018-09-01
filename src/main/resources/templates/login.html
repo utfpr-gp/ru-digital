@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/off"
+	>
+
+<head>
+	<title>Spring Security Tutorial</title>
+
+ 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+	<main layout:fragment="content" class="container">
+        <section class="row">
+            <div class="col s12">
+		<img th:src="@{/images/login.jpg}" class="img-responsive center-block" width="300" height="300" alt="Logo" />
+		<form th:action="@{/login}" method="POST" class="form-signin">
+			<input type="text" id="email" name="email"  th:placeholder="Email"
+				class="form-control" /> <br/> 
+			<input type="password"  th:placeholder="Senha"
+				id="password" name="password" class="form-control" /> <br /> 
+				
+			<div align="center" th:if="${param.error}">
+				<p style="font-size: 20; color: #FF1C19;">Email or Password invalid, please verify</p>
+			</div>
+			<button class="btn btn-lg btn-primary btn-block" name="Submit" value="Login" type="Submit" th:text="Login"></button>
+		</form>
+	</div>
+	</section>
+	</main>
+</body>
+</html>
