@@ -36,6 +36,39 @@ public class UserServiceImpl implements UserService {
 
 	}
 
+	public void deleteUser(long id) {
+		User user = getOne(id);
+		System.out.println("DELETE USER!!!!!!!!!!!!");
+
+		System.out.println("NO MEIO --------------------------------------------");
+		Set<Role> roles = new HashSet<Role>();
+		List<Role> ro = roleRepository.findAll();
+		List<User> users = userRepository.findAll();
+		System.out.println("ANTES DO FOR");
+
+		for (User u : users) {
+			if (u.getId() == id) {
+				for (Role s : ro) {
+					System.out.println("DENTRO DO FOR");
+					if (s.getRole().equals("MANAGER")) {
+						roles.remove(s);
+						user.setActive(1);
+						System.out.println("TEM MANAGER");
+					}
+				}
+			}
+		}
+		user.setRoles(roles);
+		updateUser(user);
+		for (User u : users) {
+			if (u.getId() == id) {
+				userRepository.delete(u);
+			}
+		}
+		System.out.println("DELETE USER!!!!!!!!!!!!");
+
+	}
+
 	@PersistenceContext
 	private EntityManager manager;
 
@@ -46,6 +79,17 @@ public class UserServiceImpl implements UserService {
 
 	public List<User> findAll() {
 		return userRepository.findAll();
+	}
+
+	public List<User> findManager() {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
+		List<User> z = manager.createQuery("select p from User p join p.roles c where c.id = 3").getResultList();
+		for (int i = 0; i < z.size(); i++) {
+			System.out.println("EPRA");
+			System.out.println("AAAAA" + z.get(i).getName());
+		}
+
+		return z;
 	}
 
 	@Override
@@ -74,6 +118,9 @@ public class UserServiceImpl implements UserService {
 				+ x.getDocument());
 
 		x.setName(user.getName());
+		x.setEmail(user.getEmail());
+		x.setDocument(user.getDocument());
+		x.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userRepository.save(x);
 		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
 
@@ -87,14 +134,19 @@ public class UserServiceImpl implements UserService {
 		Set<Role> roles = new HashSet<Role>();
 		List<Role> ro = roleRepository.findAll();
 		Role r = roleRepository.findByRole("MANAGER");
+		System.out.println("ANTES DO FOR");
 		for (Role s : ro) {
+			System.out.println("DENTRO DO FOR");
 			if (s.getRole().equals("MANAGER")) {
 				roles.add(s);
 				user.setActive(1);
+				System.out.println("TEM MANAGER");
 			}
 		}
+		System.out.println("DEPOIS DO FOR");
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		user.setRoles(roles);
+		System.out.println("ROLES" + user.getRoles());
 		if (user.getActive() == 1)
 			userRepository.save(user);
 	}

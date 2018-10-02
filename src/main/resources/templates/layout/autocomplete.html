@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <title>RU Digital</title>
        <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
-
+  <link type="text/css" rel="stylesheet"  th:href="@{/sasscompiled/materialize-src/sass/materialize.css}"  media="screen,projection"/>
+	
+	
     <!-- Compiled and minified JavaScript -->
     <script type="text/javascript" th:src="@{/js/jquery-3.2.0.min.js}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
@@ -26,6 +27,28 @@
 <style>
 table, tr  {
 	border-bottom: 0px !important;
+}
+hr.style-eight:after {
+    content: "§";
+    /* display: inline-block; */
+    position: relative;
+    top: -0.9em;
+    font-size: 1.5em;
+    padding: 0 0.25em;
+    background: #F5F4F4;
+    
+}
+
+hr.style-seven:after {
+    background: #EBE9E9;
+}
+hr.style-eight {
+    overflow: visible;
+    padding: 0;
+    border: none;
+    border-top: medium double #ffc107;
+    color: #ffc107;
+    text-align: center;
 }
 .page-footer .footer-copyright{
 color: black;
@@ -60,7 +83,7 @@ function pegarImagem(){
 	alert();
 }
 $(document).ready(function() {
-	$('#modal6').modal();
+
 	 var x = document.getElementById('logado').value;
 	 $.ajax({
 	   	    type : "GET",
@@ -74,21 +97,21 @@ $(document).ready(function() {
 	   	});
 	$('#modal4').modal();
 	$('#modal5').modal();
-	
+	$('#modal6').modal();
 	$("#busca").click(function() {  
 		$("#enviarbuscar").click ();
 	});
 	$("#creditos").click(function() {
 		var  el = document.getElementById('creditos');
-		 if ( $( this ).hasClass( "ativo" ) )
-			document.getElementById("creditos").classList.remove("ativo");
-		else
-			document.getElementById("creditos").classList.add("ativo");
-		 document.getElementById("consumo").classList.remove("ativo");
+		
 		$("#showconsumo").css("display","none");
 		var disp = document.getElementById('showcreditos').style.display;
 		
-		$("#outro").maskMoney();
+		 $("#outro").maskMoney({
+	         decimal: ",",
+	         thousands: ".",
+	         numeralMaxLength: true
+	     });
 		
 		 if (disp === ""){
 				$("#showcreditos").css("display","none");
@@ -102,12 +125,13 @@ $(document).ready(function() {
 		 }
 	});
 	 $("#consumo").click(function() {
-		 if ( $( this ).hasClass( "ativo" ) )
-				document.getElementById("consumo").classList.remove("ativo");
-			else
-				document.getElementById("consumo").classList.add("ativo");
+		
 		 document.getElementById("creditos").classList.remove("ativo"); 
-		 $("#outrodebito").maskMoney();
+		 $("#outrodebito").maskMoney({
+	         decimal: ",",
+	         thousands: ".",
+	         numeralMaxLength: true
+	     });
 		 $("#showcreditos").css("display","none");
 		var disp = document.getElementById('showconsumo').style.display;
 		 if (disp === ""){
@@ -184,10 +208,10 @@ $(document).ready(function(){
             <div class="container">
            <input  th:value="${#authentication.name}" id="logado"  style="display: none;"/>  
                 <ul id="nav-left" class="left hide-on-med-and-down">
-                    <li><a th:href="@{'/admin'}">Conta</a></li>
+                    <li><a th:href="@{'/manager'}">Conta</a></li>
                     <li><a th:href="@{'/admin/registermanager'}">Cadastrar Gerentes</a></li>
-                    <li><a th:href="@{'/admin/controle'}">Controle</a></li>
-                    <li><a th:href="@{'/admin/botoes'}">Botoes</a></li>
+                    <li><a th:href="@{'/manager/controle'}">Controle</a></li>
+                    <li><a th:href="@{'/manager/botoes'}">Botoes</a></li>
                 </ul>
                 <ul id="nav-right" class="right hide-on-med-and-down">
    				

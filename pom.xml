@@ -102,6 +102,28 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+         
+            
+		       <plugin>
+			         <groupId>com.github.warmuuh</groupId>
+			         <artifactId>libsass-maven-plugin</artifactId>
+			          <version>0.2.10-libsass_3.5.3</version>
+			         <executions>
+			            <execution>
+			               <phase>generate-resources</phase>
+			               <goals>
+			                  <goal>compile</goal>
+			               </goals>
+			            </execution>
+			         </executions>
+			         <configuration>
+			            <inputPath>${project.basedir}/src/main/resources/static/css/</inputPath>
+			            <outputPath>${project.basedir}/src/main/resources/static/sasscompiled/</outputPath>
+			          
+			         </configuration>
+		      </plugin>
+            
+            
 		</plugins>
 	</build>
 

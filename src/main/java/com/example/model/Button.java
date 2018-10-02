@@ -23,6 +23,17 @@ public class Button {
 	@NotEmpty(message = "*Por favor, informe o nome do botão")
 	private String name;
 
+	@Column(name = "outros")
+	private Boolean outros;
+
+	public Boolean getOutros() {
+		return outros;
+	}
+
+	public void setOutros(Boolean outros) {
+		this.outros = outros;
+	}
+
 	public BigDecimal getValue() {
 		return value;
 	}

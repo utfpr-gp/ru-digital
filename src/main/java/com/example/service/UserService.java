@@ -18,4 +18,8 @@ public interface UserService {
 	public void updateUser(User user);
 
 	public void saveManager(User user);
+
+	public void deleteUser(long id);
+
+	public List<User> findManager();
 }

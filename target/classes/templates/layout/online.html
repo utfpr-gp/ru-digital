@@ -6,14 +6,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <title>RU Digital</title>
-      <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
-
+    
+    <link type="text/css" rel="stylesheet"  th:href="@{/sasscompiled/materialize-src/sass/materialize.css}"  media="screen,projection"/>
+	
+		
     <!-- Compiled and minified JavaScript -->
     <script type="text/javascript" th:src="@{/js/jquery-3.2.0.min.js}"></script>
  
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
     <script type="text/javascript" th:src="@{/js/jquery.autocomplete.js}"></script>
+    
+        <script type="text/javascript" th:src="@{/js/dynatable.js}"></script>
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.js"></script>
+    
+    
+    
+    
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
 <style>
 table, tr  {
@@ -66,10 +75,16 @@ height: 100px !important;
 }
 
 </style>
-<script>
-  
-$(document).ready(function() {
 
+<script>
+
+jQuery(function($){
+	   $("#cpf").mask("999.999.999-99");
+	});
+$(document).ready(function() {
+	 $('#id').val(-1);
+	$('#my-table').dynatable();
+	$("#dynatable-query-search-my-table").attr("placeholder", " Buscar gerentes").blur();
 	$('#email').autocomplete({
 		serviceUrl: 'getlist',
 		paramName: "tagName",
@@ -104,6 +119,7 @@ $(document).ready(function() {
 	  $('#modal3').modal();
 	  $('#modal4').modal();
 	  $('#modal5').modal();
+	  $('#modalgerente').modal();
 	});
 function modal2(){
 	alert("OI");
@@ -120,8 +136,8 @@ function modal2(){
                 <ul id="nav-left" class="left hide-on-med-and-down">
                     <li><a th:href="@{'/admin'}">Conta</a></li>
                     <li><a th:href="@{'/admin/registermanager'}">Cadastrar Gerentes</a></li>
-                    <li><a th:href="@{'/admin/controle'}">Controle</a></li>
-                    <li><a th:href="@{'/admin/botoes'}">Botoes</a></li>
+                    <li><a th:href="@{'/manager/controle'}">Controle</a></li>
+                    <li><a th:href="@{'/manager/botoes'}">Botoes</a></li>
                 </ul>
                 <ul id="nav-right" class="right hide-on-med-and-down">
    

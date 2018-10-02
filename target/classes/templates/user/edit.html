@@ -2,23 +2,30 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/user">
 <head>
     <title th:text="${status}">404</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   
 </head>
-<style>
-	
-</style>
+
 <body>
 
-
+    
+    <style>
+textarea, input {
+  padding:10px;
+	font-family: FontAwesome, "Open Sans", Verdana, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}</style>
     <main layout:fragment="content" class="">
-    <div class="row">
+
+        <section class="row container">
+       <div class="row">
     	 <h3 style="margin-bottom: 0px;">EDITAR CONTA</h3>
          <hr  class="col s3  style-eight" >
     </div>
-        <section class="row container">
-       
             <div class="col s10 offset-s2">
-				<div class="col s9 offset-s3">
+				<div class="col s8 offset-s4">
 					<form action="#" th:action="@{/user/edit/test}" enctype="multipart/form-data"  method="post"> 
 						<input class="upload_form" type="file" id="arquivo" name="arquivo" style="display: none;"/>
 						<img  style="cursor: pointer;"
@@ -41,11 +48,14 @@
                 <table style="width:60%" th:each="u: ${user}" >
 				  <tr>
 				   <td style="font-weight: bold;" >Nova Senha</td>
-				   <td ><input type="password"  name="password"  /></td>
+				   <td style="width: 10px;"><span class="fa fa-user-secret "></span> </td>
+				   <td ><input type="password"   name="password"  /></td>
 								      
 				  </tr>
 				  <tr>
 				   <td style="font-weight: bold;" >Confirmar Senha</td>
+				    <td style="width: 10px;"><span class="fa  fa-refresh "></span> </td>
+				 
 				   <td  ><input  type="password" name="confirm" /></td>
 								      
 				  </tr>

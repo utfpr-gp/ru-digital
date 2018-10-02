@@ -3,27 +3,246 @@
 <head>
     <meta charset="utf-8"/>
     <title>Register | JF</title>
+
 </head>
+
 <body>
+
+
     <main layout:fragment="content">
+        <script th:inline="javascript">
+        
+/*<![CDATA[*/
+function removeGerente(id){
+
+	$.ajax({
+   	    type : "GET",
+   	    url : "/admin/manager/deletar",
+   	    data : {
+   	    "id" : id
+   	    },
+   	    success: function(){
+   	    	var link = "http://localhost:8090/admin/registermanager";    
+   	        $(location).attr('href',link); 
+   	    }
+   	});
+}
+	$(document).ready(function(){
+		var mostrar = /*[[${successMessage}]]*/ 'default';
+		if (mostrar == "editado" ){ 
+			zerarform();
+			 $('#modalgerente').modal('open');
+			 $('#editado').css("display", "block");
+		}
+		if ( mostrar == "cadastrado"){
+			zerarform();
+			 $('#modalgerente').modal('open');
+			 $('#cadastrado').css("display", "block");
+		}
+		});
+function editar(id){
+	
+	 $(window).scrollTop(0);
+	
+	$('.senhas').css("display", "none");
+	$('#eds').css("display", "block");
+	 $('.validation-message').css("display", "none");
+	 $('#id').val(id);
+	$.ajax({
+   	    type : "GET",
+   	    url : "/findmanager",
+   	    data : {
+   	    "id" : id
+   	    },
+   	    success: function(data){
+   	    	
+   	    
+   	  	 $('#name').val(data[1]);
+	   	 $('#email').val(data[2]);
+	   	 $('#cpf').val(data[3]);	   	
+  	 	 
+   	    }
+   	});
+}
+function mosesc(){
+	
+	if($('.senhas:visible').length == 0)
+	{
+		$('.senhas').css("display", "block");
+	}
+	else
+		$('.senhas').css("display", "none");
+}
+function zerarform(){
+	$('#eds').css("display", "none");
+	$('.senhas').css("display", "block");
+	 $('.validation-message').css("display", "none");
+	$('#id').val("-1");
+	$('#name').val("");
+	$('#email').val("");
+	$('#cpf').val("");
+}
+/*]]>*/
+</script>
+    <link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+	rel="stylesheet">
+	   <style>
+	   textarea, input {
+  padding:10px;
+	font-family: FontAwesome, "Open Sans", Verdana, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}
+table {
+    width: 40em;
+    margin: 2em auto;
+}
+
+thead {
+    background: #ffc107;
+    color: #000 ;
+    border: 5px solid black;
+
+}
+
+td {
+    width: 10em;
+    padding: 0.3em;
+}
+
+tbody {
+    background: #ccc;
+}
+
+tbody tr td{
+
+ border: 4px solid white;
+}
+
+div.pager {
+    text-align: center;
+    margin: 1em 0;
+}
+
+
+div.pager span {
+    display: inline-block;
+    width: 1.8em;
+    height: 1.8em;
+    line-height: 1.8;
+    text-align: center;
+    cursor: pointer;
+    background: #000;
+    color: #fff;
+    margin-right: 0.5em;
+}
+
+div.pager span.active {
+    background: #c00;
+}
+
+th{
+	
+}
+
+th a {
+  color: #000;
+}
+th a:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+.dynatable-search {
+  float: right;
+  margin-bottom: 10px;
+}
+
+.dynatable-pagination-links {
+  float: right;
+}
+
+.dynatable-record-count {
+  display: block;
+  padding: 5px 0;
+}
+
+.dynatable-pagination-links span,
+.dynatable-pagination-links li {
+  display: inline-block;
+}
+
+.dynatable-page-link,
+.dynatable-page-break {
+  display: block;
+  padding: 5px 7px;
+}
+
+.dynatable-page-link {
+  cursor: pointer;
+}
+
+.dynatable-active-page,
+.dynatable-disabled-page {
+  cursor: text;
+}
+.dynatable-active-page:hover,
+.dynatable-disabled-page:hover {
+  text-decoration: none;
+}
+
+.dynatable-active-page {
+  background: #71AF5A;
+  border-radius: 5px;
+  color: #fff;
+}
+.dynatable-active-page:hover {
+  color: #fff;
+}
+.dynatable-disabled-page,
+.dynatable-disabled-page:hover {
+  background: none;
+  color: #999;
+}
+.dynatable-search{
+	float: left;
+}
+.dynatable-search {
+	margin-bottom: 0;
+}
+</style>
+
     <div class="row">
-    	 <h3 style="margin-bottom: 0px;" >CADASTRAR GERENTE</h3>
-         <hr  class="col s5  style-eight" >
-    </div>
-    <div class="row">
-    
-        <article class="container col s6 offset-s3" style="padding-top: 3%;">
-           
-            <section>
+ 
+        <article class="container" >
+            <div class="row">
+		    	 <h3 style="margin-bottom: 0px;" >CADASTRAR GERENTE</h3>
+		    	 
+		         <hr  class="col s6  style-eight" >
+    		</div>
+            <section class=" col s12" style="padding-top: 3%;">
                	<form autocomplete="off" action="#" th:action="@{/admin/registermanager}"
 					th:object="${user}" method="post" class="form-horizontal"
 					role="form">
-
+					<div class="form-group">
+					<div class="col-sm-9">
+					<input type="text" th:field="*{id}" style="display: none;"
+							placeholder="&#xf2c2; id" id="id"
+							class="form-control" />
+						<label th:if="${#fields.hasErrors('document')}" th:errors="*{document}" 
+								class="validation-message"></label>
+						<input type="text" th:field="*{document}" 
+							placeholder="&#xf2c2; CPF" id="cpf"
+							class="form-control" />
+					</div>
+					</div>
 					<div class="form-group">
 						<div class="col-sm-9">
 						<label th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
 								class="validation-message"></label>
-						<input type="text" th:field="*{name}" placeholder="Nome"
+						<input type="text" th:field="*{name}" placeholder="&#xf0f0; Nome"
 								class="form-control" /> 
 						</div>
 					</div>
@@ -31,31 +250,106 @@
 					
 					<div class="form-group">
 						<div class="col-sm-9">
-							<input type="text" th:field="*{email}" placeholder="Email"
+							<input type="text" th:field="*{email}" placeholder="Email" id="email" placeholder="&#xf0e0; Email"
 								class="form-control" /> <label
-								th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+								th:if="${#fields.hasErrors('email')}" th:errors="*{email}" 
 								class="validation-message"></label>
 						</div>
 					</div>
-					<div class="form-group">
+					<div class="form-group senhas">
 						<div class="col-sm-9">
 							<input type="password" th:field="*{password}"
-								placeholder="Senha" class="form-control" /> <label
+								placeholder="&#xf084; Senha" class="form-control" /> <label
 								th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
 								class="validation-message"></label>
 						</div>
 					</div>
-
-					<div class="form-group">
+					<div class="form-group senhas">
 						<div class="col-sm-9">
-							<button type="submit" style="float:right;" class="btn btn-primary btn-block">Cadastrar</button>
+							<input type="password" name="confirm" id="confirm"
+							onblur=" "
+							placeholder="&#xf01e; Confirme a senha" class="form-control" />
+						<label class="validation-message"></label>
 						</div>
 					</div>
+					<div class="form-group">
+						<div class="col-sm-9">
+						<a href="#" id="eds" onclick="mosesc();" class="brand-logo" style="display: none; font-size: 22px;">Editar senha</a>
+						</div>
+					</div>
+
+					<div class="form-group" style="margin-top: 40px;">
+						<div class="col-sm-9">
+						  <button class="btn waves-effect waves-light" onclick="zerarform();"  style="float:left;" type="button" name="action">Novo
+						    <i class="material-icons right">add</i>
+						  </button>
+						  
+						  
+						  <button class="btn waves-effect waves-light"  style="float:right;" type="submit" name="action">Enviar
+						    <i class="material-icons right">send</i>
+						  </button>
+					</div>
+					</div>
 					
-					<span th:utext="${successMessage}"></span>
+					
+					<span th:value="${successMessage}" id="sm"></span>
 					
 					
 				</form>
+				
+
+
+
+
+
+
+            </section>
+            <section  class = "col s7 offset-s2">
+   <table th:if="${managers != null}" border="1" id="my-table" class="highlight" style="width: 120%; max-width: 1000px; table-layout: fixed;">
+    <thead>
+        <tr >
+       	    <th class="center">Documento</th>
+            <th class="center">Nome</th>
+            <th class="center">Email</th>
+            <th class="center">Ação</th>
+        </tr>
+    </thead>
+    <tbody >
+    	<tr th:each="m: ${managers}">
+    	<span  style="display: none;" class="truncate" th:text="${m.getId()}"  th:id="${m.getId()}" ></span>
+    		<td><span class="truncate"  th:text="${m.getDocument()}" ></span></td>
+	    	<td><span class="truncate"  th:text="${m.getName()}" ></span></td>
+	    	<td><span class="truncate" th:text="${m.getEmail()}" ></span></td>
+	    	
+	    	<td> <a class="waves-effect waves-light btn" style="float: left; background-color: #43a047;"  th:onclick="'javascript:editar(' + ${m.id} +');'"   ><i class="material-icons left">edit</i>
+            <a class="waves-effect waves-light btn"  th:onclick="'javascript:removeGerente(' + ${m.id} +');'"  style="float: right; background-color: #e53935;">
+              
+					
+             <i class="material-icons left">remove</i> </a>   </td>
+    	</tr>
+      
+    </tbody>
+</table>
+
+
+
+
+<div id="modalgerente" class="modal"
+				style="width: 40% !important; height: 45% !important; overflow-y: hidden !important; background-color: #e8f5e9;">
+
+				<div class="row">
+					<a href="#!"
+						class=" modal-action modal-close waves-effect waves-green btn-flat"
+						style="float: right;">X</a>
+				</div>
+				<div class="center-align">
+					<span id="status" th:text="${status}"> </span>
+				</div>
+				<div class="center-align">
+					<p style="display: none; font-size: 30px; font" id="editado">Gerente Editado com Sucesso!</p>
+					<p style="display: none; font-size: 30px; "  id="cadastrado">Gerente Cadastrado com Sucesso!</p>
+				</div>
+			</div>
             </section>
         </article>
         </div>

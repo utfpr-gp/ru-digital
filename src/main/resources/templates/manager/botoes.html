@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/online">
+<head>
+    <meta charset="utf-8"/>
+    <title>Register | JF</title>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+   <style>
+
+table.striped > tbody > tr:nth-child(odd) {
+  background-color: rgba(170, 213, 213, 0.5);
+}
+
+</style>
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    function abrirModal1(){
+    	$('#modal1').modal('open'); 
+    	$("#value").maskMoney({
+	         decimal: ",",
+	         thousands: ".",
+	         numeralMaxLength: true
+	     });
+    }	
+ 	function validateMyForm(){
+    		alert("ANTES");
+		  return false;
+		}
+ 	
+    function editButton(){
+    	var id = document.getElementById("aux").value;
+    	var name = document.getElementById("editname").value ;
+    	var value = document.getElementById("editvalue").value;
+    	
+    	 if (document.getElementById("editname").value === "" && document.getElementById("editvalue").value === ""){		 
+		    	document.getElementById("editname").style.border = "thick solid red";
+		    	document.getElementById("editvalue").style.border = "thick solid red";
+			    return false;
+		    }
+		    else if (document.getElementById("editname").value === ""){
+		    	document.getElementById("editvalue").style.border = null;
+		    	document.getElementById("editname").style.border = "thick solid red";
+		    	return false;
+		    }
+		    else if (document.getElementById("editvalue").value === ""){
+		    	document.getElementById("editname").style.border = null;
+		    	document.getElementById("editvalue").style.border = "thick solid red";
+		    	return false;
+		    }  	
+		   
+    	
+    	$.ajax({
+	   	    type : "GET",
+	   	    url : "/change",
+	   	    data : {
+	   	    "id" : id,
+	   	    "name" : name,
+	   	    "value" : value
+	   	    },
+	   	    success: function(){
+	   	    	
+	   	    	var link = "http://localhost:8090/manager/botoes";
+	   	     	
+	   	     	
+	   	     var link = "http://localhost:8090/manager/botoes";
+	   	  	$('#modal5').modal('open');
+	   	 	$('#modal4').modal('close');
+	   	 	
+		   	 $(document).click(function() {
+		   	 $(location).attr('href',link); 
+		   	});
+		   	
+		   	 $("#fechar1").click(function(event) {
+			   	 $(location).attr('href',link);
+			   	    event.stopPropagation();
+			   	});
+		   	 $("#modal5").click(function(event) {
+		   	    event.stopPropagation();
+		   	});
+		   	 
+		   	 
+		   	 /*setTimeout(function () {
+		   		$(location).attr('href',link); 
+		     }, 3000); */
+	   	         
+	   	    
+	   	    }
+	   	});
+    }
+    
+    function deleteButton(){
+    	var id = document.getElementById("aux").value;
+    	alert("OK" +id);
+    	$.ajax({
+	   	    type : "GET",
+	   	    url : "/deletbutton",
+	   	    data : {
+	   	    "id" : id
+	   	    },
+	   	    success: function(){
+	   	    	
+	   	    	var link = "http://localhost:8090/manager/botoes";    
+	   	        $(location).attr('href',link); 
+	   	        
+	   	    }
+	   	});
+    }
+    
+    	function informacaoBotao(id){
+    		   	$.ajax({
+    		   	    type : "GET",
+    		   	    url : "/check",
+    		   	    data : {
+    		   	    "id" : id
+    		   	    },
+    		   	    success: function(data){
+    		   	     var mostrar = /*[[${bt}]]*/ 'default';
+    		   	    $('#modal4').modal('open');
+    		   	 	aux = "";
+    	       		 document.getElementById("aux").value = id;
+    	       		document.getElementById("editname").value = data.name;
+    	       		var k = data.value + "";
+    	       		var g = true;
+    	       		if (k.indexOf(".") !== -1)
+    	       			g = false;
+    	       		if (g)
+    	       			aux = ".00";
+    	       		var last2 = k.slice(-2);
+    	       		for (i=1; i<10; i++){
+    	       			var p = "."+ i;
+    	       			if (p == last2)
+    	       				aux = "0";
+    	       		}
+    	       		document.getElementById("editvalue").value = data.value + aux;
+    	       		$("#editvalue").maskMoney();
+    		   	    }
+    		   	});
+    		   	
+    		
+    	}
+    	function enviarform(e){
+	    		var newdois = '';
+				z = document.getElementById("value").value.split('.').join(newdois);	
+				z = z.split(',').join(".");	
+				document.getElementById("value").value = z;
+    		    if (document.getElementById("name").value === "" && document.getElementById("value").value === ""){
+    		 
+    		    	document.getElementById("name").style.border = "thick solid red";
+    		    	document.getElementById("value").style.border = "thick solid red";
+    		    }
+    		    else if (document.getElementById("name").value === ""){
+    		    	document.getElementById("value").style.border = null;
+    		    	document.getElementById("name").style.border = "thick solid red";
+    		    }
+    		    else if (document.getElementById("value").value === ""){
+    		    	document.getElementById("name").style.border = null;
+    		    	document.getElementById("value").style.border = "thick solid red";
+    		    }  	
+    		    else if (document.getElementById("name").value != "" && document.getElementById("value").value != ""){
+    		    	 return true; 
+    		    }
+    		    e.preventDefault();
+    		    return false; 
+    	   	}
+    $(document).ready(function() {		
+    	 var mostrar = /*[[${mostrar}]]*/ 'default';
+    	 if(mostrar != null && mostrar.valueOf()  != 'default' ){
+    			 $('#modal2').modal('open');
+		  }    		
+    });
+    /*]]>*/
+    </script>
+    
+    <style>
+table {
+    border-collapse: separate !important;
+}
+th, td {
+    padding: 0;
+}
+td{
+	padding-right: 35px !important;
+}
+</style>
+</head>
+<body>
+
+    <main layout:fragment="content">
+    		<header class="row">
+                <div class="col s5">
+                    <h3 style="border-left: 6px solid #ffc107;border-bottom: 6px solid #ffc107;" >Botoẽs Personalizados</h3>		
+				</div>
+            </header>
+        <article class="container" style="padding-top: 3%;">
+            
+            <section >
+        		
+				
+				<h5>Criar botão para consumo</h5>
+			
+				
+				<a class="light-blue accent-2 btn-large "  onclick="abrirModal1();"><i class="material-icons right">add</i>Novo Botão</a>
+ 				<h5>Botoẽs de Consumo</h5>
+ 				<div class="row"  >
+ 					<div th:each="b: ${buttons}">
+ 					<div th:if="${b.getOutros() == null}">
+ 					
+	 				<a th:id="${b.getId()}" class="light-blue accent-2 btn-large col s3  "   onclick="informacaoBotao(this.id);"><span th:text="${b.getName()}" ></span><i class="material-icons right">restaurant</i></a>
+	            	<p class="col s1" style= "margin-bottom: 10%;"></p>
+	            	</div>
+	            	</div>
+            	</div>
+            	
+            	
+<table class="striped">
+<thead>
+  <tr>
+      <th></th>
+      <th>Nome</th>
+      <th>Valor</th>
+      <th>Ações</th>
+  </tr>
+</thead>
+
+<tbody>
+  <tr th:each="b: ${buttons}">
+  
+    <td><input id="aux" th:value="${b.getId()}" style= "display:none;"/>  <i class="material-icons">crop_landscape</i></td>
+    <td><span th:text="${b.getName()}" ></span></td>
+     <td><span th:text="${b.getValue()}" ></span></td>
+     <td>  <a href="#" onclick="event.preventDefault(); editButton();" style="float:left;"> <i class="material-icons">edit</i></a>
+  	  <a href="#" onclick="event.preventDefault(); deleteButton();" style="color: red; float: right;" > <i class="material-icons">delete</i></a>
+  	 </td>
+  </tr>     
+</tbody>
+</table>
+            	
+            	
+            	</section>
+
+<div id="modal1" class="modal">
+  <div class="modal-content">
+    <h4 class="center">Novo Botao</h4>
+         	<form autocomplete="off" action="#" th:action="@{/manager/botoes/novo}" method="post" th:object="${button}" role="form">
+					<div class="form-group">
+						<div class="col-sm-9">
+						
+						<input type="text" th:field="*{name}" id="name" placeholder="Nome"
+								class="form-control" /> 
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="col-sm-9">
+						<input type="text" th:field="*{value}" id="value" maxlength="7" placeholder="Valor"
+								class="form-control" /> 
+						</div>
+					</div>
+					<div class="row" style="margin-top: 3%;">
+					<div class="col s6 offset-s4">
+							<button  class="btn btn-primary btn-block " id="enviarf" onclick="enviarform(event);">Cadastrar</button>
+						<button type="submit"   style="display:none;"></button>
+					</div>
+					</div>
+				</form>
+  </div>
+
+</div>  
+
+
+
+<div id="modal2" class="modal" style=" width: 25% !important ; height: 30% !important ;  overflow-y: hidden !important ;">
+  <div class="row">
+  <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat" style="float:right;">X</a>
+  </div>
+  <div class="row">
+  	<div class="col s4 offset-s4">
+  	 <i class="material-icons" style="font-size: 80px; color: #1b5e20;">done</i>
+  	</div>
+  	  <div class="col s11 offset-s1">
+  	<p >Botao cadastrado com sucesso!</p>
+  	</div>
+  </div>							
+</div> 
+
+
+<div id="modal3" class="modal" style=" width: 35% !important ; height: 35% !important ;  overflow-y: hidden !important ;" >
+  <div class="row">
+  <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat" style="float:right;">X</a>
+  </div>
+  <div class="row">
+  	<div class="col s4 offset-s5">
+  	 <i class="material-icons" style="font-size: 480%; color: red;">error_outline</i>
+  	</div>
+  	  <div class="col s11 offset-s1">
+  	<p>Botao nao cadastrado. Verifique os campos informados</p>
+  	</div>
+  </div>							
+</div>  
+
+<div id="modal4" class="modal" style=" width: 25% !important ; height: 30% !important ;  overflow-y: hidden !important ;">
+ 	
+  <div class="row">
+  <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat" style="float:right;">X</a>
+  </div>
+  <form autocomplete="off" action="#" th:action="@{/manager/botoes/editar}" method="post" th:object="${button}" role="form">
+  <div class="row">
+  <input id="aux" value="" style= "display: none;"/>
+  	<div class="col s12">
+  		<table  cellspacing="0" cellpadding="0">
+  			<tr>
+  				<td ><i class="material-icons">comment</i></td>
+  				<td><input id="editname" value="" /></td>
+  			</tr>
+  			<tr>
+  				<td><i class="material-icons">attach_money</i></td>
+  				<td><input id="editvalue" value="" /></td>
+  			</tr>
+  			
+  		</table>
+  		
+  		 
+  		 
+  	</div>
+  	  <div class="col s9 offset-s2">
+  	  <a href="#" onclick="event.preventDefault(); editButton();" style="float:left;"> <i class="material-icons">edit</i></a>
+  	  <a href="#" onclick="event.preventDefault(); deleteButton();" style="color: red; float: right;" > <i class="material-icons">delete</i></a>
+  	 
+  	</div>
+  </div>
+  
+ </form>								
+</div> 
+
+
+<div id="modal5" class="modal" style=" width: 25% !important ; height: 30% !important ;  overflow-y: hidden !important ;">
+  <div class="row">
+  <a href="#!" id="fechar1" class=" modal-action modal-close waves-effect waves-green btn-flat" style="float:right;">X</a>
+  </div>
+  <div class="row">
+  	<div class="col s4 offset-s4">
+  	 <i class="material-icons" style="font-size: 80px; color: #1b5e20;">done</i>
+  	</div>
+  	  <div class="col s11 offset-s1">
+  	<p >Botao editado com sucesso!</p>
+  	</div>
+  </div>							
+</div> 
+   
+            
+        </article>
+    </main>
+</body>
+
+</html>
