@@ -7,6 +7,8 @@ import com.example.model.Button;
 public interface ButtonService {
 	public List<Button> findAll();
 
+	public List<String> diferentButtons();
+
 	public void saveButton(Button button);
 
 	public void deletButton(Button button);

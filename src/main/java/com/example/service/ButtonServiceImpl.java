@@ -2,6 +2,9 @@ package com.example.service;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,4 +36,13 @@ public class ButtonServiceImpl implements ButtonService {
 		buttonRepository.delete(button);
 	}
 
+	@PersistenceContext
+	private EntityManager manager;
+
+	public List<String> diferentButtons() {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
+		List<String> z = manager.createQuery("select distinct e.name from Button e ").getResultList();
+
+		return z;
+	}
 }

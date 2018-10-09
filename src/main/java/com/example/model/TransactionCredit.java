@@ -62,6 +62,28 @@ public class TransactionCredit {
 	@Column(name = "value")
 	private BigDecimal value;
 
+	@Column(name = "milis")
+	private long milis;
+
+	public long getMilis() {
+		return milis;
+	}
+
+	public void setMilis(long milis) {
+		this.milis = milis;
+	}
+
+	@Column(name = "data")
+	private String data;
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
+	}
+
 	@Column(name = "operator")
 	private String operator;
 

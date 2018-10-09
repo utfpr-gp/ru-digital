@@ -59,18 +59,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/").permitAll().antMatchers("/login").permitAll()
 
 				.antMatchers("/emailexists").permitAll().antMatchers("/userexists").permitAll()
-				.antMatchers("/registration").permitAll().antMatchers("/admin/**").hasRole("ADMIN").anyRequest()
-				.authenticated().anyRequest().authenticated().and().csrf().disable().formLogin()
+				.antMatchers("/email-send/{id}").permitAll().antMatchers("/registration").permitAll()
+				.antMatchers("/manager/**").access("hasRole('ROLE_MANAGER')").antMatchers("/admin/**").hasRole("ADMIN")
+				.anyRequest().authenticated().anyRequest().authenticated().and().csrf().disable().formLogin()
 				.successHandler(successHandler).loginPage("/login").failureUrl("/login?error=true")
 				.usernameParameter("email").passwordParameter("password").and().logout()
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/").and()
 				.exceptionHandling().accessDeniedPage("/403");
-		http.authorizeRequests().antMatchers("/ttt/**").hasAuthority("USER").anyRequest().authenticated().and()
-				.exceptionHandling().accessDeniedPage("/403");
-		http.authorizeRequests().antMatchers("/user/**").hasAuthority("USER").anyRequest().authenticated().and()
-				.exceptionHandling().accessDeniedPage("/403");
-		http.authorizeRequests().antMatchers("/manager/**").hasAuthority("MANAGER").anyRequest().authenticated().and()
-				.exceptionHandling().accessDeniedPage("/403");
+
 	}
 
 	@Bean

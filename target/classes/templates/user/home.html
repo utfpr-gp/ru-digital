@@ -16,8 +16,19 @@
         
             <div class="col s9 offset-s3">
 
-                
+     <div class="col s12 m6">
+      <div class="card blue lighten-2">
+       <div class="card-content white-text"  style="padding-top: 3px !important; padding-left: 5px; padding-bottom: 35px !important; ">
+           <span class="card-title" style="color: white; margin:3px;">Saldo Atual:</span>
+      
+          <span style="font-size: 20px; float:right;" class="title"th:text="'R$' + ${user.getBalance()}"></span>
+        </div>
+        
+      </div>
+    </div>
+
                 <table style="width:50%" th:each="u: ${user}" >
+				  
 				  <tr>
 				    <td><i class="material-icons">perm_identity</i></td>
 				    <td style="font-weight: bold;">

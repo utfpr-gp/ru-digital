@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/user">
+<head>
+    <title th:text="${status}">404</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    
+</head>
+
+<body>
+
+   
+
+    <main layout:fragment="content" class="">
+
+          
+        <section class="row container">
+<style>
+textarea, input {
+  padding:10px;
+	font-family: FontAwesome, "Open Sans", Verdana, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+    
+}
+.result-selected{
+	display: none !important;
+}
+
+</style>
+       <div class="row">
+    	 <h3 style="margin-bottom: 0px;">EXTRATO</h3>
+         <hr  class="col s3  style-eight" >
+    </div>
+    
+    <div class="row"  style="padding-top: 3%;">
+		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >FILTRO DO EXTRATO</h5>
+		    	 <hr style="" class="col s4  style-eight" >
+ </div>
+    <div  class = "col s12">
+ <form th:action="@{/user/extrato/filtro}" style="display: none;">
+ <input type="text" name="name" id="name"
+								th:value="${name}"  />
+<input type="text" name="operator" id="operator" th:value="${operator}"  />
+<input type="text" name="type" id="type" th:value="${type}"  />
+<input type="text" name="dataini" id="dataini" th:value="${dataini}"  />
+<input type="text" name="datafim" id="datafim" th:value="${datafim}"  />
+<input type="submit" value="Search" id="enviarbuscar" onmouseover="passForm();"
+												/>
+</form>
+ 	<div class="row">
+			<div class ="col s6 offset-s5">
+				<span style="font-weight: bold;">Período por data</span>
+			</div>
+		</div>
+		<div class="row">
+		
+			<div class ="col s3 offset-s3">
+			<input type="text" class="datepicker" id="datepicker1" placeholder="Data Inicial">
+			</div>
+			<div class ="col s3 ">
+			<input type="text" class="datepicker" id="datepicker2"  placeholder="Data Final" >
+			</div>
+		</div>
+		<div class="row">
+			<div class ="col s6 offset-s5">
+				<span style="font-weight: bold;">Nome do extrato</span>
+			</div>
+		</div>
+		<div class ="col s6 offset-s3">
+		 <select th:field="*{buttons}" data-placeholder="Escolha os nomes"  class="browser-default chosen-select"  multiple="multiple"  id="nomeextrato">
+      
+                 <option th:each="b : ${buttons}" 
+                        th:value="${b}" th:id="${b}" th:text="${b}"></option>      
+ </select>
+		</div>
+	
+	<div class="row">
+			<div class ="col s6 offset-s5">
+				<span style="font-weight: bold;">Nome do operador</span>
+			</div>
+		</div>
+	<div class="row">
+		<div class ="col s6 offset-s3">
+		<select th:field="*{operators}" data-placeholder="Escolha os operadores"  id="operadorextrato"  multiple="multiple" class="browser-default chosen-select">
+
+                <option th:each="o : ${operators}" 
+                        th:value="${o.name}" th:id="${o.id}" th:text="${o.name}"></option>      
+ </select>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class ="col s1 offset-s3">
+		 
+        <span style="font-weight: bold;">Tipo: </span>
+		</div>
+		<div class ="col s1 offset-s1">
+		<label>
+        <input name="group1" type="checkbox" id="r1" />
+        <span>Crédito</span>
+      </label>
+		</div>
+		<div class ="col s1 offset-s1">
+		<label>
+        <input name="group1" type="checkbox" id="r2" />
+        <span>Débito</span>
+      </label>
+		</div>
+	</div>
+<div class="row">
+		<div class ="col s6 offset-s3">
+<a class="waves-effect waves-light btn" style="color: black; float: right;" onclick="buscas();" ><i class="material-icons right">search</i>Buscar</a>
+</div>
+</div>
+
+
+
+<div class="row"  style="padding-top: 3%;">
+		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >EXTRATO DETALHADO</h5>
+		    	 <hr style="" class="col s4  style-eight" >
+ </div>
+
+   <table th:if="${transactions != null}" border="1" id="my-table" class="highlight" >
+    <thead>
+        <tr >
+       	    <th class="center">Nome</th>
+            <th class="center">Valor</th>
+            <th class="center">Caixa</th>
+             <th class="center">Data</th>
+        </tr>
+    </thead>
+    <tbody >
+    	<tr th:each="t: ${transactions}">
+    	
+ 
+    	<span  style="display: none;" class="truncate" th:text="${t.getId()}"  th:id="${t.getId()}" ></span>
+    		<td>
+    		<span class="truncate" th:if="${t.button != null}"   th:text="${t.button == null ? '' : t.button.name}"  ></span>
+    			<span class="truncate" th:if="${t.button == null}"   th:text="Credito"  ></span>
+    		
+    		</td>
+    		<td><span class="truncate"  th:text="'R$ ' + ${t.getValue()}" th:if="${t.button == null}" style="color: green;"   >
+    		</span><span class="truncate"  th:text="'R$ ' + ${t.getValue()}" th:if="${t.button != null}" style="color: red;"   >
+    		</span>
+    		</td>
+	    	<td><span class="truncate"  th:text="${t.getOperator()}"  ></span></td>
+	    	<td><span class="truncate"  th:text="${t.getData()}"  ></span></td>
+    	</tr>
+      
+    </tbody>
+</table>
+</div>
+</section>
+</main>
+</body>
+
+</html>

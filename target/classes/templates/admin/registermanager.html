@@ -28,6 +28,7 @@ function removeGerente(id){
    	});
 }
 	$(document).ready(function(){
+		
 		var mostrar = /*[[${successMessage}]]*/ 'default';
 		if (mostrar == "editado" ){ 
 			zerarform();
@@ -96,19 +97,14 @@ function zerarform(){
     text-decoration: inherit;
 }
 table {
-    width: 40em;
+    
     margin: 2em auto;
 }
 
-thead {
-    background: #ffc107;
-    color: #000 ;
-    border: 5px solid black;
 
-}
 
 td {
-    width: 10em;
+   
     padding: 0.3em;
 }
 
@@ -117,7 +113,7 @@ tbody {
 }
 
 tbody tr td{
-
+ background-color: white;
  border: 4px solid white;
 }
 
@@ -212,17 +208,32 @@ th a:hover {
 .dynatable-search {
 	margin-bottom: 0;
 }
+
+
+
+
+   
+
 </style>
 
     <div class="row">
  
         <article class="container" >
             <div class="row">
-		    	 <h3 style="margin-bottom: 0px;" >CADASTRAR GERENTE</h3>
+		    	 <h3 style="margin-bottom: 0px;" >CONTROLE GERENTES</h3>
 		    	 
 		         <hr  class="col s6  style-eight" >
     		</div>
-            <section class=" col s12" style="padding-top: 3%;">
+    		
+    		<div class="row"  style="padding-top: 3%;">
+		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >CADASTRAR GERENTES</h5>
+		    	 <hr style="" class="col s4  style-eight" >
+    		</div>
+    		<div class="col-sm-9">
+						  <button class="myButton btn waves-effect waves-light" onclick="zerarform();"  style="float:left; color: black; margin-bottom: 20px;" type="button" name="action">Novo
+						    <i class="material-icons right">add</i>
+						 </button>
+            <section class=" col s12">
                	<form autocomplete="off" action="#" th:action="@{/admin/registermanager}"
 					th:object="${user}" method="post" class="form-horizontal"
 					role="form">
@@ -279,13 +290,10 @@ th a:hover {
 					</div>
 
 					<div class="form-group" style="margin-top: 40px;">
-						<div class="col-sm-9">
-						  <button class="btn waves-effect waves-light" onclick="zerarform();"  style="float:left;" type="button" name="action">Novo
-						    <i class="material-icons right">add</i>
-						  </button>
+						
 						  
 						  
-						  <button class="btn waves-effect waves-light"  style="float:right;" type="submit" name="action">Enviar
+						  <button class="btn waves-effect waves-light"  style="float:right; color: black;" type="submit" name="action">Cadastrar
 						    <i class="material-icons right">send</i>
 						  </button>
 					</div>
@@ -304,8 +312,12 @@ th a:hover {
 
 
             </section>
-            <section  class = "col s7 offset-s2">
-   <table th:if="${managers != null}" border="1" id="my-table" class="highlight" style="width: 120%; max-width: 1000px; table-layout: fixed;">
+ <section  class = "col s12" style="margin-top: 55px;">
+<div class="row"  style="padding-top: 3%;">
+		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >LISTAR GERENTES</h5>
+		    	 <hr style="" class="col s3  style-eight" >
+    		</div>
+   <table th:if="${managers != null}" border="1" id="my-table" class="highlight" >
     <thead>
         <tr >
        	    <th class="center">Documento</th>
@@ -321,11 +333,11 @@ th a:hover {
 	    	<td><span class="truncate"  th:text="${m.getName()}" ></span></td>
 	    	<td><span class="truncate" th:text="${m.getEmail()}" ></span></td>
 	    	
-	    	<td> <a class="waves-effect waves-light btn" style="float: left; background-color: #43a047;"  th:onclick="'javascript:editar(' + ${m.id} +');'"   ><i class="material-icons left">edit</i>
-            <a class="waves-effect waves-light btn"  th:onclick="'javascript:removeGerente(' + ${m.id} +');'"  style="float: right; background-color: #e53935;">
+	    	<td> <a style="float: right;" th:onclick="'javascript:editar(' + ${m.id} +');'"   ><i  class="material-icons left">edit</i>
+            <a th:onclick="'javascript:removeGerente(' + ${m.id} +');'"  >
               
 					
-             <i class="material-icons left">remove</i> </a>   </td>
+             <i style="color: red;" class="material-icons left">delete</i> </a>   </td>
     	</tr>
       
     </tbody>

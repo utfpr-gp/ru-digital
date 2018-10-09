@@ -24,7 +24,9 @@
     
     
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    
 <style>
+
 table, tr  {
 	border-bottom: 0px !important;
 }
@@ -74,6 +76,7 @@ width: 100px !important;
 height: 100px !important;
 }
 
+
 </style>
 
 <script>
@@ -84,7 +87,7 @@ jQuery(function($){
 $(document).ready(function() {
 	 $('#id').val(-1);
 	$('#my-table').dynatable();
-	$("#dynatable-query-search-my-table").attr("placeholder", " Buscar gerentes").blur();
+	$("#dynatable-query-search-my-table").attr("placeholder", " Buscar opções").blur();
 	$('#email').autocomplete({
 		serviceUrl: 'getlist',
 		paramName: "tagName",
@@ -115,6 +118,8 @@ $(document).ready(function() {
 	  });*/
 	  /*$('.view').leanModal();*/
 	  $('#modal1').modal();
+	  
+	  $('#modaldeletar').modal();
 	  $('#modal2').modal();
 	  $('#modal3').modal();
 	  $('#modal4').modal();
@@ -134,21 +139,24 @@ function modal2(){
         <div class="nav-wrapper">
             <div class="container">
                 <ul id="nav-left" class="left hide-on-med-and-down">
-                    <li><a th:href="@{'/admin'}">Conta</a></li>
-                    <li><a th:href="@{'/admin/registermanager'}">Cadastrar Gerentes</a></li>
+                    <li><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
                     <li><a th:href="@{'/manager/controle'}">Controle</a></li>
-                    <li><a th:href="@{'/manager/botoes'}">Botoes</a></li>
+                    <li><a th:href="@{'/manager/botoes'}">Opções</a></li>
                 </ul>
                 <ul id="nav-right" class="right hide-on-med-and-down">
    
                     <li><a th:href="@{'/logout'}">Logout</a></li>
                 </ul>
+                
+                
             </div>
         </div>
     </nav>
     <main layout:fragment="content">
+    
         <p>Default content</p>
     </main>
+    
     <footer class="page-footer" style="background-color: #ffc107;">
         <div class="container">
             <div class="row">

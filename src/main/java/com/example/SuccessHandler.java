@@ -21,10 +21,20 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
 	public void onAuthenticationSuccess(HttpServletRequest arg0, HttpServletResponse arg1,
 			Authentication authentication) throws IOException, ServletException {
 		System.out.println("FUI CHAMDO");
-		boolean hasUserRole = authentication.getAuthorities().stream()
+		String url = "";
+		boolean hasUserRoleUser = authentication.getAuthorities().stream()
 				.anyMatch(r -> r.getAuthority().equals("ROLE_USER"));
-		if (hasUserRole)
-			redirectStrategy.sendRedirect(arg0, arg1, "/user/home");
+		boolean hasUserRoleAdmin = authentication.getAuthorities().stream()
+				.anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
+		boolean hasUserRoleManager = authentication.getAuthorities().stream()
+				.anyMatch(r -> r.getAuthority().equals("ROLE_MANAGER"));
+		if (hasUserRoleAdmin)
+			url = "/manager/controle";
+		else if (hasUserRoleManager)
+			url = "/manager/controle";
+		else if (hasUserRoleUser)
+			url = "/user/home";
+		redirectStrategy.sendRedirect(arg0, arg1, url);
 
 	}
 

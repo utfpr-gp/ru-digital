@@ -15,6 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
     <script type="text/javascript" th:src="@{/js/jquery.autocomplete.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" ></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     
     
@@ -71,9 +72,29 @@ color: black;
 }
 
 
+.dropdown-content  li a:hover {
+   background-color: #fff3e0;
+}
+
+
+@media screen and (max-width: 450px) {
+   .sidenav-trigger{
+    		transform: translateX(0%) !important;
+     	 }
+     
+     body{
+     	 .sidenav-trigger{
+    		transform: translateX(0%);
+     	 }
+     }
+}
+
+
 
 </style>
 <script>
+
+
 
 
 function enviar(){
@@ -83,7 +104,8 @@ function pegarImagem(){
 	alert();
 }
 $(document).ready(function() {
-
+	  $('.dropdown-trigger').dropdown({ hover: false, constrainWidth: false });
+	  
 	 var x = document.getElementById('logado').value;
 	 $.ajax({
 	   	    type : "GET",
@@ -101,7 +123,29 @@ $(document).ready(function() {
 	$("#busca").click(function() {  
 		$("#enviarbuscar").click ();
 	});
+
+	$('#menucontainer').click(function(e) {
+		 e = e || window.event;
+		    e = e.target || e.srcElement;
+		    console.log(document.getElementById("showcreditos").style.display);
+		    if (document.getElementById("showcreditos").style.display != "none")
+		    	document.getElementById("creditos").style.backgroundColor = "#ffc400";
+		    
+		    if (document.getElementById("showconsumo").style.display != "none")
+		    	document.getElementById("consumo").style.backgroundColor = "#ffc400";
+		    
+		    if (e.id == "creditos")
+		    	document.getElementById("consumo").style.backgroundColor = "";
+		    
+		    if (e.id == "consumo")
+		    	document.getElementById("creditos").style.backgroundColor = "";
+		    
+		  event.stopPropagation();
+		});
 	$("#creditos").click(function() {
+		var elementExists = document.getElementById("showcreditos");
+		console.log(document.getElementById('showcreditos').style.display);
+		
 		var  el = document.getElementById('creditos');
 		
 		$("#showconsumo").css("display","none");
@@ -125,7 +169,9 @@ $(document).ready(function() {
 		 }
 	});
 	 $("#consumo").click(function() {
-		
+		 
+		 console.log(document.getElementById('showcreditos').style.display);
+			
 		 document.getElementById("creditos").classList.remove("ativo"); 
 		 $("#outrodebito").maskMoney({
 	         decimal: ",",
@@ -179,7 +225,7 @@ $(document).ready(function(){
 </head>
 
 
-<body>
+<body id = "menucontainer">
 
     <ul id="slide-out" class="sidenav">
       <li><a href="#!">First Sidebar Link</a></li>
@@ -201,33 +247,43 @@ $(document).ready(function(){
       </li>
     </ul>
    
-    <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    <a href="#" style="display: none;" id="menu-lateral" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
           
     <nav style="background-color: #ffc107;">
         <div class="nav-wrapper">
             <div class="container">
            <input  th:value="${#authentication.name}" id="logado"  style="display: none;"/>  
                 <ul id="nav-left" class="left hide-on-med-and-down">
-                    <li><a th:href="@{'/manager'}">Conta</a></li>
-                    <li><a th:href="@{'/admin/registermanager'}">Cadastrar Gerentes</a></li>
+                    <li><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
                     <li><a th:href="@{'/manager/controle'}">Controle</a></li>
-                    <li><a th:href="@{'/manager/botoes'}">Botoes</a></li>
+                    <li><a th:href="@{'/manager/botoes'}">Opções</a></li>
                 </ul>
-                <ul id="nav-right" class="right hide-on-med-and-down">
+                <a   class='right hide-on-med-and-down  dropdown-trigger ' href='#'  data-target='dropdown1'>
+                <ul id="nav-right" class="right hide-on-med-and-down "  data-target='dropdown1'>
    				
                     <li style="margin-top: 10px;"> 
                     <img    id="cloud"
 	                		
 	                		 class="circle" style=" width: 50px; " />
                     </li>
+                    
                 </ul>
+                </a>
+
+			  <ul id='dropdown1' class='dropdown-content'  style="width: 800px !important">
+			   
+			    <li><a href="#!"><i class="material-icons">person</i>Acessar como usuário</a></li>
+			    <li><a href="#!"><i class="material-icons">assignment_ind</i>Acessar como administrador</a></li>
+			    <li><a href="/logout"><i class="material-icons">exit_to_app</i>Sair</a></li>
+			  </ul>
+
             </div>
         </div>
     </nav>
     <main layout:fragment="content">
         <p>Default content</p>
     </main>
-    <footer class="page-footer" style="background-color: #ffc107;">
+    <footer class="page-footer "  style=" margin-top: 82px; background-color: #ffc107;">
         <div class="container">
             <div class="row">
                 <div class="col l6 s12">

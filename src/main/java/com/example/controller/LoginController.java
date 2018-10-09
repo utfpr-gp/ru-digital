@@ -3,8 +3,13 @@ package com.example.controller;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -99,6 +105,78 @@ public class LoginController {
 		User user = userService.findUserByEmail(auth.getName());
 		model.addAttribute("user", user);
 		modelAndView.setViewName("user/edit");
+		return modelAndView;
+	}
+
+	@RequestMapping(value = { "/user", "/user/extrato" }, method = RequestMethod.GET)
+	public ModelAndView userExtrato(Model model) {
+		ModelAndView modelAndView = new ModelAndView();
+		List<TransactionCredit> transactioncredit = transactioncreditService.findAll();
+		model.addAttribute("transactions", transactioncredit);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		List<String> buttons = transactioncreditService.listdiferentButtons();
+		List<User> us = userService.findManager();
+		model.addAttribute("operators", us);
+		model.addAttribute("buttons", buttons);
+		model.addAttribute("user", user);
+		modelAndView.setViewName("user/extrato");
+		return modelAndView;
+	}
+
+	@RequestMapping(value = { "/user", "/user/extrato/filtro" }, method = RequestMethod.GET)
+	public ModelAndView userExtratoFiltro(Model model, @RequestParam("name") String nome,
+			@RequestParam("dataini") String dataini, @RequestParam("datafim") String datafim,
+			@RequestParam("operator") String operador, @RequestParam("type") String tipo) throws ParseException {
+		ModelAndView modelAndView = new ModelAndView();
+		System.out.println("OI FILTROOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+		System.out.println("OI " + nome);
+		System.out.println("OI " + operador);
+		String pars;
+		if (nome == null || nome == "" || nome.equals("")) {
+			pars = "0";
+		} else
+			pars = "1";
+		if (operador == null || operador == "" || operador.equals("")) {
+			pars = pars + "0";
+		} else
+			pars = pars + "1";
+		if (dataini == null || dataini == "" || dataini.equals("")) {
+			pars = pars + "0";
+		} else
+			pars = pars + "1";
+		if (datafim == null || datafim == "" || datafim.equals("")) {
+			pars = pars + "0";
+		} else
+			pars = pars + "1";
+		if (tipo == null || tipo == "Credito e Debito" || tipo.equals("Credito e Debito")) {
+			pars = pars + "0";
+		} else
+			pars = pars + "1";
+		String[] nomes = nome.split("\\,", -1);
+		ArrayList<String> nomesList = new ArrayList<String>();
+		for (String s : nomes) {
+			nomesList.add(s);
+		}
+		String[] op = operador.split("\\,", -1);
+		ArrayList<String> operadorList = new ArrayList<String>();
+		for (String s : op) {
+			operadorList.add(s);
+		}
+		System.out.println("OI " + dataini);
+		System.out.println("OI " + operador);
+		System.out.println("OI " + tipo);
+		List<TransactionCredit> transactioncredit = transactioncreditService.listFilter(nomesList, operadorList,
+				dataini, datafim, tipo, pars);
+		model.addAttribute("transactions", transactioncredit);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		List<String> buttons = transactioncreditService.listdiferentButtons();
+		List<User> us = userService.findManager();
+		model.addAttribute("operators", us);
+		model.addAttribute("buttons", buttons);
+		model.addAttribute("user", user);
+		modelAndView.setViewName("user/extrato");
 		return modelAndView;
 	}
 
@@ -191,6 +269,8 @@ public class LoginController {
 	@ResponseBody
 	public void deleteButton(@RequestParam long id, HttpServletRequest request, HttpServletResponse response) {
 		Button bt = buttonService.getOne(id);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("mostrardel", bt);
 		buttonService.deletButton(bt);
 
 	}
@@ -359,12 +439,13 @@ public class LoginController {
 		}
 
 		System.setProperty("userDetails", principal.getName());
-		if (isUser())
-			return "redirect:" + "/user";
 		if (isAdmin())
-			return "redirect:" + "/admin/home";
+			return "redirect:" + "/manager/controle";
 		if (isManager())
 			return "redirect:" + "/manager";
+		if (isUser())
+			return "redirect:" + "/user";
+
 		return "";
 	}
 
@@ -426,6 +507,14 @@ public class LoginController {
 		} else {
 			user.setImage("rejoed05uyghymultqsv");
 			userService.saveUser(user);
+			final String uri = "http://localhost:8090/email-send/{id}";
+			Map<String, String> params = new HashMap<String, String>();
+			params.put("id", user.getId() + "");
+
+			RestTemplate restTemplate = new RestTemplate();
+			String result = restTemplate.getForObject(uri, String.class, params);
+
+			System.out.println(result);
 			modelAndView.addObject("successMessage", "User has been registered successfully");
 			modelAndView.addObject("user", new User());
 			modelAndView.setViewName("registration");
@@ -579,6 +668,13 @@ public class LoginController {
 		} else {
 			username = principal.toString();
 		}
+		User uaux = userService.findUserByEmail(username);
+		if (uaux == null)
+			uaux = userService.findUserByDocument(username);
+		String data = new SimpleDateFormat("dd/MM/yyyy-HH:mm ss").format(Calendar.getInstance().getTime());
+
+		long millis = System.currentTimeMillis();
+
 		TransactionCredit transactioncredit = new TransactionCredit();
 		if (debito != null) {
 			System.out.println("O ERRO ESTA ABAIXO");
@@ -593,8 +689,10 @@ public class LoginController {
 				BigDecimal val = button.getValue();
 				val = button.getValue().negate();
 				transactioncredit.setValue(val);
+				transactioncredit.setData(data);
 				transactioncredit.setUser(user);
-				transactioncredit.setOperator(username);
+				transactioncredit.setMilis(millis);
+				transactioncredit.setOperator(uaux.getName());
 				BigDecimal total = user.getBalance().add(val);
 				user.setBalance(total);
 				userService.updateUser(user);
@@ -623,7 +721,9 @@ public class LoginController {
 				transactioncredit.setButton(b);
 				transactioncredit.setValue(val);
 				transactioncredit.setUser(user);
-				transactioncredit.setOperator(username);
+				transactioncredit.setMilis(millis);
+				transactioncredit.setData(data);
+				transactioncredit.setOperator(uaux.getName());
 				BigDecimal total = user.getBalance().add(val);
 				user.setBalance(total);
 				userService.updateUser(user);
@@ -653,9 +753,20 @@ public class LoginController {
 		if (us.getBalance() != null) {
 			balance = balance.add(us.getBalance());
 		}
+
+		User uaux = userService.findUserByEmail(principal.getName());
+		if (uaux == null)
+			uaux = userService.findUserByDocument(principal.getName());
+		String data = new SimpleDateFormat("dd/MM/yyyy-HH:mm ss").format(Calendar.getInstance().getTime());
+		long millis = System.currentTimeMillis();
 		us.setBalance(balance);
 		transactioncredit.setUser(us);
-		transactioncredit.setOperator(principal.getName());
+		Button button = new Button();
+		button.set
+		transactioncredit.setButton(button);
+		transactioncredit.setMilis(millis);
+		transactioncredit.setOperator(uaux.getName());
+		transactioncredit.setData(data);
 		model.addAttribute("status", "Créditos Inseridos!");
 		userService.updateUser(us);
 		transactioncreditService.saveTransaction(transactioncredit);

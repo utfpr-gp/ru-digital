@@ -1,6 +1,7 @@
 /home/luiz/ru-digital/src/main/java/com/example/configuration/WebMvcConfig.java
 /home/luiz/ru-digital/src/main/java/com/example/service/ProductImpl.java
 /home/luiz/ru-digital/src/main/java/com/example/controller/LoginController.java
+/home/luiz/ru-digital/src/main/java/com/example/controller/EmailController.java
 /home/luiz/ru-digital/src/main/java/com/example/repository/ButtonRepository.java
 /home/luiz/ru-digital/src/main/java/com/example/service/ButtonServiceImpl.java
 /home/luiz/ru-digital/src/main/java/com/example/service/ProductService.java

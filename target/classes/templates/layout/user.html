@@ -10,27 +10,128 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
 	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	 <script type="text/javascript" th:src="@{/js/cloudinary-jquery-file-upload.min.js}"></script>
-   
+     <script type="text/javascript" th:src="@{/js/dynatable.js}"></script>
+    
 	 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    
+     	
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.4.2/chosen.jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.4.2/chosen.min.css">
  
 </head>
+
+<body>
+
 <body>
 <script type="text/javascript">
+function vOp(){
+	$("#nomeextrato").chosen().val();
+	alert("OK" + $("#nomeextrato").chosen().val());
+	alert("OK" + $("#operadorextrato").chosen().val());
+	
+}
+
+
+
 function upload(){
 	document.getElementById("arquivo").click();
 }
 
+function buscas(){
+	passForm();
+	document.getElementById("enviarbuscar").click();
+}
+
+function passForm(){
+	document.getElementById("name").value = $("#nomeextrato").chosen().val();
+	document.getElementById("operator").value = $("#operadorextrato").chosen().val();
+	
+	document.getElementById("dataini").value = document.getElementById("datepicker1").value ;
+	document.getElementById("datafim").value = document.getElementById("datepicker2").value;
+	
+	if (document.getElementById('r1').checked && !document.getElementById('r2').checked) {
+		document.getElementById("type").value = "Credito";
+	}
+	else if (document.getElementById('r2').checked  && !document.getElementById('r1').checked) {
+		document.getElementById("type").value = "Debito";
+	}
+	else
+		document.getElementById("type").value = "Credito e Debito";
+}
+
+$(function () {
+	$('.datepicker').datepicker({
+		i18n: {
+		months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+		monthsShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+		weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabádo'],
+		weekdaysShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
+		weekdaysAbbrev: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+		today: 'Hoje',
+		clear: 'Limpar',
+		cancel: 'Sair',
+		done: 'Confirmar',
+		labelMonthNext: 'Próximo mês',
+		labelMonthPrev: 'Mês anterior',
+		labelMonthSelect: 'Selecione um mês',
+		labelYearSelect: 'Selecione um ano',
+		selectMonths: true,
+		selectYears: 15,
+		},
+		format: 'dd mmmm, yyyy',
+		container: 'body',
+		maxDate: new Date(),
+		minDate: $("#datepicker1").val()
+		});
+		});
+
 $(document).ready(function(){
+	
     $("#arquivo").on('change',function(){
     	document.getElementById("enviar").click();
     });
 });
+
+
+
+$(document).ready(function() {
+	$('.chosen-select').chosen({}).change( function(obj, result) {
+	    console.debug("changed: %o", arguments);
+	    
+	    console.log("selected: " + result.selected);
+	});
+	 $("#un").formSelect();
+	 $("#nomeextrato").formSelect();
+	 $("#operadorextrato").formSelect();
+	 $("#teste").formSelect();
+	 $('#id').val(-1);
+	$('#my-table').dynatable();
+	$("#dynatable-query-search-my-table").attr("placeholder", " Buscar lançamentos").blur();
+	$('#email').autocomplete({
+		serviceUrl: 'getlist',
+		paramName: "tagName",
+		delimiter: ",",
+	   transformResult: function(response) {
+		    	
+		return {      	
+		  //must convert json to javascript object before process
+		  suggestions: $.map($.parseJSON(response), function(item) {
+		            	
+		      return { value: item.tagName, data: item.id };
+		   })
+		            
+		 };
+		        
+           }
+		    
+	 });
+				
+ });
 </script>
 <style>
-table, tr  {
-	border-bottom: 0px !important;
-}
+
+
 hr.style-hr {
     border: 1;
     height: 1;
@@ -74,8 +175,78 @@ font-size: 18px;
 color: black;
 }
 ::-webkit-input-placeholder { /* WebKit browsers */
-    color:    red;
+    color:    black;
      opacity: 1 !important;
+}
+
+
+tr{
+	border: none;
+}
+th a {
+  color: #000;
+}
+th a:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+.dynatable-search {
+  float: right;
+  margin-bottom: 10px;
+}
+
+.dynatable-pagination-links {
+  float: right;
+}
+
+.dynatable-record-count {
+  display: block;
+  padding: 5px 0;
+}
+
+.dynatable-pagination-links span,
+.dynatable-pagination-links li {
+  display: inline-block;
+}
+
+.dynatable-page-link,
+.dynatable-page-break {
+  display: block;
+  padding: 5px 7px;
+}
+
+.dynatable-page-link {
+  cursor: pointer;
+}
+
+.dynatable-active-page,
+.dynatable-disabled-page {
+  cursor: text;
+}
+.dynatable-active-page:hover,
+.dynatable-disabled-page:hover {
+  text-decoration: none;
+}
+
+.dynatable-active-page {
+  background: #71AF5A;
+  border-radius: 5px;
+  color: #fff;
+}
+.dynatable-active-page:hover {
+  color: #fff;
+}
+.dynatable-disabled-page,
+.dynatable-disabled-page:hover {
+  background: none;
+  color: #999;
+}
+.dynatable-search{
+	float: left;
+}
+.dynatable-search {
+	margin-bottom: 0;
 }
 </style>
     <nav style="background-color: #ffc107;">
@@ -84,8 +255,7 @@ color: black;
                 <ul id="nav-left" class="left hide-on-med-and-down">
                     <li><a th:href="@{'/user/home'}">Conta</a></li>
                     <li><a th:href="@{'/user/edit'}">Editar</a></li>
-                    <li><a th:href="@{'/admin/consumo'}">Consumo</a></li>
-                    <li><a th:href="@{'/admin/credits'}">Créditos</a></li>
+                     <li><a th:href="@{'/user/extrato'}">Extrato</a></li>
                 </ul>
                 <ul id="nav-right" class="right hide-on-med-and-down">
    
@@ -122,4 +292,5 @@ color: black;
     </footer>
 
 </body>
+
 </html>

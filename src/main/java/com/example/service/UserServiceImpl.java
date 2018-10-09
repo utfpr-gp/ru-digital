@@ -112,15 +112,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public void updateUser(User user) {
-		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
+		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+				+ user.getPassword());
 		User x = userRepository.getOne(user.getId());
 		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
-				+ x.getDocument());
+				+ x.getPassword());
 
 		x.setName(user.getName());
 		x.setEmail(user.getEmail());
 		x.setDocument(user.getDocument());
-		x.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		if (x.getPassword() != user.getPassword())
+			x.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userRepository.save(x);
 		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
 
