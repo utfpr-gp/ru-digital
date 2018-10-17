@@ -12,7 +12,15 @@ table.striped > tbody > tr:nth-child(odd) {
 
 </style>
 <script>
+
 $(document).ready(function(){ /* ... */
+	 
+	 var count = $('#xxx tr').length;
+	 var i =0;
+	 for (i=1; i< count; i++){
+		 var res = document.getElementById("Value"+i).innerText.replace(".", ",");
+		 document.getElementById("Value"+i).innerText = res;
+	 }
 	$("#value").maskMoney({
 	    decimal: ",",
 	    thousands: ".",
@@ -172,6 +180,7 @@ th a:hover {
  	
  	function editarOpcao(id){
  		 $(window).scrollTop(0);
+ 		document.getElementById("ideditar").value = id;  
  		document.getElementById("name").value =  document.getElementById('Name'+id).innerText;
  		document.getElementById("value").value =  document.getElementById('Value'+id).innerText;
  	 }
@@ -186,7 +195,7 @@ th a:hover {
 	   	    "id" : id
 	   	    },
 	   	    success: function(){
-	   	    	var link = "http://localhost:8090/manager/botoes?show=true";
+	   	    	var link = "http://localhost:8030/manager/botoes?show=true";
 	   	    	$(location).attr('href',link); 
 	   	    	
 	   	    }
@@ -203,6 +212,9 @@ th a:hover {
 				z = document.getElementById("value").value.split('.').join(newdois);	
 				z = z.split(',').join(".");	
 				document.getElementById("value").value = z;
+				alert (document.getElementById("ideditar").value);
+				if (document.getElementById("ideditar").value == "")
+					document.getElementById("ideditar").value = "-1";
     		    if (document.getElementById("name").value === "" && document.getElementById("value").value === ""){
     		 
     		    	document.getElementById("name").style.border = "thick solid red";
@@ -227,7 +239,7 @@ th a:hover {
     	 if(mostrar != null && mostrar.valueOf()  != 'default' ){
     			 $('#modal2').modal('open');
 		  }
-    	 if (window.location.href == "http://localhost:8090/manager/botoes?show=true"){
+    	 if (window.location.href == "http://localhost:8030/manager/botoes?show=true"){
 	   	     	$('#modaldeletar').modal('open');
     	 }
     	   		
@@ -277,6 +289,8 @@ td i{
 						</div>
 					</div>
 					
+						<input style="display: none;" type="text" name="ideditar" id="ideditar" placeholder=""
+								class="form-control" /> 
 					<div class="form-group">
 						<div class="col-sm-9">
 						<input type="text" th:field="*{value}" id="value" maxlength="7" placeholder="Valor"
@@ -303,21 +317,26 @@ td i{
 
 
             </section>
+            
  <section  class = "col s12">
 <div class="row"  style="padding-top: 3%;">
 		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >LISTAR OPÇÕES</h5>
 		    	 <hr style="" class="col s3  style-eight" >
     		</div>
-   <table th:if="${buttons != null}" border="1" id="my-table" class="highlight" >
+    		
+	<div class="col s11 offset-s1">
+	
+	 <table th:if="${buttonsme != null}" border="1" id="xxx" class="highlight" >
+   
     <thead>
         <tr >
-       	    <th class="center">Nome</th>
-            <th class="center">Valor</th>
-            <th class="center">Ação</th>
+            <th class="">Nome</th>
+            <th class="">Valor</th>
+            <th class="">Ação</th>
         </tr>
     </thead>
     <tbody >
-    	<tr th:each="b: ${buttons}">
+   	    <tr th:each="b: ${buttonsme}">
     	
  
     	<span  style="display: none;" class="truncate" th:text="${b.getId()}"  th:id="${b.getId()}" ></span>
@@ -336,11 +355,10 @@ td i{
       
     </tbody>
 </table>
+	</div>      		
+    		
 
-
-
-
-            </section>
+</section>
         </article>
         </div>
     		
@@ -359,7 +377,7 @@ td i{
   	 <i class="material-icons" style="font-size: 80px; color: #1b5e20;">done</i>
   	</div>
   	  <div class="col s11 offset-s1">
-  	<p >Botao cadastrado com sucesso!</p>
+  	<p >Botão cadastrado com sucesso!</p>
   	</div>
   </div>
   <div class="modal-footer"> 

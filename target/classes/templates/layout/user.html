@@ -11,11 +11,12 @@
 	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	 <script type="text/javascript" th:src="@{/js/cloudinary-jquery-file-upload.min.js}"></script>
      <script type="text/javascript" th:src="@{/js/dynatable.js}"></script>
-    
+    <script type="text/javascript" th:src="@{/js/materialize-pagination.js}"></script>
 	 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
     
      	
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.4.2/chosen.jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.4.2/chosen.min.css">
  
@@ -25,12 +26,25 @@
 
 <body>
 <script type="text/javascript">
+$(document).ready(function(){
+	
+    $('.tabs').tabs();
+    
+  });
+$(document).ready(function(){
+    $('select').formSelect();
+  
+
+  });
+  
+ 
 function vOp(){
 	$("#nomeextrato").chosen().val();
 	alert("OK" + $("#nomeextrato").chosen().val());
 	alert("OK" + $("#operadorextrato").chosen().val());
 	
 }
+
 
 
 
@@ -128,6 +142,7 @@ $(document).ready(function() {
 	 });
 				
  });
+ 
 </script>
 <style>
 

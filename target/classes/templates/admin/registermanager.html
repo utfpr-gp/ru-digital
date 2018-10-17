@@ -22,7 +22,7 @@ function removeGerente(id){
    	    "id" : id
    	    },
    	    success: function(){
-   	    	var link = "http://localhost:8090/admin/registermanager";    
+   	    	var link = "http://localhost:8030/admin/registermanager";    
    	        $(location).attr('href',link); 
    	    }
    	});
@@ -317,13 +317,17 @@ th a:hover {
 		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >LISTAR GERENTES</h5>
 		    	 <hr style="" class="col s3  style-eight" >
     		</div>
-   <table th:if="${managers != null}" border="1" id="my-table" class="highlight" >
+    		
+	<div class="col s11 offset-s1">
+	
+	 <table th:if="${managers != null}" border="1" id="xxx" class="highlight" >
+   
     <thead>
         <tr >
-       	    <th class="center">Documento</th>
-            <th class="center">Nome</th>
-            <th class="center">Email</th>
-            <th class="center">Ação</th>
+            <th class="">Documento</th>
+            <th class="">Nome</th>
+            <th class="">Email</th>
+            <th class="">Ação</th>
         </tr>
     </thead>
     <tbody >
@@ -333,16 +337,18 @@ th a:hover {
 	    	<td><span class="truncate"  th:text="${m.getName()}" ></span></td>
 	    	<td><span class="truncate" th:text="${m.getEmail()}" ></span></td>
 	    	
-	    	<td> <a style="float: right;" th:onclick="'javascript:editar(' + ${m.id} +');'"   ><i  class="material-icons left">edit</i>
+	    	<td> <a style="float: right; cursor: pointer;" th:onclick="'javascript:editar(' + ${m.id} +');'"   ><i  class="material-icons left">edit</i>
             <a th:onclick="'javascript:removeGerente(' + ${m.id} +');'"  >
               
 					
-             <i style="color: red;" class="material-icons left">delete</i> </a>   </td>
+             <i style="color: red; cursor: pointer;" class="material-icons left">delete</i> </a>   </td>
     	</tr>
       
     </tbody>
 </table>
-
+	</div>    		
+    		
+    		
 
 
 

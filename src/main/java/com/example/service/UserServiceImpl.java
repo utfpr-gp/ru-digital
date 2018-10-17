@@ -4,10 +4,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,12 +64,13 @@ public class UserServiceImpl implements UserService {
 				userRepository.delete(u);
 			}
 		}
-		System.out.println("DELETE USER!!!!!!!!!!!!");
+		System.out.println("DELETE USER!!!!! !!!!!!");
 
 	}
 
-	@PersistenceContext
-	private EntityManager manager;
+	public Page<User> findManagers(Pageable pageable) {
+		return userRepository.findManagers(pageable);
+	}
 
 	@Override
 	public User findUserByDocument(String document) {
@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 
 	public List<User> findManager() {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
-		List<User> z = manager.createQuery("select p from User p join p.roles c where c.id = 3").getResultList();
+		List<User> z = userRepository.listManager(3); // ARRUMAR ISSO
 		for (int i = 0; i < z.size(); i++) {
 			System.out.println("EPRA");
 			System.out.println("AAAAA" + z.get(i).getName());
@@ -109,6 +109,24 @@ public class UserServiceImpl implements UserService {
 		System.out.println("EIIIIiOIIIIIOOOOO");
 		if (user.getActive() == 1)
 			userRepository.save(user);
+	}
+
+	public void updateManager(User user, String confirm) {
+		System.out.println(
+				"-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" + confirm);
+		System.out.println("ENCODEDE!!!!!!!!!!!!!!!!!!!!!!!!!!!" + bCryptPasswordEncoder.encode(confirm));
+		User x = userRepository.getOne(user.getId());
+		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+				+ x.getPassword());
+
+		x.setName(user.getName());
+		x.setEmail(user.getEmail());
+		x.setDocument(user.getDocument());
+		if (user.getPassword() == null || user.getPassword().equals(""))
+			System.out.println("ANULADOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+		saveUserManager(x, user.getPassword());
+		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
+
 	}
 
 	public void updateUser(User user) {
@@ -147,6 +165,33 @@ public class UserServiceImpl implements UserService {
 		}
 		System.out.println("DEPOIS DO FOR");
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		user.setRoles(roles);
+		System.out.println("ROLES" + user.getRoles());
+		if (user.getActive() == 1)
+			userRepository.save(user);
+	}
+
+	@Override
+	public void saveUserManager(User user, String confirm) {
+		Set<Role> roles = new HashSet<Role>();
+		List<Role> ro = roleRepository.findAll();
+		Role r = roleRepository.findByRole("MANAGER");
+		System.out.println("ANTES DO FOR");
+		for (Role s : ro) {
+			System.out.println("DENTRO DO FOR");
+			if (s.getRole().equals("MANAGER")) {
+				roles.add(s);
+				user.setActive(1);
+				System.out.println("TEM MANAGER");
+			}
+		}
+		System.out.println("DEPOIS DO FOR");
+
+		if (confirm != null && !confirm.equals("")) {
+			user.setPassword(bCryptPasswordEncoder.encode(confirm));
+		} else {
+
+		}
 		user.setRoles(roles);
 		System.out.println("ROLES" + user.getRoles());
 		if (user.getActive() == 1)

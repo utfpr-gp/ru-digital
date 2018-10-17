@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/user">
 <head>
-    <title th:text="${status}">404</title>
+   
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     
@@ -11,8 +11,152 @@
 
    
 
-    <main layout:fragment="content" class="">
+    <main layout:fragment="content" class="" >
+    
+   <div class="container">
+        <div id="pagination-long"></div>
+        <div id="pagination-short"></div>
+    </div>
 
+    <script src="materialize-pagination.js"></script>
+
+    
+<script th:inline="javascript">
+/*<![CDATA[*/
+function meses(id){
+	var currentTime = new Date();
+	var year = currentTime.getFullYear();
+	var ini = new Date(year,id-1,1);
+	var fim = new Date(year,id,1);
+	if (id == 12){
+		fim = new Date(year + 1,0,1);
+	}
+		
+	tot = fim.getTime() - ini.getTime();
+	  document.getElementById("op").value = "data";
+	  document.getElementById("pages").value = 1;
+	  document.getElementById("ini").value = ini.getTime();
+	  document.getElementById("fim").value = fim.getTime();
+	  document.getElementById("enviarpagec").click();
+}
+$(document).ready(function(){
+	var TodayDate = new Date();
+	var m = TodayDate.getMonth()+1;
+	var x = "05";
+	var tipo = ".", ini =".", fim =".", op=".";
+	 tipo = /*[[${tipo}]]*/ 'tipo';
+
+	 ini = /*[[${inicial}]]*/ 'inicial';
+
+	 fim = /*[[${final}]]*/ 'fim';
+
+	 size = /*[[${size}]]*/ 'size';
+	
+	var inc = 0;
+	var x;
+	$.ajax({
+	    type : "GET",
+	    url : "/checkpages",
+	    data : {
+	   		
+	    },
+	    success: function(data){
+	    	if (size != null && size>=0){
+
+	    		data = size;
+	    	}	
+	  		
+	    	for (x = 0; x <data; x=x+5){
+	    		inc++;
+	    	}
+	    	if (data <= 5)
+	    		inc = 1;
+			
+	    	$('#example').materializePagination({
+	    		
+	  		  lastPage: inc,
+	  		
+	  		  firstPage:  1,
+	  		 
+
+	  		onClickCallback: function(requestedPage) {
+	  	      console.log('Requested page from #pagination-long: ' + requestedPage);
+	  	      callPage(requestedPage, tipo, ini,fim);
+	  	  }
+	  		});
+	    	
+	    }
+	});
+	  
+	
+  });
+
+  
+  function callPage(page, tipo, ini,fim){
+	  //document.getElementById("page").value = page;
+	  //document.getElementById("enviarpage").click();
+	  document.getElementById("op").value = tipo;
+	  document.getElementById("pages").value = page;
+	  document.getElementById("ini").value = ini;
+	  document.getElementById("fim").value = fim;
+	  document.getElementById("enviarpagec").click();
+	  
+  }
+  
+  function buscas(){
+	  var i = 0;
+	  var tipo;
+	  for (i = 1; i<=12; i++){
+		  if ($( "#m" + i +" a" ).hasClass( "active" ))
+			  m = i;
+		 
+	  }
+	  var e = document.getElementById("ano");
+	  var ano = e.options[e.selectedIndex].value;
+	  
+	  
+	  var x = document.getElementById("meses");
+	  var mes = x.options[x.selectedIndex].value;
+	  
+	  
+	  var c = document.getElementById('r1').checked;
+	  var d = document.getElementById('r2').checked;
+	
+	  if (c && !d){
+		  //document.getElementById("enviarfiltro").click();
+		  //alert("Credito");
+		  tipo = "c";
+	  }
+		 
+	  else if (!c && d)
+		 tipo = "d";
+	  else
+		  tipo = "cd";
+	  
+	  var aux;
+	  if (ano ==0 && mes ==0 && tipo == "cd")
+		  aux = "FILTRAR POR TUDO";
+	  if (ano != 0 && mes != 0 && tipo != "cd")
+		  if (tipo == "c")
+			  aux = "TC";
+		  else
+			  aux = "TD";
+	  else if (ano == 0 && mes == 0 && tipo != "cd")
+		  if (tipo == "c")
+			  aux = "C";
+		  else
+			  aux = "D";
+	  else if (ano != 0 && mes != 0 && (tipo == "cd" || (tipo!= "c" && tipo!="d") ))
+		  aux = "T";
+	 
+		
+	  document.getElementById("filtro").value =aux ;
+	  document.getElementById("filtroano").value = ano ;
+	  document.getElementById("filtromes").value = mes ;
+	  document.getElementById("enviarfiltro").click();
+  }
+  /*]]>*/
+</script>
           
         <section class="row container">
 <style>
@@ -49,54 +193,37 @@ textarea, input {
 <input type="submit" value="Search" id="enviarbuscar" onmouseover="passForm();"
 												/>
 </form>
- 	<div class="row">
-			<div class ="col s6 offset-s5">
-				<span style="font-weight: bold;">Período por data</span>
-			</div>
-		</div>
-		<div class="row">
-		
-			<div class ="col s3 offset-s3">
-			<input type="text" class="datepicker" id="datepicker1" placeholder="Data Inicial">
-			</div>
-			<div class ="col s3 ">
-			<input type="text" class="datepicker" id="datepicker2"  placeholder="Data Final" >
-			</div>
-		</div>
-		<div class="row">
-			<div class ="col s6 offset-s5">
-				<span style="font-weight: bold;">Nome do extrato</span>
-			</div>
-		</div>
-		<div class ="col s6 offset-s3">
-		 <select th:field="*{buttons}" data-placeholder="Escolha os nomes"  class="browser-default chosen-select"  multiple="multiple"  id="nomeextrato">
-      
-                 <option th:each="b : ${buttons}" 
-                        th:value="${b}" th:id="${b}" th:text="${b}"></option>      
- </select>
-		</div>
-	
-	<div class="row">
-			<div class ="col s6 offset-s5">
-				<span style="font-weight: bold;">Nome do operador</span>
-			</div>
-		</div>
-	<div class="row">
-		<div class ="col s6 offset-s3">
-		<select th:field="*{operators}" data-placeholder="Escolha os operadores"  id="operadorextrato"  multiple="multiple" class="browser-default chosen-select">
+<form th:action="@{/user/extrato/filtros}" style="display: none;">
+ <input type="text" name="type" id="type"
+								th:value="${type}"  />
+<input type="text" name="month" id="month" th:value="${month}"  />
+<input type="text" name="year" id="year" th:value="${year}"  />
 
-                <option th:each="o : ${operators}" 
-                        th:value="${o.name}" th:id="${o.id}" th:text="${o.name}"></option>      
- </select>
-		</div>
+<input type="submit" value="Search" id="enviarbuscar" onmouseover="passForm();"
+												/>
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="row">
+	<div class="col s6  offset-s4">
+	<span class="center-align" style="font-weight:bold;">Tipo</span>
 	</div>
+</div>
+<div class="row">
 	
-	<div class="row">
-		<div class ="col s1 offset-s3">
-		 
-        <span style="font-weight: bold;">Tipo: </span>
-		</div>
-		<div class ="col s1 offset-s1">
+		<div class ="col s1 offset-s4">
 		<label>
         <input name="group1" type="checkbox" id="r1" />
         <span>Crédito</span>
@@ -108,9 +235,51 @@ textarea, input {
         <span>Débito</span>
       </label>
 		</div>
+	</div>	
+<div class="row" >
+<div class="col s6  offset-s4">
+	<span class="center-align" style="font-weight:bold;">Ano</span>
 	</div>
+		<div class ="col s4 offset-s4">
+    <select id="ano">
+    <option value="0">Todos</option>
+      <option value="2018">2018</option>
+      <option value="2019">2019</option>
+      <option value="2020">2020</option>
+    </select>
+
+  </div>
+  </div>
+  
+  <div class="row" >
+<div class="col s6  offset-s4">
+	<span class="center-align" style="font-weight:bold;">Mês</span>
+	</div>
+		<div class ="col s4 offset-s4">
+    <select id="meses">
+      <option value="0">Todos</option>
+      <option value="1">Janeiro</option>
+      <option value="2">Fevereiro</option>
+      <option value="3">Março</option>
+      <option value="4">Abril</option>
+      <option value="5">Maio</option>
+      <option value="6">Junho</option>
+      <option value="7">Julho</option>
+      <option value="8">Agosto</option>
+      <option value="9">Setembro</option>
+      <option value="10">Outubro</option>
+      <option value="11">Novembro</option>
+      <option value="12">Dezembro</option>
+    </select>
+
+  </div>
+  </div>
+
+
+	
+	
 <div class="row">
-		<div class ="col s6 offset-s3">
+		<div class ="col s6 offset-s6">
 <a class="waves-effect waves-light btn" style="color: black; float: right;" onclick="buscas();" ><i class="material-icons right">search</i>Buscar</a>
 </div>
 </div>
@@ -121,14 +290,38 @@ textarea, input {
 		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >EXTRATO DETALHADO</h5>
 		    	 <hr style="" class="col s4  style-eight" >
  </div>
+ 
+ 
+ 
+ 
 
-   <table th:if="${transactions != null}" border="1" id="my-table" class="highlight" >
+<div class="row">
+<div class ="col s12 ">
+    <ul id="tabs-swipe-demo" class="tabs" >
+    <li class="tab" style="display: none;" id="m0"><a style="font-size: 11px;" href="#test-swipe-2">Jan</a></li>
+    <li class="tab" id="m1" onclick="meses(1);"><a style="font-size: 11px;" href="#test-swipe-2">Jan</a></li>
+    <li class="tab" id="m2" onclick="meses(2);"><a  style="font-size: 11px;" href="#test-swipe-2">Fev</a></li>
+    <li class="tab " id="m3" onclick="meses(3);"><a  style="font-size: 11px;" href="#test-swipe-3">Mar</a></li>
+    <li class="tab " id="m4" onclick="meses(4);"><a style="font-size: 11px;" href="#test-swipe-3">Abr</a></li>
+    <li class="tab " id="m5" onclick="meses(5);"><a  style="font-size: 11px;" href="#test-swipe-3">Mai</a></li>
+    <li class="tab " id="m6" onclick="meses(6);"><a style="font-size: 11px;" href="#test-swipe-3">Jun</a></li>
+    <li class="tab " id="m7" onclick="meses(7);"><a  style="font-size: 11px;" href="#test-swipe-3">Jul</a></li>
+    <li class="tab " id="m8" onclick="meses(8);"><a  style="font-size: 11px;" href="#test-swipe-3">Ago</a></li>
+    <li class="tab " id="m9" onclick="meses(9);"><a  style="font-size: 11px;" href="#test-swipe-3">Set</a></li>
+    <li class="tab " id="m10" onclick="meses(10);"><a  style="font-size: 11px;" href="#test-swipe-3">Out</a></li>
+    <li class="tab " id="m11" onclick="meses(11);"><a  style="font-size: 11px;" href="#test-swipe-3">Nov</a></li>
+    <li class="tab " id="m12" onclick="meses(12);"><a style="font-size: 11px;" href="#test-swipe-3">Dez</a></li>
+  </ul>
+</div>
+	<div class="col s6 offset-s3">
+	
+	 <table th:if="${transactions != null}" border="1" id="xxx" class="highlight" >
+   
     <thead>
         <tr >
-       	    <th class="center">Nome</th>
+            <th class="center">Data</th>
             <th class="center">Valor</th>
             <th class="center">Caixa</th>
-             <th class="center">Data</th>
         </tr>
     </thead>
     <tbody >
@@ -136,24 +329,81 @@ textarea, input {
     	
  
     	<span  style="display: none;" class="truncate" th:text="${t.getId()}"  th:id="${t.getId()}" ></span>
-    		<td>
-    		<span class="truncate" th:if="${t.button != null}"   th:text="${t.button == null ? '' : t.button.name}"  ></span>
-    			<span class="truncate" th:if="${t.button == null}"   th:text="Credito"  ></span>
-    		
-    		</td>
-    		<td><span class="truncate"  th:text="'R$ ' + ${t.getValue()}" th:if="${t.button == null}" style="color: green;"   >
-    		</span><span class="truncate"  th:text="'R$ ' + ${t.getValue()}" th:if="${t.button != null}" style="color: red;"   >
+    		<td><span class="center truncate"  th:text="${t.getData()}"  ></span></td>
+    		<td><span class="center truncate"  th:text="'R$ ' + ${t.getValue()}" th:if="${t.button == null}" style="color: green;"   >
+    		</span><span class="center truncate"  th:text="'R$ ' + ${t.getValue()}" th:if="${t.button != null}" style="color: red;"   >
     		</span>
     		</td>
-	    	<td><span class="truncate"  th:text="${t.getOperator()}"  ></span></td>
-	    	<td><span class="truncate"  th:text="${t.getData()}"  ></span></td>
+	    	<td><span class="center truncate"  th:text="${t.getOperator()}"  ></span></td>
+	    	
     	</tr>
       
     </tbody>
 </table>
+	</div>
+</div>
+  
+<div id="example" "></div>
+ <form autocomplete="off" action="#" th:action="@{/user/extrato/bypage}" method="post"  style="display: none;" >
+					<div class="form-group">
+						<div class="col-sm-9">
+						
+						<input type="text" th:value="${page}" name="page"  id="page" placeholder="Page"
+								class="form-control" /> 
+						</div>
+					</div>
+					<input type="submit" value="Search" id="enviarpage" 
+												/>
+					
+</form>
+
+ <form autocomplete="off" action="#" th:action="@{/user/extrato/geral}" method="post"  style="display: none;" >
+					<div class="form-group">
+						<div class="col-sm-9">
+						<input type="text" th:value="${op}" name="op"  id="op" placeholder="Page"
+								class="form-control" /> 
+						<input type="text" th:value="${pages}" name="pages"  id="pages" placeholder="Page"
+								class="form-control" /> 
+						<input type="text" th:value="${ini}" name="ini"  id="ini" placeholder="Page"
+								class="form-control" /> 
+						<input type="text" th:value="${fim}" name="fim"  id="fim" placeholder="Page"
+								class="form-control" />				
+						</div>
+					</div>
+					<input type="submit" value="Search" id="enviarpagec" 
+												/>
+					
+</form>
+
+
+ <form autocomplete="off" action="#" th:action="@{/user/extrato/filterpage}" method="post"  style="display: none;" >
+					<div class="form-group">
+						<div class="col-sm-9">
+						
+						<input type="text" th:value="${filtro}" name="filtro"  id="filtro" placeholder="Page"
+								class="form-control" /> 
+								
+						<input type="text" th:value="${filtroano}" name="filtroano"  id="filtroano" placeholder="Page"
+								class="form-control" /> 
+								<input type="text" th:value="${filtromes}" name="filtromes"  id="filtromes" placeholder="Page"
+								class="form-control" /> 
+						</div>
+					</div>
+					<input type="submit" value="Search" id="enviarfiltro" 
+												/>
+					
+</form>
+
+
 </div>
 </section>
 </main>
 </body>
 
+
+
+
+
 </html>
+
+

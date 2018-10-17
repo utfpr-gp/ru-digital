@@ -1,5 +1,6 @@
 package com.example.service;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface TransactionCreditService {
 
 	public List<TransactionCredit> listFilter(List<String> names, List<String> operador, String dataini, String datafim,
 			String tipo, String pars) throws ParseException;
+
+	public BigInteger totalTransactions();
 }

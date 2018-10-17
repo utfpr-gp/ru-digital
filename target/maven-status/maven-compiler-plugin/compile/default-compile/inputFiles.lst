@@ -5,6 +5,8 @@
 /home/luiz/ru-digital/src/main/java/com/example/repository/ButtonRepository.java
 /home/luiz/ru-digital/src/main/java/com/example/service/ButtonServiceImpl.java
 /home/luiz/ru-digital/src/main/java/com/example/service/ProductService.java
+/home/luiz/ru-digital/src/main/java/com/example/configuration/Response.java
+/home/luiz/ru-digital/src/main/java/com/example/repository/TokenRepository.java
 /home/luiz/ru-digital/src/main/java/com/example/repository/RoleRepository.java
 /home/luiz/ru-digital/src/main/java/com/example/repository/TransactionDebitRepository.java
 /home/luiz/ru-digital/src/main/java/com/example/repository/UserRepository.java
@@ -18,9 +20,11 @@
 /home/luiz/ru-digital/src/main/java/com/example/repository/ProductRepository.java
 /home/luiz/ru-digital/src/main/java/com/example/controller/CloudHost.java
 /home/luiz/ru-digital/src/main/java/com/example/SuccessHandler.java
+/home/luiz/ru-digital/src/main/java/com/example/model/PasswordResetToken.java
 /home/luiz/ru-digital/src/main/java/com/example/service/TransactionDebitService.java
 /home/luiz/ru-digital/src/main/java/com/example/service/TransactionCreditImpl.java
 /home/luiz/ru-digital/src/main/java/com/example/service/ButtonService.java
+/home/luiz/ru-digital/src/main/java/com/example/service/TokenServiceImpl.java
 /home/luiz/ru-digital/src/main/java/com/example/model/TransactionCredit.java
 /home/luiz/ru-digital/src/main/java/com/example/model/TransactionDebit.java
 /home/luiz/ru-digital/src/main/java/com/example/repository/TransactionCreditRepository.java
@@ -31,4 +35,5 @@
 /home/luiz/ru-digital/src/main/java/com/example/Seguranca.java
 /home/luiz/ru-digital/src/main/java/com/example/configuration/SecurityConfiguration.java
 /home/luiz/ru-digital/src/main/java/com/example/model/Role.java
+/home/luiz/ru-digital/src/main/java/com/example/service/TokenService.java
 /home/luiz/ru-digital/src/main/java/com/example/model/User.java

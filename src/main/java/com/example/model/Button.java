@@ -15,6 +15,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Table(name = "button")
 public class Button {
 
+	public Button() {
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "button_id")

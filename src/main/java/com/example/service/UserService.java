@@ -22,4 +22,8 @@ public interface UserService {
 	public void deleteUser(long id);
 
 	public List<User> findManager();
+
+	public void saveUserManager(User user, String confirm);
+
+	public void updateManager(User user, String confirm);
 }

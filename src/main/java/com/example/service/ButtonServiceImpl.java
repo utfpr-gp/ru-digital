@@ -27,6 +27,14 @@ public class ButtonServiceImpl implements ButtonService {
 		return buttonRepository.findOne(id);
 	}
 
+	public void updateButton(Button button) {
+		System.out.println("MEU NOME" + button.getName());
+		System.out.println("MEU VALOR" + button.getValue());
+		System.out.println("MEU ID" + button.getId());
+
+		buttonRepository.updateButton(button.getName(), button.getValue(), button.getId());
+	}
+
 	@Override
 	public void saveButton(Button button) {
 		buttonRepository.save(button);

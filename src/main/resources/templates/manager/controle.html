@@ -81,7 +81,7 @@ button {
 			iduser = document.getElementById('sela').value;
 			document.getElementById("iduser").value = iduser;
 			document.getElementById("idbutton").value = -1;
-			document.getElementById("vldebit").value = document
+			document.getElementById("vldebit").value = "R$ " + document
 					.getElementById("outrodebito").value;
 			$('#modal6').modal('open');
 		}
@@ -156,6 +156,7 @@ $('#outro').fadeIn(200, function(){
 			$("#enviarmodal2").click();
 		else {
 			var newdois = '';
+			document.getElementById('vlaux').value = "R$ " + z;
 			z = z.split('.').join(newdois);	
 			z = z.split(',').join(".");	
 			document.getElementById('vl').value = z;
@@ -187,9 +188,10 @@ $('#outro').fadeIn(200, function(){
 		if (x == -1) {
 			x = document.getElementById('outro').value;
 		} else {
-			document.getElementById('outro').value = x + ".00";
+			document.getElementById('outro').value = x + ",00";
 		}
 		document.getElementById('vl').value = x;
+		document.getElementById('vlaux').value = x;
 		document.getElementById('balance').value = x;
 		document.getElementById('balance2').value = x;
 		$('#outro').fadeIn("slow");
@@ -287,10 +289,11 @@ $('#outro').fadeIn(200, function(){
 					
 				
 					
-					<i class="material-icons" style=" font-size: 32px;">attach_money</i>
-					<span th:if="${u.getBalance() == null }" class="title" style="font-size: 42px; font-weight: bold;" th:text="0.00" ></span>
 					
-					<span class="title" style="font-size: 42px; font-weight: bold;" th:text="${u.getBalance()}"></span>
+					<span th:if="${valor == null }" class="title" style="font-size: 42px; font-weight: bold;" th:text="'R$ ' + 0 +',' + 0 + '0'" ></span>
+					
+					<span class="title" th:if="${valor != null }" style="font-size: 42px; font-weight: bold;" th:text="${valor}"></span>
+					
 					</div>
 				</div>
 			</div>
@@ -425,28 +428,32 @@ $('#outro').fadeIn(200, function(){
 			</form>
 
 			<div id="modal4" class="modal"
-				style="width: 25% !important; height: 35% !important; overflow-y: hidden !important; background-color: #e8f5e9;">
+				style="width: 25% !important; height: 35% !important; overflow-y: hidden !important; background-color: #EBE9E9;">
 
-				<div class="row">
-					<a href="#!"
-						class=" modal-action modal-close waves-effect waves-green btn-flat"
-						style="float: right;">X</a>
-				</div>
+				
 
 				<form autocomplete="off" action="#"
 					th:action="@{/manager/insertcredit}" method="post"
 					th:object="${user}" role="form">
+				<div class="row">
+					<a href="#!"
+						class=" modal-action modal-close waves-effect waves-green btn-flat"
+						style="float: right;">X</a>
+					<h5 class="col s9 ">Confirmar Crédito?</h5>
+				</div>
 					<div class="row">
-						<h6 class="col s9 offset-s3">Confirmar creditos</h6>
+						
 						<input id="aux" value="" style="display: none;" /> <input
 							id="aux" th:if="${users != null}" th:value="${users.document}"
 							style="display: none;" name="users.document" />
 
 						<div class="col s12">
 							<table cellspacing="0" cellpadding="0">
-								<tr class="col s9 offset-s3" style="border: none;">
-									<td><i class="material-icons">attach_money</i></td>
-									<td><input id="vl"
+								<tr class="col s12" style="border: none;">
+									<td style="display: none;"><input id="vl"
+										style="border: none; font-size: 45px; color: #212121;"
+										disabled="disabled" /></td>
+										<td><input id="vlaux"
 										style="border: none; font-size: 45px; color: #212121;"
 										disabled="disabled" /></td>
 
@@ -479,7 +486,7 @@ $('#outro').fadeIn(200, function(){
 
 
 			<div id="modal5" class="modal"
-				style="width: 25% !important; height: 35% !important; overflow-y: hidden !important; background-color: #e8f5e9;">
+				style="width: 25% !important; height: 37% !important; overflow-y: hidden !important; background-color: #F5F4F4;">
 
 				<div class="row">
 					<a href="#!"
@@ -497,13 +504,16 @@ $('#outro').fadeIn(200, function(){
 						th:if="${status == 'Saldo Insuficiente!'}"> <i
 						class="material-icons" style="font-size: 120px;">error_outline</i></a>
 				</div>
+				<div class="modal-footer" style="background-color: #F5F4F4;"> 
+			      <a href="#!"  style="font-size: 22px; color: blue; " class=" modal-action modal-close  btn-flat">Ok</a>
+			    </div>	
 			</div>
 
 
 
 
 			<div id="modal6" class="modal"
-			style="width: 30% !important; height: 45% !important; overflow-y: hidden !important; background-color: #e8f5e9;">
+			style="width: 30% !important; height: 45% !important; overflow-y: hidden !important; background-color: #EBE9E9;">
 			
 				
 
@@ -511,7 +521,7 @@ $('#outro').fadeIn(200, function(){
 					<a href="#!"
 						class=" modal-action modal-close waves-effect waves-green btn-flat"
 						style="float: right;">X</a>
-					<h5 class="col s9 ">Confirmar debito?</h5>
+					<h5 class="col s9 ">Confirmar débito?</h5>
 				</div>
 
 				<form autocomplete="off" action="#"
@@ -525,8 +535,8 @@ $('#outro').fadeIn(200, function(){
 
 						<div class="col s12">
 							<table cellspacing="0" cellpadding="0">
-								<tr class="col s9 offset-s3" style="border: none;">
-									<td><i class="material-icons">attach_money</i></td>
+								<tr class="col s9 offset-s2" style="border: none;">
+									
 									<td><input id="vldebit"
 										style="border: none; font-size: 45px; color: #212121;"
 										disabled="disabled" /></td>

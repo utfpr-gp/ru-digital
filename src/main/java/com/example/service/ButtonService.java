@@ -13,6 +13,8 @@ public interface ButtonService {
 
 	public void deletButton(Button button);
 
+	public void updateButton(Button button);
+
 	public Button getOne(long id);
 
 }

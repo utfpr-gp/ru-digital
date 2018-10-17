@@ -2,15 +2,25 @@ package com.example.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.Principal;
+import java.security.SecureRandom;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -18,6 +28,12 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,13 +55,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.model.Button;
 import com.example.model.Item;
+import com.example.model.PasswordResetToken;
 import com.example.model.Product;
 import com.example.model.Tag;
 import com.example.model.TransactionCredit;
 import com.example.model.TransactionDebit;
 import com.example.model.User;
+import com.example.repository.ButtonRepository;
+import com.example.repository.TokenRepository;
+import com.example.repository.TransactionCreditRepository;
+import com.example.repository.UserRepository;
 import com.example.service.ButtonService;
 import com.example.service.ProductService;
+import com.example.service.TokenService;
 import com.example.service.TransactionCreditService;
 import com.example.service.TransactionDebitService;
 import com.example.service.UserService;
@@ -108,13 +130,250 @@ public class LoginController {
 		return modelAndView;
 	}
 
+	@Autowired
+	TransactionCreditRepository transactionRepository;
+
+	@Autowired
+	UserRepository userRepository;
+
+	@Autowired
+	ButtonRepository buttonRepository;
+
+	@RequestMapping("/checkpages")
+	@ResponseBody
+	public BigInteger numberpages(HttpServletRequest request, HttpServletResponse response) {
+		System.out.println("LOGADO ESTa");
+		BigInteger x = transactioncreditService.totalTransactions();
+		System.out.println("MEU X AMIGO" + x);
+		return x;
+	}
+
+	@RequestMapping(value = { "/user", "/user/extrato/bypage" }, method = RequestMethod.POST)
+	public ModelAndView userbyPage(Model model, @RequestParam(value = "page") int page) {
+		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
+		ModelAndView modelAndView = new ModelAndView();
+		Page<TransactionCredit> students = this.transactionRepository.findAll(pageRequest);
+		model.addAttribute("transactions", students);
+		modelAndView.setViewName("redirect:bypage?page=" + page);
+		return modelAndView;
+	}
+
+	@RequestMapping(value = { "/user", "/user/extrato/geral" }, method = RequestMethod.POST)
+	public ModelAndView userbyPageGeral(Model model, @RequestParam(value = "pages") int page,
+			@RequestParam(value = "op") String op, @RequestParam(value = "ini") String ini,
+			@RequestParam(value = "fim") String fim) {
+		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
+		ModelAndView modelAndView = new ModelAndView();
+		Page<TransactionCredit> t = null;
+		long size = 0;
+		if (op.equals("tempocredito")) {
+			long inicio = Long.valueOf(ini).longValue();
+			long ultimo = Long.valueOf(fim).longValue();
+			t = this.transactionRepository.findByTc(inicio, ultimo, pageRequest);
+			size = this.transactionRepository.findByTc(inicio, ultimo, pageRequest).getTotalElements();
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempodebito");
+
+		} else if (op.equals("tempodebito")) {
+			long inicio = Long.valueOf(ini).longValue();
+			long ultimo = Long.valueOf(fim).longValue();
+			t = this.transactionRepository.findByTd(inicio, ultimo, pageRequest);
+			size = this.transactionRepository.findByTd(inicio, ultimo, pageRequest).getTotalElements();
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempocredito");
+
+		} else if (op.equals("credito")) {
+			t = this.transactionRepository.findByValuePostive(pageRequest);
+			size = this.transactionRepository.findByValuePostive(pageRequest).getTotalElements();
+			model.addAttribute("tipo", "credito");
+			System.out.println("FITRO DE CREDITO");
+		} else if (op.equals("debito")) {
+			t = this.transactionRepository.findByValueNegative(pageRequest);
+			size = this.transactionRepository.findByValueNegative(pageRequest).getTotalElements();
+			model.addAttribute("tipo", "debito");
+			System.out.println("FITRO DE DEBITO");
+		} else if (op.equals("data")) {
+			long inicial = Long.valueOf(ini).longValue();
+			System.out.println("FITRO DE DAATA");
+			long ultimo = Long.valueOf(fim).longValue();
+			model.addAttribute("tipo", "data");
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			t = this.transactionRepository.findByDate(inicial, ultimo, pageRequest);
+			size = this.transactionRepository.findByDate(inicial, ultimo, pageRequest).getTotalElements();
+		} else {
+			t = this.transactionRepository.findAll(pageRequest);
+
+			size = this.transactionRepository.findAll(pageRequest).getTotalElements();
+		}
+		if (ini == null || ini.equals("")) {
+			ini = ".";
+		}
+		if (fim == null || fim.equals("")) {
+			fim = ".";
+		}
+		model.addAttribute("transactions", t);
+		model.addAttribute("size", size);
+		modelAndView.setViewName(
+				"redirect:geral?page=" + page + "&op=" + op + "&size=" + size + "&ini=" + ini + "&fim=" + fim);
+		return modelAndView;
+	}
+
+	@RequestMapping(value = { "/user", "/user/extrato/geral" }, method = RequestMethod.GET)
+	public ModelAndView userbyPageGeralGet(Model model, @RequestParam(value = "page") int page,
+			@RequestParam(value = "op") String op, @RequestParam(value = "size") long size,
+			@RequestParam(value = "ini") String ini, @RequestParam(value = "fim") String fim
+
+	) {
+		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
+		ModelAndView modelAndView = new ModelAndView();
+		Page<TransactionCredit> t = null;
+		if (op.equals("tempocredito")) {
+			long inicio = Long.valueOf(ini).longValue();
+			long ultimo = Long.valueOf(fim).longValue();
+			t = this.transactionRepository.findByTc(inicio, ultimo, pageRequest);
+			size = this.transactionRepository.findByTc(inicio, ultimo, pageRequest).getTotalElements();
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempocredito");
+
+		} else if (op.equals("tempodebito")) {
+			long inicio = Long.valueOf(ini).longValue();
+			long ultimo = Long.valueOf(fim).longValue();
+			t = this.transactionRepository.findByTd(inicio, ultimo, pageRequest);
+			size = this.transactionRepository.findByTd(inicio, ultimo, pageRequest).getTotalElements();
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempodebito");
+
+		} else if (op.equals("credito")) {
+			t = this.transactionRepository.findByValuePostive(pageRequest);
+			size = this.transactionRepository.findByValuePostive(pageRequest).getTotalElements();
+			model.addAttribute("tipo", "credito");
+			System.out.println("FITRO DE CREDITO");
+		} else if (op.equals("debito")) {
+			t = this.transactionRepository.findByValueNegative(pageRequest);
+			size = this.transactionRepository.findByValueNegative(pageRequest).getTotalElements();
+			model.addAttribute("tipo", "debito");
+			System.out.println("FITRO DE DEBITO");
+		} else if (op.equals("data")) {
+			long inicial = Long.valueOf(ini).longValue();
+			System.out.println("FITRO DE DAATA");
+			long ultimo = Long.valueOf(fim).longValue();
+			model.addAttribute("tipo", "data");
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			t = this.transactionRepository.findByDate(inicial, ultimo, pageRequest);
+			size = this.transactionRepository.findByDate(inicial, ultimo, pageRequest).getTotalElements();
+		}
+
+		else {
+			t = this.transactionRepository.findAll(pageRequest);
+
+			size = this.transactionRepository.findAll(pageRequest).getTotalElements();
+		}
+		model.addAttribute("transactions", t);
+		model.addAttribute("size", size);
+		modelAndView.setViewName("user/extrato");
+		return modelAndView;
+	}
+
+	@RequestMapping(value = { "/user", "/user/extrato/bypage" }, method = RequestMethod.GET)
+	public ModelAndView userbyPageGet(Model model, @RequestParam(value = "page") int page) {
+		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
+		ModelAndView modelAndView = new ModelAndView();
+		Page<TransactionCredit> students = this.transactionRepository.findAll(pageRequest);
+		model.addAttribute("transactions", students);
+
+		modelAndView.setViewName("user/extrato");
+
+		return modelAndView;
+	}
+
+	@RequestMapping(value = { "/user", "/user/extrato/filterpage" }, method = RequestMethod.POST)
+	public ModelAndView userbyFilter(Model model, @RequestParam(value = "filtro") String filtro,
+			@RequestParam(value = "filtroano") String filtroano, @RequestParam(value = "filtromes") String filtromes) {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>" + filtro);
+		System.out.println(">>>>>>>>>>>>>>>>>>>>MES" + filtromes);
+		System.out.println(">>>>>>>>>>>>>>>>>>>>ANO" + filtroano);
+		long ini = 0, fim = 0;
+		if (!filtromes.equals("0") && !filtroano.equals("0")) {
+			String date = filtromes + "/1/" + filtroano;
+			LocalDate convertedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("M/d/yyyy"));
+			ini = convertedDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+			convertedDate = convertedDate.withDayOfMonth(convertedDate.getMonth().length(convertedDate.isLeapYear()));
+			System.out.println(">>>>>>>>>>>>>>>>>>>>ULTIMODIADOMES" + convertedDate);
+			fim = convertedDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+			fim = fim + 86400000;
+			if (filtromes.equals("12")) {
+				int numero = Integer.parseInt(filtroano);
+				String datefim = "1" + "/1/" + numero;
+				LocalDate convertedDate2 = LocalDate.parse(datefim, DateTimeFormatter.ofPattern("M/d/yyyy"));
+				fim = convertedDate2.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+			}
+			long tot = fim - ini;
+			System.out.println(">>>>>>>>>>>>>>>>>>>>MILIS" + tot);
+		}
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
+		ModelAndView modelAndView = new ModelAndView();
+		Page<TransactionCredit> t = null;
+		long size = 0;
+		if (filtro.equals("TC")) {
+			t = this.transactionRepository.findByTc(ini, fim, pageRequest);
+			size = this.transactionRepository.findByTc(ini, fim, pageRequest).getTotalElements();
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempocredito");
+
+		} else if (filtro.equals("TD")) {
+			t = this.transactionRepository.findByTd(ini, fim, pageRequest);
+			size = this.transactionRepository.findByTd(ini, fim, pageRequest).getTotalElements();
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempodebitoo");
+
+		} else if (filtro.equals("C")) {
+			t = this.transactionRepository.findByValuePostive(pageRequest);
+			size = this.transactionRepository.findByValuePostive(pageRequest).getTotalElements();
+
+			model.addAttribute("tipo", "credito");
+		} else if (filtro.equals("D")) {
+			t = this.transactionRepository.findByValueNegative(pageRequest);
+			size = this.transactionRepository.findByValueNegative(pageRequest).getTotalElements();
+			model.addAttribute("tipo", "debito");
+		} else if (filtro.equals("T")) {
+			t = this.transactionRepository.findByDate(ini, fim, pageRequest);
+			size = this.transactionRepository.findByDate(ini, fim, pageRequest).getTotalElements();
+			System.out.println("TODO");
+			model.addAttribute("tipo", "data");
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+		} else {
+			t = this.transactionRepository.findAll(pageRequest);
+			size = this.transactionRepository.findAll(pageRequest).getTotalElements();
+		}
+
+		System.out.println("MEU SIZEEEEEEEEEEEEE" + size);
+		model.addAttribute("transactions", t);
+		model.addAttribute("size", size);
+		modelAndView.setViewName("user/extrato");
+
+		return modelAndView;
+	}
+
 	@RequestMapping(value = { "/user", "/user/extrato" }, method = RequestMethod.GET)
 	public ModelAndView userExtrato(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		List<TransactionCredit> transactioncredit = transactioncreditService.findAll();
-		model.addAttribute("transactions", transactioncredit);
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
+
+		Page<TransactionCredit> tall = this.transactionRepository.findAll(pageRequest);
+		model.addAttribute("transactions", tall);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findUserByEmail(auth.getName());
+
 		List<String> buttons = transactioncreditService.listdiferentButtons();
 		List<User> us = userService.findManager();
 		model.addAttribute("operators", us);
@@ -208,12 +467,13 @@ public class LoginController {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findUserByEmail(auth.getName());
-		List<Button> buttons = buttonService.findAll();
 		Button button = new Button();
-		buttons = buttonService.findAll();
 		model.addAttribute("user", user);
 		model.addAttribute("button", button);
-		model.addAttribute("buttons", buttons);
+
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
+		Page<Button> buts = this.buttonRepository.findAll(pageRequest);
+		model.addAttribute("buttonsme", buts);
 		modelAndView.setViewName("manager/botoes");
 		return modelAndView;
 	}
@@ -270,6 +530,7 @@ public class LoginController {
 	public void deleteButton(@RequestParam long id, HttpServletRequest request, HttpServletResponse response) {
 		Button bt = buttonService.getOne(id);
 		ModelAndView modelAndView = new ModelAndView();
+		System.out.println("NA TENTATIVA DE DELETAR O BOTAO");
 		modelAndView.addObject("mostrardel", bt);
 		buttonService.deletButton(bt);
 
@@ -302,20 +563,173 @@ public class LoginController {
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/admin", "/manager/botoes/novo" }, method = RequestMethod.POST)
-	public ModelAndView novoBotao(Button button, Model model) {
+	@Autowired
+	TokenRepository tokenRepository;
+
+	@RequestMapping(value = { "/login/senha" }, method = RequestMethod.POST)
+	public ModelAndView novaSenha(Model model, @RequestParam(value = "email") String email) throws MessagingException {
 		ModelAndView modelAndView = new ModelAndView();
-		if (button != null && button.getName() != null && button.getValue() != null && button.getName() != "") {
+		User u = userService.findUserByEmail(email);
+		System.out.println("ENVIAR O EMAIL E SALVAR TOKEN NO BANCO");
+		String token = "";
+		if (u == null)
+			model.addAttribute("resposta", "nencontrado");
+		else {
+			System.out.println("ANTES");
+			PasswordResetToken x = tokenRepository.hasToken(u.getId());
+			System.out.println("DEPOIS");
+			if (x == null || x.isExpired()) {
+				System.out.println("DENTRO DO IF");
+				token = generateToken();
+				token = bCryptPasswordEncoder.encode(token);
+				PasswordResetToken t = tokenService.findByToken(token);
+				while (t != null) {
+					token = generateToken();
+					t = tokenService.findByToken(token);
+				}
+				PasswordResetToken reset = new PasswordResetToken();
+				Date today = new Date();
+				Date tomorrow = new Date(today.getTime() + (1000 * 60 * 60 * 24 * 2));
+				reset.setExpiryDate(tomorrow);
+				reset.setExpiryDate(1440);
+				reset.setToken(token);
+				reset.setUser(u);
+				tokenService.saveToken(reset);
+			} else
+				token = x.getToken();
+			sendMailForgetPass(u, token);
+			model.addAttribute("resposta", "encontrado");
+		}
+		modelAndView.setViewName("login");
+		return modelAndView;
+	}
+
+	@Autowired
+	private JavaMailSender mailSender;
+
+	public String sendMailForgetPass(User u, String rash) throws MessagingException {
+		SimpleMailMessage message = new SimpleMailMessage();
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "utf-8");
+
+		String htmlMsg = "Olá " + u.getName() + "\n Você solicitou mudança de senha no sistema UTFCOIN. <br> \n "
+				+ "Para recuperar a sua senha click no link abaixo: <br> "
+				+ " <a href='http://localhost:8030/reset?token=" + rash + "&email=" + u.getEmail()
+				+ " '  >Resetar senha</a>  <br> <br> "
+				+ "Caso não tenha solicitado alteração, ignore essa mensagem e nos informe."
+				+ "<br> Atenciosamente, UTFCOIN";
+		mimeMessage.setContent(htmlMsg, "text/html");
+		helper.setTo(u.getEmail());
+		helper.setSubject("UTFCOIN - Solicitação de nova senha");
+		helper.setFrom("utfcoin@gmail.com");
+
+		try {
+			mailSender.send(mimeMessage);
+			return "jsonTemplate";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Erro ao enviar email.";
+		}
+	}
+
+	public String generateToken() {
+		SecureRandom random = new SecureRandom();
+		byte bytes[] = new byte[20];
+		random.nextBytes(bytes);
+		String token = bytes.toString();
+		return token;
+	}
+
+	@Autowired
+	private TokenService tokenService;
+
+	@RequestMapping(value = { "/reset" }, method = RequestMethod.GET)
+	public String displayResetPasswordPage(@RequestParam(value = "token") String token,
+			@RequestParam(value = "email") String email, Model model) {
+		System.out.println("AQUIIIIII" + token);
+		PasswordResetToken resetToken = tokenService.findByToken(token);
+
+		System.out.println("TA AQUI MEU ID");
+		if (resetToken == null || resetToken.getId() == null) {
+			System.out.println("AH BLZ");
+			model.addAttribute("error", "Token não encontrado");
+		} else if (resetToken.isExpired()) {
+			model.addAttribute("error", "Token expirado, solicite novamente a recuperação");
+		} else {
+			model.addAttribute("email", email);
+			model.addAttribute("token", resetToken.getToken());
+			return "resetpassword";
+		}
+
+		return "login";
+	}
+
+	@RequestMapping(value = { "/admin", "/manager/botoes/novo" }, method = RequestMethod.POST)
+	public ModelAndView novoBotao(Button button, Model model,
+			@RequestParam(value = "ideditar", required = false) long id) {
+		ModelAndView modelAndView = new ModelAndView();
+		System.out.println("ID DE MEU BOTAO" + id);
+		if (id == -1 && button != null && button.getName() != null && button.getValue() != null
+				&& button.getName() != "") {
 			System.out.println("CHAMDAOAOAOAOAOOAOAOAOOAOAOOAOAOA");
 			buttonService.saveButton(button);
+		} else if (id > 0 && button != null && button.getName() != null && button.getValue() != null
+				&& button.getName() != "") {
+			button.setId(id);
+			buttonService.updateButton(button);
 		}
+
 		Button b = new Button();
 		modelAndView.addObject("mostrar", button);
-		List<Button> buttons = buttonService.findAll();
 		model.addAttribute("button", b);
-		model.addAttribute("buttons", buttons);
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
+		Page<Button> buts = this.buttonRepository.findAll(pageRequest);
+		model.addAttribute("buttonsme", buts);
 		modelAndView.setViewName("manager/botoes");
 		return modelAndView;
+	}
+
+	@RequestMapping("/resets")
+	@ResponseBody
+	public String resetar(Model model, @RequestParam String token, @RequestParam String email,
+			@RequestParam String password, @RequestParam String confirm, HttpServletRequest request,
+			HttpServletResponse response) {
+		System.out.println("TA DENTRO");
+		ModelAndView modelAndView = new ModelAndView();
+		User us = userService.findUserByEmail(email);
+		PasswordResetToken t = tokenService.findByToken(token);
+		String result = "";
+		System.out.println("PASSA POR AQUI------------------------------------------" + token);
+		if (t.getUser().getId() != us.getId()) {
+			System.out.println("ACESSO NEGADO");
+			result = "ACESSO NEGADO";
+		} else {
+			if (!password.equals(confirm)) {
+				result = "Senhas não conferem";
+			} else if (password.length() < 5) {
+				result = "A senha deve possuir ao menos 5 carcateres";
+			} else {
+				us.setPassword(bCryptPasswordEncoder.encode(password));
+				userService.updateUser(us);
+				result = "Senha alterada";
+			}
+		}
+		return result;
+	}
+
+	@RequestMapping("/resets/delettoken")
+	@ResponseBody
+	public boolean resetar(Model model, @RequestParam String token, HttpServletRequest request,
+			HttpServletResponse response) {
+		PasswordResetToken t = tokenService.findByToken(token);
+		System.out.println("FUI CHAMADO SIM");
+		if (t != null) {
+			System.out.println("ENCONTROU");
+			tokenRepository.delete(t);
+			System.out.println("ENCONTROU++");
+			return true;
+		}
+		return false;
 	}
 
 	@RequestMapping(value = { "/user", "/user/edit/test" }, method = RequestMethod.POST)
@@ -347,6 +761,9 @@ public class LoginController {
 
 		return (hashed_password);
 	}
+
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@RequestMapping(value = { "/user", "/user/edit" }, method = RequestMethod.POST)
 	public ModelAndView userEdited(Model model, @RequestParam String password, @RequestParam String confirm,
@@ -439,6 +856,7 @@ public class LoginController {
 		}
 
 		System.setProperty("userDetails", principal.getName());
+
 		if (isAdmin())
 			return "redirect:" + "/manager/controle";
 		if (isManager())
@@ -468,11 +886,12 @@ public class LoginController {
 	}
 
 	@RequestMapping(value = "/registration", method = RequestMethod.POST)
-	public ModelAndView createNewUser(@Valid User user, BindingResult bindingResult, @RequestParam String hid,
-			@RequestParam String confirm) {
+	public String createNewUser(@Valid User user, BindingResult bindingResult, @RequestParam String hid,
+			@RequestParam String confirm, HttpServletRequest request) throws ServletException {
 		System.out.println("AaaAaAaaAaa" + hid);
 		System.out.println("BbbbBbBBBbBbbBBb" + user.getDocument());
 		user.setDocument(hid);
+		String antes = user.getPassword();
 		ModelAndView modelAndView = new ModelAndView();
 		User userExists = userService.findUserByEmail(user.getEmail());
 		User raExists = userService.findUserByDocument(user.getDocument());
@@ -485,7 +904,7 @@ public class LoginController {
 					"There is already a user registered with the email provided");
 			modelAndView.setViewName("registration");
 			modelAndView.addObject("user", new User());
-			return modelAndView;
+			return "redirect:/registration/";
 
 		}
 		if (userExists != null) {
@@ -504,10 +923,11 @@ public class LoginController {
 
 		if (bindingResult.hasErrors()) {
 			modelAndView.setViewName("registration");
+			return "redirect:/registration/";
 		} else {
 			user.setImage("rejoed05uyghymultqsv");
 			userService.saveUser(user);
-			final String uri = "http://localhost:8090/email-send/{id}";
+			final String uri = "http://localhost:8030/email-send/{id}";
 			Map<String, String> params = new HashMap<String, String>();
 			params.put("id", user.getId() + "");
 
@@ -515,12 +935,18 @@ public class LoginController {
 			String result = restTemplate.getForObject(uri, String.class, params);
 
 			System.out.println(result);
+			System.out.println("BELEZA");
 			modelAndView.addObject("successMessage", "User has been registered successfully");
 			modelAndView.addObject("user", new User());
-			modelAndView.setViewName("registration");
+			// request.login(user.getEmail(), user.getPassword());
+
+			modelAndView.setViewName("user/home");
 
 		}
-		return modelAndView;
+		System.out.println("MEU SENHA" + antes);
+		request.login(user.getEmail(), antes);
+
+		return "redirect:/user/home";
 	}
 
 	@RequestMapping(value = "/admin/registermanager", method = RequestMethod.GET)
@@ -529,8 +955,12 @@ public class LoginController {
 		User user = new User();
 		modelAndView.addObject("user", user);
 		modelAndView.addObject("result", user.getName());
-		List<User> users = userService.findManager();
-		model.addAttribute("managers", users);
+
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
+
+		Page<User> ur = this.userRepository.findManagers(pageRequest);
+		model.addAttribute("managers", ur);
+
 		modelAndView.setViewName("admin/registermanager");
 		return modelAndView;
 	}
@@ -603,6 +1033,11 @@ public class LoginController {
 		}
 		if (us != null) {
 			model.addAttribute("users", us);
+			if (us.getBalance() != null) {
+				NumberFormat nf = NumberFormat.getCurrencyInstance();
+				String s = nf.format(us.getBalance());
+				model.addAttribute("valor", s);
+			}
 		}
 		if (us == null) {
 			User use = userService.findUserByDocument(email);
@@ -612,6 +1047,11 @@ public class LoginController {
 				Button button = new Button();
 				buttons = buttonService.findAll();
 				model.addAttribute("buttons", buttons);
+				if (use.getBalance() != null) {
+					NumberFormat nf = NumberFormat.getCurrencyInstance();
+					String s = nf.format(use.getBalance());
+					model.addAttribute("valor", s);
+				}
 
 			} else
 				model.addAttribute("usernotfound", "verdade");
@@ -671,7 +1111,7 @@ public class LoginController {
 		User uaux = userService.findUserByEmail(username);
 		if (uaux == null)
 			uaux = userService.findUserByDocument(username);
-		String data = new SimpleDateFormat("dd/MM/yyyy-HH:mm ss").format(Calendar.getInstance().getTime());
+		String data = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(Calendar.getInstance().getTime());
 
 		long millis = System.currentTimeMillis();
 
@@ -697,6 +1137,9 @@ public class LoginController {
 				user.setBalance(total);
 				userService.updateUser(user);
 				transactioncreditService.saveTransaction(transactioncredit);
+				NumberFormat nf = NumberFormat.getCurrencyInstance();
+				String s = nf.format(user.getBalance());
+				model.addAttribute("valor", s);
 				model.addAttribute("status", "Consumo lanncado!");
 				redir.addFlashAttribute("status2", "Consumo lanncado!");
 			} else {
@@ -729,6 +1172,9 @@ public class LoginController {
 				userService.updateUser(user);
 				transactioncreditService.saveTransaction(transactioncredit);
 				model.addAttribute("status", "Consumo lanncado!");
+				NumberFormat nf = NumberFormat.getCurrencyInstance();
+				String s = nf.format(user.getBalance());
+				model.addAttribute("valor", s);
 				redir.addFlashAttribute("status2", "Consumo lanncado!");
 			} else {
 				model.addAttribute("status", "Saldo Insuficiente!");
@@ -757,20 +1203,26 @@ public class LoginController {
 		User uaux = userService.findUserByEmail(principal.getName());
 		if (uaux == null)
 			uaux = userService.findUserByDocument(principal.getName());
-		String data = new SimpleDateFormat("dd/MM/yyyy-HH:mm ss").format(Calendar.getInstance().getTime());
+		String data = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(Calendar.getInstance().getTime());
 		long millis = System.currentTimeMillis();
 		us.setBalance(balance);
 		transactioncredit.setUser(us);
 		Button button = new Button();
-		button.set
-		transactioncredit.setButton(button);
+
+		// transactioncredit.setButton(button);
 		transactioncredit.setMilis(millis);
 		transactioncredit.setOperator(uaux.getName());
 		transactioncredit.setData(data);
 		model.addAttribute("status", "Créditos Inseridos!");
 		userService.updateUser(us);
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
+		String s = nf.format(us.getBalance());
+		model.addAttribute("valor", s);
+		// model.addAttribute("valor", s);
 		transactioncreditService.saveTransaction(transactioncredit);
+
 		model.addAttribute("users", us);
+		System.out.println("TAMO AQUI" + us.getBalance());
 		List<Button> buttons = buttonService.findAll();
 		model.addAttribute("buttons", buttons);
 		System.out.println("PRINCIPALLLLLLLLLLL" + principal.getName());
@@ -845,7 +1297,7 @@ public class LoginController {
 		if (user.getId() != -1) {
 			modelAndView.addObject("successMessage", "editado");
 
-			userService.updateUser(user);
+			userService.updateManager(user, confirm);
 			List<User> users = userService.findManager();
 			model.addAttribute("managers", users);
 			modelAndView.setViewName("admin/registermanager");

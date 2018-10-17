@@ -1,5 +1,6 @@
 package com.example.service;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,6 +10,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.model.TransactionCredit;
@@ -34,6 +37,26 @@ public class TransactionCreditImpl implements TransactionCreditService {
 
 	public List<TransactionCredit> findAll() {
 		return transactioncreditRepository.findAll();
+	}
+
+	public Page<TransactionCredit> findByValuePostive(Pageable pageable) {
+		return transactioncreditRepository.findByValuePostive(pageable);
+	}
+
+	public Page<TransactionCredit> findByValueNegative(Pageable pageable) {
+		return transactioncreditRepository.findByValueNegative(pageable);
+	}
+
+	public Page<TransactionCredit> findByDate(long ini, long fim, Pageable pageable) {
+		return transactioncreditRepository.findByDate(ini, fim, pageable);
+	}
+
+	public Page<TransactionCredit> findByTc(long ini, long fim, Pageable pageable) {
+		return transactioncreditRepository.findByTc(ini, fim, pageable);
+	}
+
+	public Page<TransactionCredit> findByTd(long ini, long fim, Pageable pageable) {
+		return transactioncreditRepository.findByTd(ini, fim, pageable);
 	}
 
 	@PersistenceContext
@@ -78,6 +101,13 @@ public class TransactionCreditImpl implements TransactionCreditService {
 		Date date = sdf.parse(data);
 		long millis = date.getTime();
 		return millis;
+	}
+
+	public BigInteger totalTransactions() {
+		BigInteger rowCnt = (BigInteger) manager.createNativeQuery("SELECT count(*) FROM transactioncredit")
+				.getSingleResult();
+
+		return rowCnt;
 	}
 
 	public List<TransactionCredit> listFilter(List<String> names, List<String> operador, String dataini, String datafim,
