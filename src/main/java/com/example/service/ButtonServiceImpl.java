@@ -41,7 +41,8 @@ public class ButtonServiceImpl implements ButtonService {
 	}
 
 	public void deletButton(Button button) {
-		buttonRepository.delete(button);
+		button.setDeleted(true);
+		updateButton(button);
 	}
 
 	@PersistenceContext

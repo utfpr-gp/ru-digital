@@ -10,11 +10,19 @@ table.striped > tbody > tr:nth-child(odd) {
   background-color: rgba(170, 213, 213, 0.5);
 }
 
+.bleed {
+padding-left: 30.4%;
+margin-left: -30.4%;
+padding-right: 30.4%;
+margin-right: -30.4%;
+}
+html, body{
+  overflow-x: hidden;
+}
 </style>
 <script>
 
-$(document).ready(function(){ /* ... */
-	 
+$(document).ready(function(){ 
 	 var count = $('#xxx tr').length;
 	 var i =0;
 	 for (i=1; i< count; i++){
@@ -212,7 +220,6 @@ th a:hover {
 				z = document.getElementById("value").value.split('.').join(newdois);	
 				z = z.split(',').join(".");	
 				document.getElementById("value").value = z;
-				alert (document.getElementById("ideditar").value);
 				if (document.getElementById("ideditar").value == "")
 					document.getElementById("ideditar").value = "-1";
     		    if (document.getElementById("name").value === "" && document.getElementById("value").value === ""){
@@ -264,23 +271,32 @@ td i{
     <main layout:fragment="content">
       <div class="row">
  
-        <article class="container" >
+        <article class="container"  >
             <div class="row">
-		    	 <h3 style="margin-bottom: 0px;" >CONTROLE OPÇÕES</h3>
+		    	 <h3 style="margin-bottom: 0px;" >OPÇÕES</h3>
 		    	 
-		         <hr  class="col s6  style-eight" >
+		         <hr  class="col s3  style-eight" >
     		</div>
-    		
-    		<div class="row"  style="padding-top: 3%;">
-		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >CADASTRAR OPÇÔES</h5>
-		    	 <hr style="" class="col s4  style-eight" >
-    		</div>
+    	<blockquote>
+			    	Ao cadastrar uma opção customizável,
+			    	 poderá usar como botão na página de  <a href="http://localhost:8030/manager/controle" >Controle</a>
+			    	 
+			    	 , para lançamento de débito
+			    	  do valor definido  nessa opção.
+	    </blockquote>
+    		<div style="background-color: #F5F4F4; !important; height: 355px;" class="bleed">
+    			
+    		<div class="row"  style="padding-top: 1%;">
+		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >CADASTRAR OPÇÕES</h5>
+		    	
+		    </div>
     		<div class="col-sm-9">
 						  <button class="myButton btn waves-effect waves-light" onclick="zerarform();"  style="float:left; color: black; margin-bottom: 20px;" type="button" name="action">Novo
 						    <i class="material-icons right">add</i>
 						 </button>
+			</div>
             <section class=" col s12">
-            <form autocomplete="off" action="#" th:action="@{/manager/botoes/novo}" method="post" th:object="${button}" role="form">
+            <form autocomplete="off" action="#" th:action="@{/manager/botoes}" method="post" th:object="${button}" role="form">
 					<div class="form-group">
 						<div class="col-sm-9">
 						
@@ -303,7 +319,7 @@ td i{
 						  
 						  
 						  <button class="btn waves-effect waves-light"  onclick="enviarform(event);" style="float:right;  color: black;" type="submit" name="action">Cadastrar
-						    <i class="material-icons right">send</i>
+						    <i class="material-icons right">save</i>
 						  </button>
 					</div>
 					</div>
@@ -317,14 +333,13 @@ td i{
 
 
             </section>
-            
+           </div>	
  <section  class = "col s12">
 <div class="row"  style="padding-top: 3%;">
 		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >LISTAR OPÇÕES</h5>
-		    	 <hr style="" class="col s3  style-eight" >
-    		</div>
+		    	 </div>
     		
-	<div class="col s11 offset-s1">
+	<div class="col s12">
 	
 	 <table th:if="${buttonsme != null}" border="1" id="xxx" class="highlight" >
    
@@ -336,7 +351,7 @@ td i{
         </tr>
     </thead>
     <tbody >
-   	    <tr th:each="b: ${buttonsme}">
+   	    <tr th:each="b: ${buttonsme}" th:if="${b.getOutros() == NULL && b.getDeleted() == NULL}">
     	
  
     	<span  style="display: none;" class="truncate" th:text="${b.getId()}"  th:id="${b.getId()}" ></span>

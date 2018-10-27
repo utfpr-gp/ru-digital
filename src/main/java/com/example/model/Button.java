@@ -29,6 +29,17 @@ public class Button {
 	@Column(name = "outros")
 	private Boolean outros;
 
+	@Column(name = "deleted")
+	private Boolean deleted;
+
+	public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
+	}
+
 	public Boolean getOutros() {
 		return outros;
 	}

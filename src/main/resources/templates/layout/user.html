@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <title>RU Digital</title>
       <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
-	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet"  th:href="@{/sasscompiled/materialize-src/sass/materialize.css}"  media="screen,projection"/>
+	
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	 <script type="text/javascript" th:src="@{/js/cloudinary-jquery-file-upload.min.js}"></script>
      <script type="text/javascript" th:src="@{/js/dynatable.js}"></script>
     <script type="text/javascript" th:src="@{/js/materialize-pagination.js}"></script>
@@ -23,7 +24,25 @@
 </head>
 
 <body>
+<script>
 
+
+$( document ).ready(function() {
+	if (document.getElementById('successMessage').innerHTML == "As senhas nao conferem"){
+		document.getElementById('successMessage').style.color = "red";
+		setTimeout(function(){ 
+			document.getElementById('successMessage').style.display = "none";
+		}, 3000);
+	}
+	else if (document.getElementById('successMessage').innerHTML == "Conta alterada com sucesso"){
+		setTimeout(function(){ 
+			document.getElementById('successMessage').style.display = "none";
+		}, 3000);
+		
+	}
+	
+});
+</script>
 <body>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -158,22 +177,12 @@ hr.style-hr:after {
 
 
 
-hr.style-eight:after {
-    content: "§";
-    /* display: inline-block; */
-    position: relative;
-    top: -0.9em;
-    font-size: 1.5em;
-    padding: 0 0.25em;
-    background: white;
-    
-}
+
 
 
 
 hr.style-eight {
-    overflow: visible;
-    padding: 0;
+
     border: none;
     border-top: medium double #ffc107;
     color: #ffc107;
@@ -279,29 +288,32 @@ th a:hover {
             </div>
         </div>
     </nav>
-    <main layout:fragment="content">
+    <main layout:fragment="content" >
         <p>Default content</p>
+        
     </main>
-    <footer class="page-footer" style="background-color: #ffc107;">
+   
+      <footer class="page-footer "  style=" margin-top: 82px; background-color: #ffc107;">
         <div class="container">
             <div class="row">
                 <div class="col l6 s12">
-                    <h5 class="black-text">Java Forum</h5>
-                    <p class="black-text">Programming forum about Java powered by Spring Framework</p>
+                    <h5 class="black-text">UTFCOIN</h5>
+                    <p class="black-text">A Moeda Digital da UTFPR</p>
                 </div>
                 <div class="col l4 offset-l2 s12">
                     <h5 class="black-text">Links</h5>
                     <ul>
-                        <li><a class="black-text" href="https://github.com/plkpiotr">Github</a></li>
-                        <li><a class="black-text" href="https://forum.pasja-informatyki.pl/user/plkpiotr">Pasja Informatyki</a></li>
-                        <li><a class="black-text" href="https://plus.google.com/u/0/100065018101140624093">Google+</a></li>
+                        <li><a class="black-text" href="https://github.com/utfpr-gp/ru-digital">Github</a></li>
+                        <li><a class="black-text" href="https://nameless-wave-82551.herokuapp.com">Heroku</a></li>
+                    <li><a class="black-text" href="http://utfpr.edu.br">UTFPR</a></li>
+                   
                     </ul>
                 </div>
             </div>
         </div>
         <div class="footer-copyright">
             <div class="container">
-                All rights reserved &nbsp;|&nbsp; plkpiotr &nbsp;|&nbsp; 09/2017
+                Todos os direitos reservados &nbsp;|&nbsp; Luiz Felipe &nbsp;|&nbsp; 2018
             </div>
         </div>
     </footer>

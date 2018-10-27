@@ -210,9 +210,16 @@ th a:hover {
 }
 
 
+.bleed {
+padding-left: 30.4%;
+margin-left: -30.4%;
+padding-right: 30.4%;
+margin-right: -30.4%;
+}
 
-
-   
+html, body{
+  overflow-x: hidden;
+}
 
 </style>
 
@@ -224,11 +231,11 @@ th a:hover {
 		    	 
 		         <hr  class="col s6  style-eight" >
     		</div>
+    		<div class= "bleed" style="background-color: #F5F4F4; !important; height: 540px;">
     		
     		<div class="row"  style="padding-top: 3%;">
 		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >CADASTRAR GERENTES</h5>
-		    	 <hr style="" class="col s4  style-eight" >
-    		</div>
+		    </div>
     		<div class="col-sm-9">
 						  <button class="myButton btn waves-effect waves-light" onclick="zerarform();"  style="float:left; color: black; margin-bottom: 20px;" type="button" name="action">Novo
 						    <i class="material-icons right">add</i>
@@ -294,7 +301,7 @@ th a:hover {
 						  
 						  
 						  <button class="btn waves-effect waves-light"  style="float:right; color: black;" type="submit" name="action">Cadastrar
-						    <i class="material-icons right">send</i>
+						    <i class="material-icons right">save</i>
 						  </button>
 					</div>
 					</div>
@@ -312,11 +319,12 @@ th a:hover {
 
 
             </section>
- <section  class = "col s12" style="margin-top: 55px;">
+            </div>
+ <section  class = "col s12 " style="margin-top: 55px; ">
+
 <div class="row"  style="padding-top: 3%;">
 		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >LISTAR GERENTES</h5>
-		    	 <hr style="" class="col s3  style-eight" >
-    		</div>
+		    </div>
     		
 	<div class="col s11 offset-s1">
 	

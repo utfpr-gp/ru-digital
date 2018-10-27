@@ -1,6 +1,6 @@
 package com.example.model;
 
-import java.math.BigDecimal;
+import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -9,7 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.Email;
@@ -33,6 +35,18 @@ public class User {
 		this.id = id;
 	}
 
+	@ManyToOne
+	@JoinColumn(name = "company_id")
+	private Company company;
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
 	@Column(name = "email")
 	@Email(message = "*Por favor informe o email")
 	@NotEmpty(message = "*Por favor informe um email")
@@ -47,8 +61,17 @@ public class User {
 
 	@Column(name = "active")
 	private int active;
-	@Column(name = "balance")
-	private BigDecimal balance;
+
+	@Column(nullable = true, name = "pin")
+	private Integer pin;
+
+	public int getPin() {
+		return pin;
+	}
+
+	public void setPin(Integer pin) {
+		this.pin = pin;
+	}
 
 	public String getImage() {
 		return image;
@@ -58,19 +81,19 @@ public class User {
 		this.image = image;
 	}
 
+	public void generatePin() {
+		Random rand = new Random();
+		int max = 9999;
+		int min = 1000;
+		int value = rand.nextInt((max - min) + 1) + min;
+		setPin(value);
+	}
+
 	@Column(name = "image")
 	private String image;
 	@Column(name = "document")
 	@NotEmpty(message = "*Por favor informe o seu documento")
 	private String document;
-
-	public BigDecimal getBalance() {
-		return balance;
-	}
-
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
-	}
 
 	public String getDocument() {
 		return document;

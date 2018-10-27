@@ -43,7 +43,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,22 +53,23 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.model.Button;
-import com.example.model.Item;
+import com.example.model.Company;
 import com.example.model.PasswordResetToken;
-import com.example.model.Product;
 import com.example.model.Tag;
 import com.example.model.TransactionCredit;
-import com.example.model.TransactionDebit;
 import com.example.model.User;
+import com.example.model.UserBalance;
 import com.example.repository.ButtonRepository;
+import com.example.repository.CompanyRepository;
 import com.example.repository.TokenRepository;
 import com.example.repository.TransactionCreditRepository;
+import com.example.repository.UserBalanceRepository;
 import com.example.repository.UserRepository;
 import com.example.service.ButtonService;
-import com.example.service.ProductService;
+import com.example.service.CompanyService;
 import com.example.service.TokenService;
 import com.example.service.TransactionCreditService;
-import com.example.service.TransactionDebitService;
+import com.example.service.UserBalanceService;
 import com.example.service.UserService;
 
 @Controller
@@ -85,16 +85,19 @@ public class LoginController {
 	private UserService userService;
 
 	@Autowired
-	private ButtonService buttonService;
+	private CompanyService companyService;
 
 	@Autowired
-	private ProductService productService;
+	private CompanyRepository companyRepository;
+
+	@Autowired
+	private ButtonService buttonService;
 
 	@Autowired
 	private TransactionCreditService transactioncreditService;
 
 	@Autowired
-	private TransactionDebitService transactiondebitService;
+	private UserBalanceService userbalanceService;
 
 	@RequestMapping(value = { "/teste" }, method = RequestMethod.GET)
 	public ModelAndView teste() {
@@ -148,65 +151,72 @@ public class LoginController {
 		return x;
 	}
 
-	@RequestMapping(value = { "/user", "/user/extrato/bypage" }, method = RequestMethod.POST)
-	public ModelAndView userbyPage(Model model, @RequestParam(value = "page") int page) {
-		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
-		ModelAndView modelAndView = new ModelAndView();
-		Page<TransactionCredit> students = this.transactionRepository.findAll(pageRequest);
-		model.addAttribute("transactions", students);
-		modelAndView.setViewName("redirect:bypage?page=" + page);
-		return modelAndView;
-	}
-
 	@RequestMapping(value = { "/user", "/user/extrato/geral" }, method = RequestMethod.POST)
 	public ModelAndView userbyPageGeral(Model model, @RequestParam(value = "pages") int page,
 			@RequestParam(value = "op") String op, @RequestParam(value = "ini") String ini,
-			@RequestParam(value = "fim") String fim) {
+			@RequestParam(value = "fim") String fim,
+
+			@RequestParam(value = "empresa") long empresa, Principal principal) {
 		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
 		ModelAndView modelAndView = new ModelAndView();
 		Page<TransactionCredit> t = null;
+
+		User u = userService.findUserByDocument(principal.getName());
+		if (u == null) {
+			User us = userService.findUserByEmail(principal.getName());
+			u = us;
+		}
+		System.out.println("/user/extrato/geral");
 		long size = 0;
 		if (op.equals("tempocredito")) {
 			long inicio = Long.valueOf(ini).longValue();
 			long ultimo = Long.valueOf(fim).longValue();
-			t = this.transactionRepository.findByTc(inicio, ultimo, pageRequest);
-			size = this.transactionRepository.findByTc(inicio, ultimo, pageRequest).getTotalElements();
+			t = this.transactionRepository.findByTc(inicio, ultimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByTc(inicio, ultimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
+			System.out.println("/user/extrato/geral             IF1");
 			model.addAttribute("tipo", "tempodebito");
 
 		} else if (op.equals("tempodebito")) {
 			long inicio = Long.valueOf(ini).longValue();
 			long ultimo = Long.valueOf(fim).longValue();
-			t = this.transactionRepository.findByTd(inicio, ultimo, pageRequest);
-			size = this.transactionRepository.findByTd(inicio, ultimo, pageRequest).getTotalElements();
+			t = this.transactionRepository.findByTd(inicio, ultimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByTd(inicio, ultimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
+			System.out.println("/user/extrato/geral             IF2");
 			model.addAttribute("tipo", "tempocredito");
 
 		} else if (op.equals("credito")) {
-			t = this.transactionRepository.findByValuePostive(pageRequest);
-			size = this.transactionRepository.findByValuePostive(pageRequest).getTotalElements();
+			t = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "credito");
+			System.out.println("/user/extrato/geral             IF3");
 			System.out.println("FITRO DE CREDITO");
 		} else if (op.equals("debito")) {
-			t = this.transactionRepository.findByValueNegative(pageRequest);
-			size = this.transactionRepository.findByValueNegative(pageRequest).getTotalElements();
+			t = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "debito");
+			System.out.println("/user/extrato/geral             IF4");
 			System.out.println("FITRO DE DEBITO");
 		} else if (op.equals("data")) {
 			long inicial = Long.valueOf(ini).longValue();
 			System.out.println("FITRO DE DAATA");
 			long ultimo = Long.valueOf(fim).longValue();
 			model.addAttribute("tipo", "data");
+			System.out.println("/user/extrato/geral             IF5");
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
-			t = this.transactionRepository.findByDate(inicial, ultimo, pageRequest);
-			size = this.transactionRepository.findByDate(inicial, ultimo, pageRequest).getTotalElements();
+			t = this.transactionRepository.findByDate(inicial, ultimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByDate(inicial, ultimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
 		} else {
-			t = this.transactionRepository.findAll(pageRequest);
-
-			size = this.transactionRepository.findAll(pageRequest).getTotalElements();
+			t = this.transactionRepository.findAllUser(u.getId(), pageRequest);
+			System.out.println("/user/extrato/geral             IF6");
+			size = this.transactionRepository.findAllUser(u.getId(), pageRequest).getTotalElements();
 		}
 		if (ini == null || ini.equals("")) {
 			ini = ".";
@@ -214,27 +224,35 @@ public class LoginController {
 		if (fim == null || fim.equals("")) {
 			fim = ".";
 		}
+		model = params(model, u);
 		model.addAttribute("transactions", t);
 		model.addAttribute("size", size);
-		modelAndView.setViewName(
-				"redirect:geral?page=" + page + "&op=" + op + "&size=" + size + "&ini=" + ini + "&fim=" + fim);
+		modelAndView.setViewName("redirect:geral?page=" + page + "&op=" + op + "&size=" + size + "&ini=" + ini + "&fim="
+				+ fim + "&empresa=" + empresa);
 		return modelAndView;
 	}
 
 	@RequestMapping(value = { "/user", "/user/extrato/geral" }, method = RequestMethod.GET)
 	public ModelAndView userbyPageGeralGet(Model model, @RequestParam(value = "page") int page,
 			@RequestParam(value = "op") String op, @RequestParam(value = "size") long size,
-			@RequestParam(value = "ini") String ini, @RequestParam(value = "fim") String fim
-
-	) {
+			@RequestParam(value = "ini") String ini, @RequestParam(value = "fim") String fim,
+			@RequestParam(value = "empresa") long empresa, Principal principal) {
 		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
 		ModelAndView modelAndView = new ModelAndView();
+		System.out.println("WARD");
 		Page<TransactionCredit> t = null;
+		User u = userService.findUserByDocument(principal.getName());
+		if (u == null) {
+			User us = userService.findUserByEmail(principal.getName());
+			u = us;
+		}
 		if (op.equals("tempocredito")) {
 			long inicio = Long.valueOf(ini).longValue();
 			long ultimo = Long.valueOf(fim).longValue();
-			t = this.transactionRepository.findByTc(inicio, ultimo, pageRequest);
-			size = this.transactionRepository.findByTc(inicio, ultimo, pageRequest).getTotalElements();
+			System.out.println("/user/extrato/geral             PRIMEIRO CASO");
+			t = this.transactionRepository.findByTc(inicio, ultimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByTc(inicio, ultimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
 			model.addAttribute("tipo", "tempocredito");
@@ -242,62 +260,93 @@ public class LoginController {
 		} else if (op.equals("tempodebito")) {
 			long inicio = Long.valueOf(ini).longValue();
 			long ultimo = Long.valueOf(fim).longValue();
-			t = this.transactionRepository.findByTd(inicio, ultimo, pageRequest);
-			size = this.transactionRepository.findByTd(inicio, ultimo, pageRequest).getTotalElements();
+			t = this.transactionRepository.findByTd(inicio, ultimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByTd(inicio, ultimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
 			model.addAttribute("inicial", ini);
+			System.out.println("/user/extrato/geral             SEGUNDO CASO");
+
 			model.addAttribute("final", fim);
 			model.addAttribute("tipo", "tempodebito");
 
 		} else if (op.equals("credito")) {
-			t = this.transactionRepository.findByValuePostive(pageRequest);
-			size = this.transactionRepository.findByValuePostive(pageRequest).getTotalElements();
+			t = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "credito");
+			System.out.println("/user/extrato/geral             TERCEIRO CASO");
+			System.out.println("PAGE" + page);
+			System.out.println("OP" + op);
+			System.out.println("INI" + ini);
+			System.out.println("FIM" + fim);
+			System.out.println("EMPRESA" + empresa);
 			System.out.println("FITRO DE CREDITO");
 		} else if (op.equals("debito")) {
-			t = this.transactionRepository.findByValueNegative(pageRequest);
-			size = this.transactionRepository.findByValueNegative(pageRequest).getTotalElements();
+			t = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "debito");
+			System.out.println("/user/extrato/geral             QUARTO CASO");
 			System.out.println("FITRO DE DEBITO");
 		} else if (op.equals("data")) {
 			long inicial = Long.valueOf(ini).longValue();
 			System.out.println("FITRO DE DAATA");
 			long ultimo = Long.valueOf(fim).longValue();
 			model.addAttribute("tipo", "data");
+			System.out.println("/user/extrato/geral             QUINTO CASO");
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
-			t = this.transactionRepository.findByDate(inicial, ultimo, pageRequest);
-			size = this.transactionRepository.findByDate(inicial, ultimo, pageRequest).getTotalElements();
+			t = this.transactionRepository.findByDate(inicial, ultimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByDate(inicial, ultimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
 		}
 
 		else {
-			t = this.transactionRepository.findAll(pageRequest);
-
-			size = this.transactionRepository.findAll(pageRequest).getTotalElements();
+			t = this.transactionRepository.findAllUser(u.getId(), pageRequest);
+			System.out.println("/user/extrato/geral             SEXTO CASO");
+			size = this.transactionRepository.findAllUser(u.getId(), pageRequest).getTotalElements();
 		}
+		model = params(model, u);
 		model.addAttribute("transactions", t);
+		model.addAttribute("filtro", "filtrogeral");
 		model.addAttribute("size", size);
+		model.addAttribute("empresa", empresa);
 		modelAndView.setViewName("user/extrato");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/user", "/user/extrato/bypage" }, method = RequestMethod.GET)
-	public ModelAndView userbyPageGet(Model model, @RequestParam(value = "page") int page) {
-		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
-		ModelAndView modelAndView = new ModelAndView();
-		Page<TransactionCredit> students = this.transactionRepository.findAll(pageRequest);
-		model.addAttribute("transactions", students);
+	public long yearToDateInitial(int year) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.YEAR, year);
+		cal.set(Calendar.DAY_OF_YEAR, 1);
+		long date = cal.getTimeInMillis();
+		return date;
+	}
 
-		modelAndView.setViewName("user/extrato");
-
-		return modelAndView;
+	public long yearToDateEnd(int year) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.YEAR, year);
+		cal.set(Calendar.MONTH, 11); // 11 = december
+		cal.set(Calendar.DAY_OF_MONTH, 31); // new years eve
+		long date = cal.getTimeInMillis();
+		return date;
 	}
 
 	@RequestMapping(value = { "/user", "/user/extrato/filterpage" }, method = RequestMethod.POST)
 	public ModelAndView userbyFilter(Model model, @RequestParam(value = "filtro") String filtro,
-			@RequestParam(value = "filtroano") String filtroano, @RequestParam(value = "filtromes") String filtromes) {
+			@RequestParam(value = "filtroano") String filtroano, @RequestParam(value = "empresa") long empresa,
+			@RequestParam(value = "filtromes") String filtromes, Principal principal) {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>" + filtro);
 		System.out.println(">>>>>>>>>>>>>>>>>>>>MES" + filtromes);
 		System.out.println(">>>>>>>>>>>>>>>>>>>>ANO" + filtroano);
+		List<Company> company = companyRepository.findAll();
+		model.addAttribute("company", company);
+		model.addAttribute("company", company);
+		model.addAttribute("filtros", "ok");
+
+		User u = userService.findUserByDocument(principal.getName());
+		if (u == null) {
+			User us = userService.findUserByEmail(principal.getName());
+			u = us;
+		}
 		long ini = 0, fim = 0;
 		if (!filtromes.equals("0") && !filtroano.equals("0")) {
 			String date = filtromes + "/1/" + filtroano;
@@ -319,45 +368,101 @@ public class LoginController {
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
 		ModelAndView modelAndView = new ModelAndView();
 		Page<TransactionCredit> t = null;
+		model.addAttribute("empresa", empresa);
 		long size = 0;
-		if (filtro.equals("TC")) {
-			t = this.transactionRepository.findByTc(ini, fim, pageRequest);
-			size = this.transactionRepository.findByTc(ini, fim, pageRequest).getTotalElements();
+		if (filtro.equals("NOTFOUND")) {
+			t = null;
+			size = 0;
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempocredito");
+
+		} else if (filtro.equals("ANOC")) {
+			int ano = Integer.parseInt(filtroano);
+			System.out.println("ANO JA CONVERTIDO" + ano);
+			long miliInicial = yearToDateInitial(ano);
+			long miliUltimo = yearToDateEnd(ano);
+			System.out.println("MILESEGUNDOS INICIAL!!!!!" + miliInicial);
+			System.out.println("MILESEGUNDOS FINAL!!!!!" + miliUltimo);
+			t = this.transactionRepository.findByTc(miliInicial, miliUltimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByTc(miliInicial, miliUltimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
+			;
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempocredito");
+
+		} else if (filtro.equals("ANOD")) {
+			int ano = Integer.parseInt(filtroano);
+			System.out.println("ANO JA CONVERTIDO" + ano);
+			long miliInicial = yearToDateInitial(ano);
+			long miliUltimo = yearToDateEnd(ano);
+			System.out.println("MILESEGUNDOS INICIAL!!!!!" + miliInicial);
+			System.out.println("MILESEGUNDOS FINAL!!!!!" + miliUltimo);
+			t = this.transactionRepository.findByTd(miliInicial, miliUltimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByTd(miliInicial, miliUltimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
+			;
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempodebito");
+		} else if (filtro.equals("ANOCD")) {
+			int ano = Integer.parseInt(filtroano);
+			System.out.println("ANO JA CONVERTIDO" + ano);
+			long miliInicial = yearToDateInitial(ano);
+			long miliUltimo = yearToDateEnd(ano);
+			System.out.println("MILESEGUNDOS INICIAL!!!!!" + miliInicial);
+			System.out.println("MILESEGUNDOS FINAL!!!!!" + miliUltimo);
+			t = this.transactionRepository.findByDate(miliInicial, miliUltimo, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByDate(miliInicial, miliUltimo, empresa, u.getId(), pageRequest)
+					.getTotalElements();
+			;
+			model.addAttribute("inicial", ini);
+			model.addAttribute("final", fim);
+			model.addAttribute("tipo", "tempodebito");
+		}
+
+		else if (filtro.equals("TC")) {
+			t = this.transactionRepository.findByTc(ini, fim, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByTc(ini, fim, empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
 			model.addAttribute("tipo", "tempocredito");
 
 		} else if (filtro.equals("TD")) {
-			t = this.transactionRepository.findByTd(ini, fim, pageRequest);
-			size = this.transactionRepository.findByTd(ini, fim, pageRequest).getTotalElements();
+			t = this.transactionRepository.findByTd(ini, fim, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByTd(ini, fim, empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
 			model.addAttribute("tipo", "tempodebitoo");
 
 		} else if (filtro.equals("C")) {
-			t = this.transactionRepository.findByValuePostive(pageRequest);
-			size = this.transactionRepository.findByValuePostive(pageRequest).getTotalElements();
+			t = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest).getTotalElements();
 
 			model.addAttribute("tipo", "credito");
 		} else if (filtro.equals("D")) {
-			t = this.transactionRepository.findByValueNegative(pageRequest);
-			size = this.transactionRepository.findByValueNegative(pageRequest).getTotalElements();
+			t = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "debito");
 		} else if (filtro.equals("T")) {
-			t = this.transactionRepository.findByDate(ini, fim, pageRequest);
-			size = this.transactionRepository.findByDate(ini, fim, pageRequest).getTotalElements();
+			t = this.transactionRepository.findByDate(ini, fim, empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByDate(ini, fim, empresa, u.getId(), pageRequest).getTotalElements();
 			System.out.println("TODO");
 			model.addAttribute("tipo", "data");
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
 		} else {
-			t = this.transactionRepository.findAll(pageRequest);
-			size = this.transactionRepository.findAll(pageRequest).getTotalElements();
+			t = this.transactionRepository.findAllUser(u.getId(), pageRequest);
+			size = this.transactionRepository.findAllUser(u.getId(), pageRequest).getTotalElements();
 		}
-
+		// model = params(model, user);
 		System.out.println("MEU SIZEEEEEEEEEEEEE" + size);
+		// model = params(model, user);
+		model = params(model, u);
 		model.addAttribute("transactions", t);
 		model.addAttribute("size", size);
+		model.addAttribute("filtro", "filterpage");
 		modelAndView.setViewName("user/extrato");
 
 		return modelAndView;
@@ -369,15 +474,77 @@ public class LoginController {
 		List<TransactionCredit> transactioncredit = transactioncreditService.findAll();
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
 
-		Page<TransactionCredit> tall = this.transactionRepository.findAll(pageRequest);
-		model.addAttribute("transactions", tall);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findUserByEmail(auth.getName());
+		Page<TransactionCredit> tall = this.transactionRepository.findAllUser(user.getId(), pageRequest);
 
+		model.addAttribute("transactions", tall);
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
 		List<String> buttons = transactioncreditService.listdiferentButtons();
+		UserBalance ub = userbalanceRepository.hasBalance(user.getId(), 1);
 		List<User> us = userService.findManager();
 		model.addAttribute("operators", us);
 		model.addAttribute("buttons", buttons);
+		model = params(model, user);
+		model.addAttribute("user", user);
+
+		modelAndView.setViewName("user/extrato");
+		return modelAndView;
+	}
+
+	public Model params(Model model, User user) {
+		List<Company> company = companyRepository.findAll();
+		model.addAttribute("company", company);
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
+		UserBalance ub = userbalanceRepository.hasBalance(user.getId(), 1);
+
+		BigDecimal b = (userbalanceRepository.sumBalances(user.getId()));
+		if (b != null) {
+			String stot = nf.format(b);
+			model.addAttribute("somatotal", stot);
+		}
+		if (ub != null) {
+			String s = nf.format(ub.getBalance());
+			model.addAttribute("valor", s);
+		}
+		return model;
+	}
+
+	@RequestMapping(value = { "/user", "/user/extrato/filterpage" }, method = RequestMethod.GET)
+	public ModelAndView getFilterExtrato(Model model, Principal principal) {
+		ModelAndView modelAndView = new ModelAndView();
+		List<TransactionCredit> transactioncredit = transactioncreditService.findAll();
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
+
+		User u = userService.findUserByDocument(principal.getName());
+		if (u == null) {
+			User us = userService.findUserByEmail(principal.getName());
+			u = us;
+		}
+		Page<TransactionCredit> tall = this.transactionRepository.findAllUser(u.getId(), pageRequest);
+
+		model.addAttribute("transactions", tall);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
+		List<Company> company = companyRepository.findAll();
+		List<String> buttons = transactioncreditService.listdiferentButtons();
+		UserBalance ub = userbalanceRepository.hasBalance(user.getId(), 1);
+		List<User> us = userService.findManager();
+		BigDecimal b = (userbalanceRepository.sumBalances(user.getId()));
+		if (b != null) {
+			String stot = nf.format(b);
+			model.addAttribute("somatotal", stot);
+		}
+		model.addAttribute("operators", us);
+		model.addAttribute("company", company);
+		model.addAttribute("filtros", "ok");
+		model = params(model, u);
+		model.addAttribute("buttons", buttons);
+		if (ub != null) {
+			String s = nf.format(ub.getBalance());
+			model.addAttribute("valor", s);
+		}
 		model.addAttribute("user", user);
 		modelAndView.setViewName("user/extrato");
 		return modelAndView;
@@ -389,8 +556,10 @@ public class LoginController {
 			@RequestParam("operator") String operador, @RequestParam("type") String tipo) throws ParseException {
 		ModelAndView modelAndView = new ModelAndView();
 		System.out.println("OI FILTROOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
 		System.out.println("OI " + nome);
 		System.out.println("OI " + operador);
+
 		String pars;
 		if (nome == null || nome == "" || nome.equals("")) {
 			pars = "0";
@@ -432,6 +601,12 @@ public class LoginController {
 		User user = userService.findUserByEmail(auth.getName());
 		List<String> buttons = transactioncreditService.listdiferentButtons();
 		List<User> us = userService.findManager();
+		BigDecimal b = userbalanceRepository.sumBalances(user.getId());
+		if (b != null) {
+			String stot = nf.format(b);
+
+			model.addAttribute("somatotal", stot);
+		}
 		model.addAttribute("operators", us);
 		model.addAttribute("buttons", buttons);
 		model.addAttribute("user", user);
@@ -472,7 +647,7 @@ public class LoginController {
 		model.addAttribute("button", button);
 
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
-		Page<Button> buts = this.buttonRepository.findAll(pageRequest);
+		Page<Button> buts = buttonRepository.activeButtons(pageRequest);
 		model.addAttribute("buttonsme", buts);
 		modelAndView.setViewName("manager/botoes");
 		return modelAndView;
@@ -536,6 +711,49 @@ public class LoginController {
 
 	}
 
+	@RequestMapping("/checarpin")
+	@ResponseBody
+	public boolean checarPin(@RequestParam String id, @RequestParam int pin, HttpServletRequest request,
+			HttpServletResponse response) {
+		System.out.println("AQUIIIIIII" + pin);
+		System.out.println("AQUIIIIIII" + id);
+		User u = userService.findUserByDocument(id);
+		if (u.getPin() == pin)
+			return true;
+		return false;
+
+	}
+
+	@RequestMapping("/checarsaldoempresa")
+	@ResponseBody
+	public String checarSaldoEmpresa(@RequestParam long empresa, HttpServletRequest request,
+			HttpServletResponse response, Principal principal, Model model) {
+		User u = userService.findUserByDocument(principal.getName());
+		if (u == null) {
+			User us = userService.findUserByEmail(principal.getName());
+			u = us;
+		}
+		UserBalance ub = userbalanceRepository.hasBalance(u.getId(), empresa);
+		String s = "";
+		if (ub != null && ub.getBalance() != null) {
+			System.out.println("MEU UB BALANCE" + ub.getBalance());
+			NumberFormat nf = NumberFormat.getCurrencyInstance();
+			s = nf.format(ub.getBalance());
+			model.addAttribute("valor", s);
+		}
+		return s;
+
+	}
+
+	@RequestMapping("/cechar")
+	@ResponseBody
+	public int novoPin(@RequestParam long id, HttpServletRequest request, HttpServletResponse response) {
+		User u = userService.getOne(id);
+		u.generatePin();
+		userService.updateUser(u);
+		return u.getPin();
+	}
+
 	@RequestMapping("/findmanager")
 	@ResponseBody
 	public List<String> findManager(@RequestParam long id, HttpServletRequest request, HttpServletResponse response) {
@@ -565,6 +783,9 @@ public class LoginController {
 
 	@Autowired
 	TokenRepository tokenRepository;
+
+	@Autowired
+	UserBalanceRepository userbalanceRepository;
 
 	@RequestMapping(value = { "/login/senha" }, method = RequestMethod.POST)
 	public ModelAndView novaSenha(Model model, @RequestParam(value = "email") String email) throws MessagingException {
@@ -664,7 +885,7 @@ public class LoginController {
 		return "login";
 	}
 
-	@RequestMapping(value = { "/admin", "/manager/botoes/novo" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/admin", "/manager/botoes" }, method = RequestMethod.POST)
 	public ModelAndView novoBotao(Button button, Model model,
 			@RequestParam(value = "ideditar", required = false) long id) {
 		ModelAndView modelAndView = new ModelAndView();
@@ -734,7 +955,7 @@ public class LoginController {
 
 	@RequestMapping(value = { "/user", "/user/edit/test" }, method = RequestMethod.POST)
 
-	public ModelAndView test(@RequestParam("arquivo") MultipartFile arquivo, Model model) throws IOException {
+	public String test(@RequestParam("arquivo") MultipartFile arquivo, Model model) throws IOException {
 		System.out.println("ANTES");
 		cloudHost.upload(arquivo);
 		System.out.println("FIM" + cloudHost.last_public_id);
@@ -746,8 +967,9 @@ public class LoginController {
 		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
 		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
 		model.addAttribute("user", user);
-		modelAndView.setViewName("user/edit");
-		return modelAndView;
+		modelAndView.setViewName("user/home");
+
+		return "redirect:" + "/user/home";
 	}
 
 	@Bean
@@ -765,7 +987,7 @@ public class LoginController {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	@RequestMapping(value = { "/user", "/user/edit" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/user", "/user/home" }, method = RequestMethod.POST)
 	public ModelAndView userEdited(Model model, @RequestParam String password, @RequestParam String confirm,
 			Principal principal) {
 
@@ -793,7 +1015,7 @@ public class LoginController {
 		if (x)
 			modelAndView.addObject("successMessage", "Conta alterada com sucesso");
 
-		modelAndView.setViewName("user/edit");
+		modelAndView.setViewName("user/home");
 		userService.updateUser(u);
 
 		return modelAndView;
@@ -926,6 +1148,7 @@ public class LoginController {
 			return "redirect:/registration/";
 		} else {
 			user.setImage("rejoed05uyghymultqsv");
+			user.generatePin();
 			userService.saveUser(user);
 			final String uri = "http://localhost:8030/email-send/{id}";
 			Map<String, String> params = new HashMap<String, String>();
@@ -965,91 +1188,51 @@ public class LoginController {
 		return modelAndView;
 	}
 
-	@RequestMapping(value = "/admin/product", method = RequestMethod.GET)
-	public ModelAndView product() {
-		ModelAndView modelAndView = new ModelAndView();
-		Product product = new Product();
-		modelAndView.addObject("product", product);
-		modelAndView.addObject("products", productService.findAll());
-		modelAndView.setViewName("admin/product");
-		return modelAndView;
-	}
-
-	@RequestMapping(value = "/admin/lancamentos", method = RequestMethod.GET)
-	public ModelAndView lancar() {
-		aux = new ArrayList<Tag>();
-		for (int i = 0; i < userService.findAll().size(); i++) {
-			Tag tg = new Tag(i + 1, userService.findAll().get(i).getDocument());
-			aux.add(tg);
-		}
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.addObject("products", productService.findAll());
-		Product product = productService.findByName("comida");
-		modelAndView.addObject("product", product);
-		User user = new User();
-		modelAndView.addObject("user", user);
-		modelAndView.setViewName("admin/lancamentos");
-		return modelAndView;
-	}
-
-	@RequestMapping(value = "/admin/product", method = RequestMethod.POST)
-	public ModelAndView newProduct(@Valid Product product) {
-		ModelAndView modelAndView = new ModelAndView();
-
-		Product productExists = productService.findByName(product.getName());
-		productService.saveProduct(product);
-		modelAndView.addObject("successMessage", "Produto Cadastrado com Sucesso");
-		modelAndView.addObject("product", new Product());
-		modelAndView.addObject("products", productService.findAll());
-		modelAndView.setViewName("admin/product");
-		return modelAndView;
-	}
-
-	@RequestMapping(value = "/manager/lancar", method = RequestMethod.POST)
-	public void lancar(@RequestParam(value = "my[]") int[] my, @RequestParam("k") BigDecimal k) {
-		System.out.println("Ola");
-		System.out.println(k);
-		List<Product> ls = null;
-		TransactionDebit td = new TransactionDebit();
-		for (int i = 0; i < my.length; i++) {
-			System.out.println("[]" + i + " " + my[i]);
-			Product p = new Product();
-			p.setId(my[i]);
-			ls.set(i, p);
-		}
-		td.setProdutos(ls);
-		td.setValue(k);
-		transactiondebitService.saveTransaction(td);
-
-	}
-
 	@RequestMapping(value = "/manager/buscar", method = RequestMethod.GET)
-	public String searchuser(User u, Model model, @RequestParam("email") String email) {
+	public String searchuser(User u, Model model, @RequestParam("email") String email, Principal principal
+
+	) {
 		User us = userService.findUserByEmail(email);
+		User u1 = userService.findUserByEmail(principal.getName());
+		if (u1 == null)
+			u1 = userService.findUserByDocument(principal.getName());
 		aux = new ArrayList<Tag>();
 		for (int i = 0; i < userService.findAll().size(); i++) {
 			Tag tg = new Tag(i + 1, userService.findAll().get(i).getDocument());
 			aux.add(tg);
 		}
+		long x = 1;
+		System.out.println("ANTES DE INICIO ---------- AQUI");
+		// UserBalance ub = userbalanceRepository.findOne(x);
+		System.out.println("INICIO ---------- AQUI");
 		if (us != null) {
 			model.addAttribute("users", us);
-			if (us.getBalance() != null) {
+			System.out.println("1111111111111111111111");
+			UserBalance ub = userbalanceRepository.hasBalance(us.getId(), u1.getCompany().getId());
+			System.out.println("2222222222222222222222222");
+			if (ub != null && ub.getBalance() != null) {
 				NumberFormat nf = NumberFormat.getCurrencyInstance();
-				String s = nf.format(us.getBalance());
+				String s = nf.format(ub.getBalance());
 				model.addAttribute("valor", s);
 			}
-		}
-		if (us == null) {
+		} else if (us == null) {
+			System.out.println("3333333333333333333333333333");
+			System.out.println("TESTE" + u1.getCompany().getId());
+			System.out.println("4444444444444444444444444");
 			User use = userService.findUserByDocument(email);
+
 			if (use != null) {
+				System.out.println("ANTES");
+				UserBalance ub = userbalanceRepository.hasBalance(use.getId(), u1.getCompany().getId());
+				System.out.println("DEPOIS");
 				model.addAttribute("users", use);
 				List<Button> buttons = buttonService.findAll();
 				Button button = new Button();
 				buttons = buttonService.findAll();
 				model.addAttribute("buttons", buttons);
-				if (use.getBalance() != null) {
+				if (ub != null && ub.getBalance() != null) {
 					NumberFormat nf = NumberFormat.getCurrencyInstance();
-					String s = nf.format(use.getBalance());
+					String s = nf.format(ub.getBalance());
 					model.addAttribute("valor", s);
 				}
 
@@ -1062,29 +1245,6 @@ public class LoginController {
 
 	private static final String AJAX_HEADER_NAME = "X-Requested-With";
 	private static final String AJAX_HEADER_VALUE = "XMLHttpRequest";
-
-	@PostMapping(params = "addItem", path = { "/manager/lancamentos", "/manager/lancamentos/{id}" })
-	public String addOrder(Product products, HttpServletRequest request) {
-		products.items.add(new Item());
-		if (AJAX_HEADER_VALUE.equals(request.getHeader(AJAX_HEADER_NAME))) {
-			// It is an Ajax request, render only #items fragment of the page.
-			return "/manager/lancamentos::#items";
-		} else {
-			// It is a standard HTTP request, render whole page.
-			return "/manager/lancamentos";
-		}
-	}
-
-	// "removeItem" parameter contains index of a item that will be removed.
-	@PostMapping(params = "removeItem", path = { "/admin/manager", "/admin/manager/{id}" })
-	public String removeOrder(Product products, @RequestParam("removeItem") int index, HttpServletRequest request) {
-		products.items.remove(index);
-		if (AJAX_HEADER_VALUE.equals(request.getHeader(AJAX_HEADER_NAME))) {
-			return "/manager/lancamentos::#items";
-		} else {
-			return "/manager/lancamentos";
-		}
-	}
 
 	@RequestMapping(value = "/manager/consumo", method = RequestMethod.GET)
 	public String getConsumo() {
@@ -1099,7 +1259,7 @@ public class LoginController {
 	@RequestMapping(value = "/manager/consumo", method = RequestMethod.POST)
 	public String consumo(@RequestParam("iduser") long iduser, @RequestParam("idbutton") long idbutton,
 			@RequestParam("debitovalue") BigDecimal debito, @RequestParam("description") String description,
-			Model model, RedirectAttributes redir) {
+			Model model, RedirectAttributes redir, Principal princi) {
 		User user = userService.getOne(iduser);
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String username;
@@ -1116,15 +1276,18 @@ public class LoginController {
 		long millis = System.currentTimeMillis();
 
 		TransactionCredit transactioncredit = new TransactionCredit();
+		System.out.println("VEM ATE AQUI");
+		UserBalance ub = userbalanceRepository.hasBalance(user.getId(), uaux.getCompany().getId());
+		System.out.println("VEM ATE AQUI 1");
 		if (debito != null) {
 			System.out.println("O ERRO ESTA ABAIXO");
 		}
 		if (debito == null) {
 
 			Button button = buttonService.getOne(idbutton);
-			if (user.getBalance() != null && button.getValue() != null
-					&& (user.getBalance().compareTo(button.getValue()) > 0
-							|| user.getBalance().compareTo(button.getValue()) == 0)) {
+			if (ub.getBalance() != null && button.getValue() != null
+					&& (ub.getBalance().compareTo(button.getValue()) > 0
+							|| ub.getBalance().compareTo(button.getValue()) == 0)) {
 				transactioncredit.setButton(button);
 				BigDecimal val = button.getValue();
 				val = button.getValue().negate();
@@ -1132,13 +1295,15 @@ public class LoginController {
 				transactioncredit.setData(data);
 				transactioncredit.setUser(user);
 				transactioncredit.setMilis(millis);
+				transactioncredit.setCompany(uaux.getCompany());
 				transactioncredit.setOperator(uaux.getName());
-				BigDecimal total = user.getBalance().add(val);
-				user.setBalance(total);
-				userService.updateUser(user);
+				BigDecimal total = ub.getBalance().add(val);
+				ub.setBalance(total);
+				// userService.updateUser(user);
+				userbalanceService.updateUserBalance(ub);
 				transactioncreditService.saveTransaction(transactioncredit);
 				NumberFormat nf = NumberFormat.getCurrencyInstance();
-				String s = nf.format(user.getBalance());
+				String s = nf.format(ub.getBalance());
 				model.addAttribute("valor", s);
 				model.addAttribute("status", "Consumo lanncado!");
 				redir.addFlashAttribute("status2", "Consumo lanncado!");
@@ -1148,8 +1313,8 @@ public class LoginController {
 
 		} else {
 			Button b = new Button();
-			if ((user.getBalance() != null && debito != null)
-					&& (debito.compareTo(user.getBalance()) < 0 || debito.compareTo(user.getBalance()) == 0)) {
+			if ((ub.getBalance() != null && debito != null)
+					&& (debito.compareTo(ub.getBalance()) < 0 || debito.compareTo(ub.getBalance()) == 0)) {
 				if (description.equals("")) {
 					b.setName("Outro Valor");
 				} else {
@@ -1165,15 +1330,16 @@ public class LoginController {
 				transactioncredit.setValue(val);
 				transactioncredit.setUser(user);
 				transactioncredit.setMilis(millis);
+				transactioncredit.setCompany(uaux.getCompany());
 				transactioncredit.setData(data);
 				transactioncredit.setOperator(uaux.getName());
-				BigDecimal total = user.getBalance().add(val);
-				user.setBalance(total);
+				BigDecimal total = ub.getBalance().add(val);
+				ub.setBalance(total);
 				userService.updateUser(user);
 				transactioncreditService.saveTransaction(transactioncredit);
 				model.addAttribute("status", "Consumo lanncado!");
 				NumberFormat nf = NumberFormat.getCurrencyInstance();
-				String s = nf.format(user.getBalance());
+				String s = nf.format(ub.getBalance());
 				model.addAttribute("valor", s);
 				redir.addFlashAttribute("status2", "Consumo lanncado!");
 			} else {
@@ -1182,7 +1348,7 @@ public class LoginController {
 			System.out.println("VALORRR" + debito);
 			System.out.println("VALORRR" + description);
 		}
-		return searchuser(user, model, user.getDocument());
+		return searchuser(user, model, user.getDocument(), princi);
 
 	}
 
@@ -1196,38 +1362,59 @@ public class LoginController {
 		}
 		TransactionCredit transactioncredit = new TransactionCredit();
 		transactioncredit.setValue(balance);
-		if (us.getBalance() != null) {
-			balance = balance.add(us.getBalance());
-		}
-
+		String s = "";
 		User uaux = userService.findUserByEmail(principal.getName());
 		if (uaux == null)
 			uaux = userService.findUserByDocument(principal.getName());
+
+		System.out.println("STACK");
+		UserBalance ub = userbalanceRepository.hasBalance(us.getId(), uaux.getCompany().getId());
+		if (ub != null && ub.getBalance() != null) {
+			balance = balance.add(ub.getBalance());
+			ub.setBalance(balance);
+			userbalanceService.updateUserBalance(ub);
+			NumberFormat nf = NumberFormat.getCurrencyInstance();
+			s = nf.format(ub.getBalance());
+
+		}
+		if (ub == null) {
+			UserBalance bal = new UserBalance();
+			bal.setBalance(balance);
+			bal.setCompany(uaux.getCompany());
+			bal.setUser(us);
+			userbalanceService.saveUserBalance(bal);
+			NumberFormat nf = NumberFormat.getCurrencyInstance();
+			s = nf.format(bal.getBalance());
+		}
+		System.out.println("STACK222222222222");
 		String data = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(Calendar.getInstance().getTime());
 		long millis = System.currentTimeMillis();
-		us.setBalance(balance);
+		// ub.setBalance(balance);
 		transactioncredit.setUser(us);
 		Button button = new Button();
 
 		// transactioncredit.setButton(button);
 		transactioncredit.setMilis(millis);
 		transactioncredit.setOperator(uaux.getName());
+		transactioncredit.setCompany(uaux.getCompany());
 		transactioncredit.setData(data);
 		model.addAttribute("status", "Créditos Inseridos!");
+		System.out.println("VEM ATE AQUI");
+		// userbalanceService.updateUserBalance(ub);
+		System.out.println("VEM ATE AQUI?");
 		userService.updateUser(us);
 		NumberFormat nf = NumberFormat.getCurrencyInstance();
-		String s = nf.format(us.getBalance());
+		// String s = nf.format(ub.getBalance());
 		model.addAttribute("valor", s);
 		// model.addAttribute("valor", s);
 		transactioncreditService.saveTransaction(transactioncredit);
 
 		model.addAttribute("users", us);
-		System.out.println("TAMO AQUI" + us.getBalance());
 		List<Button> buttons = buttonService.findAll();
 		model.addAttribute("buttons", buttons);
 		System.out.println("PRINCIPALLLLLLLLLLL" + principal.getName());
 
-		return searchuser(us, model, us.getDocument());
+		return searchuser(us, model, us.getDocument(), principal);
 	}
 
 	@RequestMapping(value = "/manager/creditos", method = RequestMethod.GET)
@@ -1291,17 +1478,20 @@ public class LoginController {
 
 	@RequestMapping(value = "/admin/registermanager", method = RequestMethod.POST)
 	public ModelAndView createNewManager(@Valid User user, BindingResult bindingResult, Model model,
-			@RequestParam("confirm") String confirm) {
+			@RequestParam("confirm") String confirm, Principal principal) {
 		ModelAndView modelAndView = new ModelAndView();
-
+		System.out.println("::::::::::::::::::::::::::::::::::::::::::::");
 		if (user.getId() != -1) {
 			modelAndView.addObject("successMessage", "editado");
+			System.out.println("::::::::::::::::::::::::::::::::::::::::::::111111111111111111111111111111");
 
 			userService.updateManager(user, confirm);
 			List<User> users = userService.findManager();
 			model.addAttribute("managers", users);
 			modelAndView.setViewName("admin/registermanager");
 		} else {
+			System.out.println("::::::::::::::::::::::::::::::::::::::::::::2222222222222222222222222222");
+
 			if (!user.getPassword().equals(confirm)) {
 				bindingResult.rejectValue("password", "error.user", "Senhas não conferem");
 			}
@@ -1319,6 +1509,12 @@ public class LoginController {
 				modelAndView.setViewName("admin/registermanager");
 			} else {
 				System.out.println("---------------------------------------------------------------");
+				User uaux = userService.findUserByDocument(principal.getName());
+				if (uaux == null)
+					uaux = userService.findUserByEmail(principal.getName());
+				user.setCompany(uaux.getCompany());
+				user.setCompany(uaux.getCompany());
+
 				userService.saveManager(user);
 				modelAndView.addObject("successMessage", "cadastrado");
 				modelAndView.addObject("user", new User());

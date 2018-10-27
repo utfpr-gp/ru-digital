@@ -62,7 +62,7 @@ hr.style-eight {
 
 						<input type="text" th:field="*{document}"
 							placeholder="&#xf2c2; RA" id="ra"
-							onblur="chechdoc() ; verificaCampos(); " class="form-control" />
+							onkeyup="chechdoc() ; verificaCampos(); " class="form-control" />
 					</div>
 					<div class="col s1" style="margin-top: 10px;" id="docerror">
 						<i class="material-icons" style="font-size: 30px;">error</i>
@@ -78,7 +78,7 @@ hr.style-eight {
 
 						<input type="text" th:field="*{document}"
 							placeholder="&#xf2c2; CPF" id="cpf"
-							onblur="checkcpf(); verificaCampos(); " class="form-control" />
+							onkeyup="checkcpf(); verificaCampos(); " class="form-control" />
 					</div>
 					<div class="col s2" style="margin-top: 10px;" id="cpferror">
 						<i class="material-icons" style="font-size: 30px;">error</i>
@@ -96,7 +96,7 @@ hr.style-eight {
 						<label th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
 							class="validation-message"></label> <input type="text"
 							th:field="*{name}" placeholder="&#xf0f0; Nome" id="name"
-							onblur="verificaCampos();" class="form-control" />
+							onkeyup="verificaCampos();" class="form-control" />
 					</div>
 
 				</div>
@@ -107,7 +107,7 @@ hr.style-eight {
 					<div class="col s9">
 						<input type="text" th:field="*{email}"
 							placeholder="&#xf0e0; Email" id="email"
-							onblur="checemail(); verificaCampos(); " class="form-control" />
+							onkeyup="checemail(); verificaCampos(); " class="form-control" />
 						<label th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
 							class="validation-message"></label>
 					</div>
@@ -122,7 +122,7 @@ hr.style-eight {
 				<div class="form-group">
 					<div class="col s9">
 						<input type="password" th:field="*{password}" id="pass"
-							onblur="confirmPass(); verificaCampos();"
+							onkeyup="confirmPass(); verificaCampos();"
 							placeholder="&#xf084; Senha" class="form-control" /> <label
 							th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
 							class="validation-message"></label>
@@ -132,7 +132,8 @@ hr.style-eight {
 				<div class="form-group">
 					<div class="col s9">
 						<input type="password" name="confirm" id="confirm"
-							onblur="confirmPass(); verificaCampos();  "
+							
+							onkeyup="confirmPass(); verificaCampos();  "
 							placeholder="&#xf01e; Confirme a senha" class="form-control" />
 						<label class="validation-message"></label>
 					</div>

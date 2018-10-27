@@ -14,19 +14,24 @@ import com.example.model.TransactionCredit;
 public interface TransactionCreditRepository extends JpaRepository<TransactionCredit, Long> {
 	List<TransactionCredit> findAll();
 
-	@Query(value = "SELECT * FROM transactioncredit WHERE value > 0  ORDER BY ?#{#pageable}", nativeQuery = true)
+	@Query(value = "SELECT * FROM transactioncredit WHERE value > 0 and company_id = ?1  and user_id = ?2 ORDER BY ?#{#pageable}", nativeQuery = true)
 
-	Page<TransactionCredit> findByValuePostive(Pageable pageable);
+	Page<TransactionCredit> findByValuePostive(long company_id, long user_id, Pageable pageable);
 
-	@Query(value = "SELECT * FROM transactioncredit WHERE value <  0  ORDER BY ?#{#pageable}", nativeQuery = true)
-	Page<TransactionCredit> findByValueNegative(Pageable pageable);
+	@Query(value = "SELECT * FROM transactioncredit WHERE  user_id = ?1 ORDER BY ?#{#pageable}", nativeQuery = true)
 
-	@Query(value = "SELECT * FROM transactioncredit WHERE milis >  ?1 and milis < ?2  ORDER BY ?#{#pageable}", nativeQuery = true)
-	Page<TransactionCredit> findByDate(long ini, long fim, Pageable pageable);
+	Page<TransactionCredit> findAllUser(long user_id, Pageable pageable);
 
-	@Query(value = "SELECT * FROM transactioncredit WHERE (milis >  ?1 and milis < ?2) and value > 0  ORDER BY ?#{#pageable}", nativeQuery = true)
-	Page<TransactionCredit> findByTc(long ini, long fim, Pageable pageable);
+	@Query(value = "SELECT * FROM transactioncredit WHERE value <  0 and company_id = ?1 and user_id=?2 ORDER BY ?#{#pageable}", nativeQuery = true)
+	Page<TransactionCredit> findByValueNegative(long company_id, long user_id, Pageable pageable);
 
-	@Query(value = "SELECT * FROM transactioncredit WHERE (milis >  ?1 and milis < ?2) and value < 0  ORDER BY ?#{#pageable}", nativeQuery = true)
-	Page<TransactionCredit> findByTd(long ini, long fim, Pageable pageable);
+	@Query(value = "SELECT * FROM transactioncredit WHERE ((milis >  ?1 and milis < ?2) and company_id = ?3) and user_id = ?4  ORDER BY ?#{#pageable}", nativeQuery = true)
+	Page<TransactionCredit> findByDate(long ini, long fim, long company_id, long user_id, Pageable pageable);
+
+	@Query(value = "SELECT * FROM transactioncredit WHERE (milis >  ?1 and milis < ?2) and value > 0 and company_id = ?3 and user_id = ?4  ORDER BY ?#{#pageable}", nativeQuery = true)
+	Page<TransactionCredit> findByTc(long ini, long fim, long company_id, long user_id, Pageable pageable);
+
+	@Query(value = "SELECT * FROM transactioncredit WHERE (milis >  ?1 and milis < ?2) and value < 0 and company_id = ?3 and user_id = ?4  ORDER BY ?#{#pageable}", nativeQuery = true)
+	Page<TransactionCredit> findByTd(long ini, long fim, long company_id, long user_id, Pageable pageable);
+
 }

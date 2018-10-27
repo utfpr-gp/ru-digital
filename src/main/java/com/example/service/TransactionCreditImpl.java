@@ -39,24 +39,28 @@ public class TransactionCreditImpl implements TransactionCreditService {
 		return transactioncreditRepository.findAll();
 	}
 
-	public Page<TransactionCredit> findByValuePostive(Pageable pageable) {
-		return transactioncreditRepository.findByValuePostive(pageable);
+	public Page<TransactionCredit> findAllUser(long user_id, Pageable pageable) {
+		return transactioncreditRepository.findAllUser(user_id, pageable);
 	}
 
-	public Page<TransactionCredit> findByValueNegative(Pageable pageable) {
-		return transactioncreditRepository.findByValueNegative(pageable);
+	public Page<TransactionCredit> findByValuePostive(long company_id, long user_id, Pageable pageable) {
+		return transactioncreditRepository.findByValuePostive(company_id, user_id, pageable);
 	}
 
-	public Page<TransactionCredit> findByDate(long ini, long fim, Pageable pageable) {
-		return transactioncreditRepository.findByDate(ini, fim, pageable);
+	public Page<TransactionCredit> findByValueNegative(long company_id, long user_id, Pageable pageable) {
+		return transactioncreditRepository.findByValueNegative(company_id, user_id, pageable);
 	}
 
-	public Page<TransactionCredit> findByTc(long ini, long fim, Pageable pageable) {
-		return transactioncreditRepository.findByTc(ini, fim, pageable);
+	public Page<TransactionCredit> findByDate(long ini, long fim, long company_id, long user_id, Pageable pageable) {
+		return transactioncreditRepository.findByDate(ini, fim, company_id, user_id, pageable);
 	}
 
-	public Page<TransactionCredit> findByTd(long ini, long fim, Pageable pageable) {
-		return transactioncreditRepository.findByTd(ini, fim, pageable);
+	public Page<TransactionCredit> findByTc(long ini, long fim, long company_id, long user_id, Pageable pageable) {
+		return transactioncreditRepository.findByTc(ini, fim, company_id, user_id, pageable);
+	}
+
+	public Page<TransactionCredit> findByTd(long ini, long fim, long company_id, long user_id, Pageable pageable) {
+		return transactioncreditRepository.findByTd(ini, fim, company_id, user_id, pageable);
 	}
 
 	@PersistenceContext

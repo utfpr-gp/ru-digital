@@ -25,21 +25,34 @@ input, input::-webkit-input-placeholder {
 /* GENERAL BUTTON STYLING */
 
 
-button {
-
-  border: 2px solid #666666;
-  border-radius: 5px;
-  color: #000;
-  display: block;
-  font-size: 1.6em;
+.btn {
+  color: black;
+  font-size: 23px;
   font-weight: bold;
-  margin: 1em auto;
-  padding: 0.8em 3em;
-  position: relative;
   text-transform: uppercase;
-  opacity: 0.3;
+  background-color: #fff176;
+  height: 60px;
+  width: 300px;
+  opacity: 1 !important;
+  
+}
+.btn i{
+   line-height: 40px;
+}
+button:hover {
+  background-color: #ffca28 !important;
 }
 
+
+.bleed {
+padding-left: 30.4%;
+margin-left: -30.4%;
+padding-right: 30.4%;
+margin-right: -30.4%;
+}
+html, body{
+  overflow-x: hidden;
+}
 </style>
 
 <script>
@@ -73,18 +86,35 @@ button {
 	}
 
 	function mostrarDebitoatual() {
-	
-		if (iddebito != -1 )
-			informacaoBotao(iddebito);
-		else if (document
-				.getElementById("outrodebito").value != ""){
-			iduser = document.getElementById('sela').value;
-			document.getElementById("iduser").value = iduser;
-			document.getElementById("idbutton").value = -1;
-			document.getElementById("vldebit").value = "R$ " + document
-					.getElementById("outrodebito").value;
-			$('#modal6').modal('open');
-		}
+		var pin = document.getElementById("pin").value;
+		var id = document.getElementById("doccliente").innerHTML;
+			$.ajax({
+		   	    type : "GET",
+		   	    url : "/checarpin",
+		   	    data : {
+			   	"id" : id,
+		   	    "pin" : pin
+		   	    },
+		   	    success: function(data){
+		   	    	
+		   	    	if (data && iddebito != -1 )
+		   				informacaoBotao(iddebito);
+		   			else if (data && document
+		   					.getElementById("outrodebito").value != ""){
+		   				iduser = document.getElementById('sela').value;
+		   				document.getElementById("iduser").value = iduser;
+		   				document.getElementById("idbutton").value = -1;
+		   				document.getElementById("vldebit").value = "R$ " + document
+		   						.getElementById("outrodebito").value;
+		   				$('#modal6').modal('open');
+		   			}
+		   			else
+		   				alert("Pin inválido, tente novamente.");
+		   	    }
+		   	});
+		
+		
+		
 
 	}
 
@@ -198,6 +228,24 @@ $('#outro').fadeIn(200, function(){
 
 	}
 	
+	
+	function validatePin(evt) {
+		  var theEvent = evt || window.event;
+
+		  // Handle paste
+		  if (theEvent.type === 'paste') {
+		      key = event.clipboardData.getData('text/plain');
+		  } else {
+		  // Handle key press
+		      var key = theEvent.keyCode || theEvent.which;
+		      key = String.fromCharCode(key);
+		  }
+		  var regex = /[0-9]|\./;
+		  if( !regex.test(key) ) {
+		    theEvent.returnValue = false;
+		    if(theEvent.preventDefault) theEvent.preventDefault();
+		  }
+		}
 	 
 </script>
 </head>
@@ -258,16 +306,20 @@ $('#outro').fadeIn(200, function(){
 		</div>
 
 
-		<ul>
-			<li class="row" th:each="u: ${users}" style=""><img
-				th:attr="src='http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${u.getImage() }}"
-				class="col s7 offset-s5 circle" style="height: 100px; width: 120px;" />
-
-
-			</li>
-		</ul>
-		<div class="center" th:if="${users != null}">
-			<div class="avatar row" th:each="u: ${users}" style="height: 100px; background-color: #F5F4F4;">
+		
+		
+		<div class="center" style="padding-top: 50px;" th:if="${users != null}">
+			<div class="avatar row bleed" th:each="u: ${users}" style="height: 245px; background-color: #F5F4F4;">
+						<h5    style="padding-right:600px;">INFORMAÇÕES PESSOAIS</h5>
+		
+						<ul>
+					<li class="row" th:each="u: ${users}" style=""><img
+						th:attr="src='http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${u.getImage() }}"
+						class="col s7 offset-s5 circle" style="height: 100px; width: 120px;" />
+		
+		
+					</li>
+				</ul>
 				<input class="title" id="sela" style="display: none;"
 					th:value="${users.getId()}" />
 
@@ -278,13 +330,15 @@ $('#outro').fadeIn(200, function(){
 					<span class="title" th:text="${u.getEmail()}"></span>
 				</div>
 				<div class="col s12">
-					<span class="title" th:text="${u.getDocument()}"></span>
+					<span class="title" id="doccliente" th:text="${u.getDocument()}"></span>
 				</div>
 
 			</div>
 
 			
-			<div th:each="u: ${users}" style = "background-color: #EBE9E9; margin-bottom: 20px;">
+			<div th:each="u: ${users}" style = " margin-bottom: 20px;">
+				<h5    style="padding-right: 82%;">SALDO ATUAL</h5>
+					
 				<div class="col s12">
 					
 				
@@ -302,16 +356,17 @@ $('#outro').fadeIn(200, function(){
 
 
 
-			<div class="row" style="margin-top: 70px;" style="background-color: #F5F4F4"
+			<div class="row bleed" style="background-color: #F5F4F4;" 
 				th:if="${users != null && usernotfound == null}">
-				
+				<h5    >AÇÕES</h5>
+		
 				<div class= "offset-s1 col s5">
-					<button class=" btn-1 " id="consumo"  >
-				<i class="fa  fa-minus-circle fa-lg" style="color: red; margin-right: 10px;"></i> Consumo
+					<button class=" waves-effect waves-light btn" id="consumo"  >
+				<i class="fa  fa-minus-circle fa-lg" style="color: red; margin-right: 10px; font-size: 35px;"></i> Consumo
 					</button>
 				</div>
 				<div class= "col s5">
-				<button class=" btn-1" id="creditos"><i class="fa  fa-plus-circle fa-lg" style="color: green; margin-right: 10px;"></i>Creditos</button>
+				<button class=" waves-effect waves-blue btn" id="creditos" style="margin-bottom: 20px; "><i class="fa  fa-plus-circle fa-lg" style="color: green;  font-size: 35px; margin-right: 10px;"></i>Créditos</button>
 				</div>
 			
 				
@@ -321,15 +376,14 @@ $('#outro').fadeIn(200, function(){
 		
 			<div style="display: none; " id="showconsumo" >
 				
-				<div class="row  " id="nmanual" style="background-color: #EBE9E9; ">
-					<h5    >OPÇÕES DE CONSUMO</h5>
-					<hr class=" style-eight   style-seven"  style="margin-bottom: 20px;">
+				<div class="row  " id="nmanual" >
+					<h5    style="padding-bottom: 20px;">OPÇÕES DE CONSUMO</h5>
 					
 					<div th:each="b: ${buttons}" style="margin-left: 7%;">
-						<div th:if="${b.getOutros() == null}">
+						<div th:if="${b.getOutros() == null && b.getDeleted() == NULL}">
 							<input style="display: none;" th:id="${b.getId()} + 'valorbotao'" 
 								th:value="${b.getValue()}" /> <a th:id="${b.getId()}"
-								class="amber accent-3 btn-large col s3  "
+								class="truncate amber accent-3 btn-large col s3  "
 								onclick="novomanual(); mostrarDebito(this.id);"><span style="color: black;" 
 								th:text="${b.getName()}"></span><i class="material-icons right" style="color: black;" >send</i></a>
 							<p class="col s1" style="margin-bottom: 10%;"></p>
@@ -339,27 +393,32 @@ $('#outro').fadeIn(200, function(){
 				</div>
 
 					
-				<div class="row" style="background-color: #F5F4F4;">
-					<h5  >VALOR DE CONSUMO</h5>
-					<hr class="  style-eight"  style="margin-bottom: 20px;">
+				<div class="row bleed" style="background-color: #F5F4F4;">
+					<h5>SENHA PIN</h5>
+					<input class="col s4" type="password"   name="pin"  maxlength="7"
+						 id="pin"  onkeypress='validatePin(event)' maxlength="4"
+						style="font-size: 45px; font-weight: bold; margin-left: 7%;" placeholder="Pin" />
+					
+				</div>
+				
+				<div class="row">
+				<h5  >VALOR DE CONSUMO</h5>
 					<input class="col s4" type="text" name="auxod" id="auxod"  style="display: none; font-size: 45px; font-weight: bold; margin-left: 7%;" /> 
 					<input class="col s4" type="text" name="outrodebito"  maxlength="7"
 						onclick="atualizaoutro();" id="outrodebito"
 						style="font-size: 45px; font-weight: bold; margin-left: 7%;" placeholder="Valor" />
-					<p class="col s1" style="margin-bottom: 5%;"></p>
+					<p class="col s1" style="margin-bottom: 55px;"></p>
 					<a class="light-blue accent-2 btn-large col s4   " id="btdebito" style="color: black; "
 						onclick="mostrarDebitoatual()"><span th:text="DEBITAR" style="font-size: 23px; font-weight: bold;" ></span><i
-						style="margin-left: 10px; font-size: 27px;  " class="fa  fa-minus-circle"></i></a>
-
-
+						style="margin-left: 10px;  font-size: 27px;  " class="fa  fa-minus-circle"></i></a>
+				
 				</div>
 			</div>
 			
 			<div class="row " style="display: none; " id="showcreditos">
 				
-				<div class="row" style= " background-color: #EBE9E9;  height: 240px;">
-				<h5  >OPÇÕES DE CRÉDITO</h5>
-				<hr class=" style-eight   style-seven"  style="margin-bottom: 20px;">
+				<div class="row" style= "  height: 240px;">
+				<h5 style="padding-bottom: 20px;" >OPÇÕES DE CRÉDITO</h5>
 					
 					<div id="manualoff" style="margin-left: 7%; " >
 
@@ -397,14 +456,13 @@ $('#outro').fadeIn(200, function(){
 						<p class="col s1" style="margin-bottom: 10%;"></p>
 					</div>
 				</div>
-				<div class="row" style="background-color: #F5F4F4">
-				<h5 style="margin-bottom: 20px;" >VALOR DE CRÉDITO</h5>		
-				<hr class=" style-eight  "  style="margin-bottom: 20px;">
+				<div class="row bleed" style="background-color: #F5F4F4">
+				<h5 style="margin-bottom: 20px; " >VALOR DE CRÉDITO</h5>		
 					
 					<input class="col s4" type="text" name="outro" onclick="input();"
 						id="outro"  maxlength="7" style="font-size: 45px; font-weight: bold; margin-left: 7%;"
 						placeholder="Valor" />
-					<p class="col s1" style="margin-bottom: 5%;"></p>
+					<p class="col s1" style="margin-bottom: 55px;"></p>
 					<a class="green darken-3  btn-large col s4 " id="btoutro" style="color: black;"
 						onclick="mostrartot(-1);"><span th:text="CREDITAR  " style="font-size: 23px; font-weight: bold;"> </span><i
 						style="margin-left: 10px; font-size: 27px;  " class="fa  fa-money "></i></a>

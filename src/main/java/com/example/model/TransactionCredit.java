@@ -48,6 +48,18 @@ public class TransactionCredit {
 	}
 
 	@ManyToOne
+	@JoinColumn(name = "company_id")
+	private Company company;
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
 
