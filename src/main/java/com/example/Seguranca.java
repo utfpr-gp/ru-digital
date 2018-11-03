@@ -40,7 +40,7 @@ public class Seguranca implements UserDetailsService {
 		if (usuario == null) {
 			User document = userService.findUserByDocument(email);
 			System.out.println("ACIMA" + email);
-			if (document != null) {
+			if (document != null && (document.getDeleted() == null || document.getDeleted() == false)) {
 				System.out.println("AQUIoioioioioioioioio" + document.getPassword());
 				return new UsuarioSistema(document.getName(), document.getEmail(), document.getPassword(),
 						authorities(document));
@@ -48,10 +48,11 @@ public class Seguranca implements UserDetailsService {
 			}
 			throw new UsernameNotFoundException("Usuário não encontrado!");
 		}
-		System.out.println("--------____NAO ME CHAMOU");
-		// System.out.println("EPAAAAAAA" + my.getPassword());
-		// return new MyUserPrincipal(usuario);
-		return new UsuarioSistema(usuario.getName(), usuario.getEmail(), usuario.getPassword(), authorities(usuario));
+
+		else if (usuario.getDeleted() == null || usuario.getDeleted() == false)
+			return new UsuarioSistema(usuario.getName(), usuario.getEmail(), usuario.getPassword(),
+					authorities(usuario));
+		throw new UsernameNotFoundException("Usuário não encontrado!");
 	}
 
 	public Collection<? extends GrantedAuthority> authorities(User usuario) {

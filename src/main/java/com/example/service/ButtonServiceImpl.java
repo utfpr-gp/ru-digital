@@ -7,6 +7,7 @@ import javax.persistence.PersistenceContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.model.Button;
 import com.example.repository.ButtonRepository;
@@ -27,6 +28,7 @@ public class ButtonServiceImpl implements ButtonService {
 		return buttonRepository.findOne(id);
 	}
 
+	@Transactional
 	public void updateButton(Button button) {
 		System.out.println("MEU NOME" + button.getName());
 		System.out.println("MEU VALOR" + button.getValue());

@@ -18,4 +18,12 @@ public class CompanyServiceImpl implements CompanyService {
 
 	}
 
+	public void updateCompany(Company company) {
+		Company c = companyRepository.getOne(company.getId());
+		c.setBalance(company.getBalance());
+		c.setImage(company.getImage());
+		c.setName(company.getName());
+		companyRepository.save(c);
+	}
+
 }

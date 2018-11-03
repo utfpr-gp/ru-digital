@@ -18,6 +18,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	List<User> findAll();
 
+	@Query(value = "select usuarios_user_id from user_roles where roles_role_id = ?1 and usuarios_user_id = ?2  limit 1 ", nativeQuery = true)
+	long user(int role_id, long user_id);
+
+	@Query(value = "select user_id, document, email, image, name, active, deleted, password, pin,  company_id  from user join user_roles on user.user_id = user_roles.usuarios_user_id where (roles_role_id = 3 and company_id = ?1 and user_id != ?2 and deleted IS false) ", nativeQuery = true)
+	List<User> userCompany(long c, long u);
+
 	@Query("select p from User p join p.roles c where c.id = ?1")
 	List<User> listManager(Integer id);
 

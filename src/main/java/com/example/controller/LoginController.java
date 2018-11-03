@@ -34,6 +34,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -123,6 +124,48 @@ public class LoginController {
 		return modelAndView;
 	}
 
+	@RequestMapping(value = { "/admin", "/admin/conta" }, method = RequestMethod.GET)
+	public ModelAndView adminConta(Model model) {
+		ModelAndView modelAndView = new ModelAndView();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		Company company = companyRepository.getOne(user.getCompany().getId());
+		model.addAttribute("user", user);
+		model.addAttribute("company", company);
+		BigDecimal debito = transactionRepository.sumBalancesNegative(user.getId());
+		BigDecimal credito = transactionRepository.sumBalancesPostive(user.getId());
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
+		String c = null;
+		if (credito != null) {
+			c = nf.format(credito);
+			model.addAttribute("credito", c);
+		}
+		if (debito != null) {
+			debito = debito.negate();
+			BigDecimal diferenca = null;
+			if (debito != null)
+				diferenca = credito.subtract(debito);
+			else
+				diferenca = credito;
+			String d = nf.format(debito);
+			String dif = nf.format(diferenca);
+			model.addAttribute("debito", d);
+			model.addAttribute("diferenca", dif);
+		}
+
+		if (credito == null) {
+			model.addAttribute("credito", "R$ 0,00");
+			model.addAttribute("debito", "R$ 0,00");
+			model.addAttribute("diferenca", "R$ 0,00");
+		} else if (debito == null) {
+			model.addAttribute("debito", "R$ 0,00");
+			model.addAttribute("diferenca", c);
+		}
+
+		modelAndView.setViewName("admin/conta");
+		return modelAndView;
+	}
+
 	@RequestMapping(value = { "/user", "/user/edit" }, method = RequestMethod.GET)
 	public ModelAndView userEdit(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
@@ -156,14 +199,26 @@ public class LoginController {
 			@RequestParam(value = "op") String op, @RequestParam(value = "ini") String ini,
 			@RequestParam(value = "fim") String fim,
 
-			@RequestParam(value = "empresa") long empresa, Principal principal) {
+			@RequestParam(value = "empresa") long empresa, @RequestParam(value = "emailgeral") String email,
+			Principal principal) {
 		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
 		ModelAndView modelAndView = new ModelAndView();
 		Page<TransactionCredit> t = null;
+		model.addAttribute("emailu", email);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User ux = userService.findUserByEmail(auth.getName());
 
-		User u = userService.findUserByDocument(principal.getName());
+		if (isAdmin(ux.getId()))
+			empresa = ux.getCompany().getId();
+		model.addAttribute("empresafiltrada", empresa);
+		String aux = null;
+		if (email.equals("-1")) {
+			aux = principal.getName();
+		} else
+			aux = email;
+		User u = userService.findUserByDocument(aux);
 		if (u == null) {
-			User us = userService.findUserByEmail(principal.getName());
+			User us = userService.findUserByEmail(aux);
 			u = us;
 		}
 		System.out.println("/user/extrato/geral");
@@ -228,7 +283,7 @@ public class LoginController {
 		model.addAttribute("transactions", t);
 		model.addAttribute("size", size);
 		modelAndView.setViewName("redirect:geral?page=" + page + "&op=" + op + "&size=" + size + "&ini=" + ini + "&fim="
-				+ fim + "&empresa=" + empresa);
+				+ fim + "&empresa=" + empresa + "&emailgeral=" + email);
 		return modelAndView;
 	}
 
@@ -236,14 +291,26 @@ public class LoginController {
 	public ModelAndView userbyPageGeralGet(Model model, @RequestParam(value = "page") int page,
 			@RequestParam(value = "op") String op, @RequestParam(value = "size") long size,
 			@RequestParam(value = "ini") String ini, @RequestParam(value = "fim") String fim,
-			@RequestParam(value = "empresa") long empresa, Principal principal) {
+			@RequestParam(value = "empresa") long empresa, @RequestParam(value = "emailgeral") String email,
+			Principal principal) {
 		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
 		ModelAndView modelAndView = new ModelAndView();
 		System.out.println("WARD");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		model.addAttribute("emailu", email);
+		User ux = userService.findUserByEmail(auth.getName());
+		if (isAdmin(ux.getId()))
+			empresa = ux.getCompany().getId();
+		model.addAttribute("empresafiltrada", empresa);
 		Page<TransactionCredit> t = null;
-		User u = userService.findUserByDocument(principal.getName());
+		String aux = null;
+		if (email.equals("-1")) {
+			aux = principal.getName();
+		} else
+			aux = email;
+		User u = userService.findUserByDocument(aux);
 		if (u == null) {
-			User us = userService.findUserByEmail(principal.getName());
+			User us = userService.findUserByEmail(aux);
 			u = us;
 		}
 		if (op.equals("tempocredito")) {
@@ -333,20 +400,43 @@ public class LoginController {
 	@RequestMapping(value = { "/user", "/user/extrato/filterpage" }, method = RequestMethod.POST)
 	public ModelAndView userbyFilter(Model model, @RequestParam(value = "filtro") String filtro,
 			@RequestParam(value = "filtroano") String filtroano, @RequestParam(value = "empresa") long empresa,
-			@RequestParam(value = "filtromes") String filtromes, Principal principal) {
+			@RequestParam(value = "filtromes") String filtromes, @RequestParam(value = "usuario") String usuario,
+			Principal principal) {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>" + filtro);
 		System.out.println(">>>>>>>>>>>>>>>>>>>>MES" + filtromes);
 		System.out.println(">>>>>>>>>>>>>>>>>>>>ANO" + filtroano);
+		System.out.println(">>>>>>>>>>>>>>>>>>>>EMPRESA" + empresa);
+		System.out.println(">>>>>>>>>>>>>>>>>>>>USUARIO" + usuario);
 		List<Company> company = companyRepository.findAll();
 		model.addAttribute("company", company);
 		model.addAttribute("company", company);
 		model.addAttribute("filtros", "ok");
+		String aux = null;
+		if (usuario != null && usuario.equals("-1"))
+			aux = principal.getName();
+		else {
+			aux = usuario;
+			model.addAttribute("emailu", usuario);
 
-		User u = userService.findUserByDocument(principal.getName());
+		}
+		System.out.println(">>>>>>>>>>>>>>>>>>>>OK");
+		User u = userService.findUserByDocument(aux);
 		if (u == null) {
-			User us = userService.findUserByEmail(principal.getName());
+			User us = userService.findUserByEmail(aux);
 			u = us;
 		}
+		System.out.println(">>>>>>>>>>>>>>>>>>>>OK2" + principal.getName());
+		User ux = userService.findUserByEmail(principal.getName());
+		if (ux == null) {
+			System.out.println("PQ NULO");
+			ux = userService.findUserByDocument(principal.getName());
+
+		}
+		if (ux != null && ux.getCompany() != null && ux.getCompany().getId() != null)
+			model.addAttribute("empresafiltrada", ux.getCompany().getId());
+		else
+			model.addAttribute("empresafiltrada", company);
+		System.out.println(">>>>>>>>>>>>>>>>>>>>OK3");
 		long ini = 0, fim = 0;
 		if (!filtromes.equals("0") && !filtroano.equals("0")) {
 			String date = filtromes + "/1/" + filtroano;
@@ -453,8 +543,8 @@ public class LoginController {
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
 		} else {
-			t = this.transactionRepository.findAllUser(u.getId(), pageRequest);
-			size = this.transactionRepository.findAllUser(u.getId(), pageRequest).getTotalElements();
+			t = this.transactionRepository.findByAll(empresa, u.getId(), pageRequest);
+			size = this.transactionRepository.findByAll(empresa, u.getId(), pageRequest).getTotalElements();
 		}
 		// model = params(model, user);
 		System.out.println("MEU SIZEEEEEEEEEEEEE" + size);
@@ -469,27 +559,70 @@ public class LoginController {
 	}
 
 	@RequestMapping(value = { "/user", "/user/extrato" }, method = RequestMethod.GET)
-	public ModelAndView userExtrato(Model model) {
-		ModelAndView modelAndView = new ModelAndView();
-		List<TransactionCredit> transactioncredit = transactioncreditService.findAll();
+	public @ResponseBody ModelAndView userExtratoAdmin(Model model,
+			@RequestParam(value = "email", required = false) String email, HttpServletRequest request) {
+		System.out.println("TEM EMAIL?????");
+		System.out.println("MEU EMAIL " + email);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
 
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		User user = userService.findUserByEmail(auth.getName());
-		Page<TransactionCredit> tall = this.transactionRepository.findAllUser(user.getId(), pageRequest);
+		ModelAndView modelAndView = new ModelAndView();
 
-		model.addAttribute("transactions", tall);
-		NumberFormat nf = NumberFormat.getCurrencyInstance();
-		List<String> buttons = transactioncreditService.listdiferentButtons();
-		UserBalance ub = userbalanceRepository.hasBalance(user.getId(), 1);
-		List<User> us = userService.findManager();
-		model.addAttribute("operators", us);
-		model.addAttribute("buttons", buttons);
-		model = params(model, user);
-		model.addAttribute("user", user);
+		User pais = userService.findUserByEmail(auth.getName());
+		System.out.println("WSRD1111!");
+		if (email != null) {
+			User filho = null;
+			System.out.println("WSRD!");
+			filho = userService.findUserByDocument(email);
+			User pai = userService.findUserByEmail(auth.getName());
+			if (isAdmin(pai.getId()) && filho != null) {
+				System.out.println("PODE CONTINUAR SOU ADMINISTRADOR OK?");
+				Page<TransactionCredit> tall = this.transactionRepository.findAllUser(filho.getId(), pageRequest);
+				model.addAttribute("transactions", tall);
+				List<String> buttons = transactioncreditService.listdiferentButtons();
+				List<User> us = userService.findManager();
+				model.addAttribute("operators", us);
+				model.addAttribute("buttons", buttons);
+				model.addAttribute("api", true);
+				model.addAttribute("email", email);
+				request.getSession().setAttribute("email", email);
+				model.addAttribute("empresaadm", pai.getCompany().getId());
+				model = params(model, filho);
+				model.addAttribute("user", filho);
+				Company c = companyRepository.getOne(pai.getCompany().getId());
+				model.addAttribute("c", c);
+				modelAndView.setViewName("user/extrato");
+				return modelAndView;
+			} else if (isAdmin(pai.getId())) {
+				System.out.println("TA OK ANTES DE REDIREIONAR");
+				modelAndView.setViewName("manager/controle");
+				return modelAndView;
+			} else {
+				System.out.println("TA OK ANTES DE REDIREIONAR");
+				model.addAttribute("user", pai);
+				modelAndView.setViewName("user/extrato");
+				return modelAndView;
+			}
 
-		modelAndView.setViewName("user/extrato");
+		} else if (!isAdmin(pais.getId())) {
+
+			User user = userService.findUserByEmail(auth.getName());
+			Page<TransactionCredit> tall = this.transactionRepository.findAllUser(user.getId(), pageRequest);
+
+			model.addAttribute("transactions", tall);
+			List<String> buttons = transactioncreditService.listdiferentButtons();
+			List<User> us = userService.findManager();
+			model.addAttribute("operators", us);
+			model.addAttribute("api", false);
+			model.addAttribute("buttons", buttons);
+			model = params(model, user);
+			model.addAttribute("user", user);
+			modelAndView.setViewName("user/extrato");
+			return modelAndView;
+		}
+		modelAndView.setViewName("manager/controle");
 		return modelAndView;
+
 	}
 
 	public Model params(Model model, User user) {
@@ -511,43 +644,17 @@ public class LoginController {
 	}
 
 	@RequestMapping(value = { "/user", "/user/extrato/filterpage" }, method = RequestMethod.GET)
-	public ModelAndView getFilterExtrato(Model model, Principal principal) {
-		ModelAndView modelAndView = new ModelAndView();
-		List<TransactionCredit> transactioncredit = transactioncreditService.findAll();
-		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
+	public String getFilterExtrato(Model model, Principal principal, HttpSession session) {
+		String email = (String) session.getAttribute("email");
 
-		User u = userService.findUserByDocument(principal.getName());
-		if (u == null) {
-			User us = userService.findUserByEmail(principal.getName());
-			u = us;
-		}
-		Page<TransactionCredit> tall = this.transactionRepository.findAllUser(u.getId(), pageRequest);
-
-		model.addAttribute("transactions", tall);
+		User user = userService.findUserByDocument(email);
+		System.out.println("OI" + email);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		User user = userService.findUserByEmail(auth.getName());
-		NumberFormat nf = NumberFormat.getCurrencyInstance();
-		List<Company> company = companyRepository.findAll();
-		List<String> buttons = transactioncreditService.listdiferentButtons();
-		UserBalance ub = userbalanceRepository.hasBalance(user.getId(), 1);
-		List<User> us = userService.findManager();
-		BigDecimal b = (userbalanceRepository.sumBalances(user.getId()));
-		if (b != null) {
-			String stot = nf.format(b);
-			model.addAttribute("somatotal", stot);
-		}
-		model.addAttribute("operators", us);
-		model.addAttribute("company", company);
-		model.addAttribute("filtros", "ok");
-		model = params(model, u);
-		model.addAttribute("buttons", buttons);
-		if (ub != null) {
-			String s = nf.format(ub.getBalance());
-			model.addAttribute("valor", s);
-		}
-		model.addAttribute("user", user);
-		modelAndView.setViewName("user/extrato");
-		return modelAndView;
+		User u = userService.findUserByEmail(auth.getName());
+		if (isAdmin(u.getId()) || isManager(u.getId()))
+			return "redirect:" + "/user/extrato?email=" + user.getDocument();
+
+		return "redirect:" + "/user/extrato";
 	}
 
 	@RequestMapping(value = { "/user", "/user/extrato/filtro" }, method = RequestMethod.GET)
@@ -647,7 +754,8 @@ public class LoginController {
 		model.addAttribute("button", button);
 
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
-		Page<Button> buts = buttonRepository.activeButtons(pageRequest);
+		Page<Button> buts = this.buttonRepository.findAllButton(user.getCompany().getId(), pageRequest);
+
 		model.addAttribute("buttonsme", buts);
 		modelAndView.setViewName("manager/botoes");
 		return modelAndView;
@@ -664,7 +772,11 @@ public class LoginController {
 	@RequestMapping("/admin/manager/deletar")
 	@ResponseBody
 	public void deletarmanager(@RequestParam long id, HttpServletRequest request, HttpServletResponse response) {
-		userService.deleteUser(id);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		User u = userService.getOne(id);
+		if (u.getCompany() == user.getCompany())
+			userService.deleteUser(id);
 
 	}
 
@@ -711,6 +823,15 @@ public class LoginController {
 
 	}
 
+	@RequestMapping("/convert")
+	@ResponseBody
+	public boolean isButton(@RequestParam long id, HttpServletRequest request, HttpServletResponse response) {
+		Button bt = buttonService.getOne(id);
+		if (bt != null)
+			return true;
+		return false;
+	}
+
 	@RequestMapping("/checarpin")
 	@ResponseBody
 	public boolean checarPin(@RequestParam String id, @RequestParam int pin, HttpServletRequest request,
@@ -724,13 +845,34 @@ public class LoginController {
 
 	}
 
+	@RequestMapping(value = { "/historico" }, method = RequestMethod.POST)
+	public ModelAndView historico(Model model, @RequestParam String id, HttpServletRequest request,
+			HttpServletResponse response) {
+		System.out.println("AQUIIIIIII" + id);
+		ModelAndView modelAndView = new ModelAndView();
+		User u = userService.findUserByDocument(id);
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
+
+		Page<TransactionCredit> t = transactionRepository.findAllUser(u.getId(), pageRequest);
+		model.addAttribute("transactions", t);
+		modelAndView.setViewName("manager/buscar?email=" + id);
+		return modelAndView;
+
+	}
+
 	@RequestMapping("/checarsaldoempresa")
 	@ResponseBody
-	public String checarSaldoEmpresa(@RequestParam long empresa, HttpServletRequest request,
+	public String checarSaldoEmpresa(@RequestParam long empresa,
+			@RequestParam(value = "email", required = false) String email, HttpServletRequest request,
 			HttpServletResponse response, Principal principal, Model model) {
-		User u = userService.findUserByDocument(principal.getName());
+		String aux = null;
+		if (email != null)
+			aux = email;
+		else
+			aux = principal.getName();
+		User u = userService.findUserByDocument(aux);
 		if (u == null) {
-			User us = userService.findUserByEmail(principal.getName());
+			User us = userService.findUserByEmail(aux);
 			u = us;
 		}
 		UserBalance ub = userbalanceRepository.hasBalance(u.getId(), empresa);
@@ -742,6 +884,71 @@ public class LoginController {
 			model.addAttribute("valor", s);
 		}
 		return s;
+
+	}
+
+	@RequestMapping("/checarsaldoempresaatual")
+	@ResponseBody
+	public String[] checarSaldoEmpresaAtt(@RequestParam(value = "finalmili", required = false) long finalmili,
+			@RequestParam(value = "inicialmili", required = false) long inicialmili, HttpServletRequest request,
+			HttpServletResponse response, Principal principal, Model model) {
+		System.out.println("checarsaldoempresaatual");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		Company company = companyRepository.getOne(user.getCompany().getId());
+		model.addAttribute("user", user);
+		model.addAttribute("company", company);
+		BigDecimal debito = transactionRepository.sumBalancesNegativeData(user.getId(), inicialmili, finalmili);
+		BigDecimal credito = transactionRepository.sumBalancesPostiveData(user.getId(), inicialmili, finalmili);
+		String dif = "";
+		String c = "";
+		String d = "";
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
+		if (credito != null) {
+			c = nf.format(credito);
+			model.addAttribute("credito", c);
+		}
+		if (debito != null) {
+			debito = debito.negate();
+			BigDecimal diferenca = null;
+			if (debito != null)
+				diferenca = credito.subtract(debito);
+			else
+				diferenca = credito;
+			d = nf.format(debito);
+			dif = nf.format(diferenca);
+			model.addAttribute("debito", d);
+			model.addAttribute("diferenca", dif);
+		}
+
+		String[] resultados = new String[20];
+		if (credito == null) {
+			resultados[0] = "R$ 0,00";
+			resultados[1] = "R$ 0,00";
+			resultados[2] = "R$ 0,00";
+		} else if (debito == null) {
+			resultados[0] = c;
+			resultados[1] = "R$ 0,00";
+			resultados[2] = c;
+		} else {
+			resultados[0] = c;
+			resultados[1] = d;
+			resultados[2] = dif;
+		}
+		return resultados;
+
+	}
+
+	@RequestMapping("/novopin")
+	@ResponseBody
+	public int checarSaldoEmpresa(HttpServletRequest request, HttpServletResponse response, Principal principal,
+			Model model) {
+		String aux = null;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		user.generatePin();
+		userService.updateUser(user);
+		return user.getPin();
 
 	}
 
@@ -889,14 +1096,18 @@ public class LoginController {
 	public ModelAndView novoBotao(Button button, Model model,
 			@RequestParam(value = "ideditar", required = false) long id) {
 		ModelAndView modelAndView = new ModelAndView();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
 		System.out.println("ID DE MEU BOTAO" + id);
 		if (id == -1 && button != null && button.getName() != null && button.getValue() != null
 				&& button.getName() != "") {
 			System.out.println("CHAMDAOAOAOAOAOOAOAOAOOAOAOOAOAOA");
+			button.setCompany(user.getCompany());
 			buttonService.saveButton(button);
 		} else if (id > 0 && button != null && button.getName() != null && button.getValue() != null
 				&& button.getName() != "") {
 			button.setId(id);
+			button.setCompany(user.getCompany());
 			buttonService.updateButton(button);
 		}
 
@@ -904,7 +1115,7 @@ public class LoginController {
 		modelAndView.addObject("mostrar", button);
 		model.addAttribute("button", b);
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
-		Page<Button> buts = this.buttonRepository.findAll(pageRequest);
+		Page<Button> buts = this.buttonRepository.findAllButton(user.getCompany().getId(), pageRequest);
 		model.addAttribute("buttonsme", buts);
 		modelAndView.setViewName("manager/botoes");
 		return modelAndView;
@@ -972,6 +1183,45 @@ public class LoginController {
 		return "redirect:" + "/user/home";
 	}
 
+	@RequestMapping(value = { "/admin", "/admin/edit/test" }, method = RequestMethod.POST)
+
+	public String Admintest(@RequestParam("arquivo") MultipartFile arquivo, Model model) throws IOException {
+		System.out.println("ANTES");
+		cloudHost.upload(arquivo);
+		System.out.println("FIM" + cloudHost.last_public_id);
+		ModelAndView modelAndView = new ModelAndView();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		user.setImage(cloudHost.last_public_id);
+		userService.updateUser(user);
+		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
+		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
+		model.addAttribute("user", user);
+		modelAndView.setViewName("user/home");
+
+		return "redirect:" + "/user/home";
+	}
+
+	@RequestMapping(value = { "/admin", "/admin/edit/company" }, method = RequestMethod.POST)
+
+	public String AdminCompany(@RequestParam("arquivo") MultipartFile arquivo, Model model) throws IOException {
+		System.out.println("ANTES");
+		cloudHost.upload(arquivo);
+		System.out.println("FIM" + cloudHost.last_public_id);
+		ModelAndView modelAndView = new ModelAndView();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = userService.findUserByEmail(auth.getName());
+		Company company = companyRepository.getOne(user.getCompany().getId());
+		company.setImage(cloudHost.last_public_id);
+		companyService.updateCompany(company);
+		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
+		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
+		model.addAttribute("userf", user);
+		modelAndView.setViewName("user/home");
+
+		return "redirect:" + "/admin/conta";
+	}
+
 	@Bean
 	public PasswordEncoder encoder() {
 		return new BCryptPasswordEncoder();
@@ -1005,6 +1255,10 @@ public class LoginController {
 			modelAndView.addObject("successMessage", "As senhas nao conferem");
 			return modelAndView;
 		}
+		if (password.length() < 5) {
+			modelAndView.addObject("successMessage", "Senha precisa ter ao menos 5 digitos");
+			return modelAndView;
+		}
 		String pass = hashPassword(password);
 		if (password != null && password != "") {
 			u.setPassword(pass);
@@ -1026,34 +1280,46 @@ public class LoginController {
 		return "403";
 	}
 
-	public boolean isAdmin() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		boolean hasUserRole = authentication.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ADMIN"));
-		if (hasUserRole)
-			return true;
-		return false;
-	}
-
-	public boolean isUser() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ROLE_USER"))) {
-			System.out.println("EPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		} else {
-			System.out.println(
-					"NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNEPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	public boolean isAdmin(long user_id) {
+		System.out.println("ISADMIN");
+		Long u = null;
+		try {
+			u = userRepository.user(2, user_id);
+			if (u != null && u == user_id)
+				return true;
+		} catch (Exception e) {
 
 		}
-		boolean hasUserRole = authentication.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("USER"));
-		if (hasUserRole)
-			return true;
+
 		return false;
 	}
 
-	public boolean isManager() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		boolean hasUserRole = authentication.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ADMIN"));
-		if (hasUserRole)
-			return true;
+	public boolean isUser(long user_id) {
+		Long u = null;
+		System.out.println("ISUSER");
+
+		System.out.println("ISUSER-----------222");
+
+		try {
+			u = userRepository.user(1, user_id);
+			if (u != null && u == user_id)
+				return true;
+		} catch (Exception e) {
+
+		}
+
+		return false;
+	}
+
+	public boolean isManager(long user_id) {
+		Long u = null;
+		try {
+			u = userRepository.user(3, user_id);
+			if (u != null && u == user_id)
+				return true;
+		} catch (Exception e) {
+
+		}
 		return false;
 	}
 
@@ -1070,23 +1336,96 @@ public class LoginController {
 		return user.getImage();
 	}
 
+	@RequestMapping("/findcimage")
+	@ResponseBody
+	public String findCimage(@RequestParam String x) {
+		System.out.println("...MM");
+		User user = userService.findUserByEmail(x);
+		User up;
+		if (user == null) {
+			up = userService.findUserByDocument(x);
+			user = up;
+		}
+		Company c = companyRepository.getOne(user.getCompany().getId());
+
+		return c.getImage();
+	}
+
+	@RequestMapping("/findcurrentuser")
+	@ResponseBody
+	public String findCurrentUser() {
+		System.out.println("...");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		User user = userService.findUserByEmail(auth.getName());
+		User up;
+		if (user == null) {
+			up = userService.findUserByDocument(auth.getName());
+			user = up;
+		}
+
+		User x = userService.getOne(user.getCompany().getId());
+		return x.getImage();
+	}
+
+	@RequestMapping(value = "/rate", method = RequestMethod.GET)
+	public String rateHandler(HttpServletRequest request) {
+		// your controller code
+		System.out.println("AQUIII");
+		String referer = request.getHeader("Referer");
+		return "redirect:" + referer;
+	}
+
+	@RequestMapping(value = "/rate", method = RequestMethod.POST)
+	public String postrateHandler(HttpServletRequest request) {
+		// your controller code
+		System.out.println("AQUIII");
+		String referer = request.getHeader("Referer");
+		return "redirect:" + referer;
+	}
+
 	@RequestMapping(value = { "/", "/login" }, method = RequestMethod.GET)
 	public String login(Principal principal, HttpServletRequest request, HttpSession session) {
+		ModelAndView modelAndView = new ModelAndView();
+
 		if (principal == null) {
 			System.out.println("ME CHAMOU ASSIM");
 			return "login";
 		}
+		User u = userService.findUserByDocument(principal.getName());
+		if (u == null)
+			u = userService.findUserByEmail(principal.getName());
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (!(auth instanceof AnonymousAuthenticationToken)) {
+			System.out.println("VOCE JA ESTA LOGADO");
+			if (isUser(u.getId())) {
+				System.out.println("OPA ATE AQUI VEM");
+				return "redirect:" + "/user/home";
+			}
+			if (isAdmin(u.getId()))
+				return "redirect:" + "/manager/controle";
+			if (isManager(u.getId()))
+				return "redirect:" + "/manage/controler";
+
+		}
 
 		System.setProperty("userDetails", principal.getName());
 
-		if (isAdmin())
+		if (isAdmin(u.getId()))
 			return "redirect:" + "/manager/controle";
-		if (isManager())
+		if (isManager(u.getId()))
 			return "redirect:" + "/manager";
-		if (isUser())
+		if (isUser(u.getId()))
 			return "redirect:" + "/user";
 
 		return "";
+	}
+
+	public boolean isCurrentUser(Principal principal) {
+		User u = userService.findUserByDocument(principal.getName());
+		if (u == null)
+			u = userService.findUserByEmail(principal.getName());
+		return isUser(u.getId());
 	}
 
 	@RequestMapping(value = { "/manager/products" }, method = RequestMethod.GET)
@@ -1122,13 +1461,13 @@ public class LoginController {
 		str = str.replace("-", "");
 		user.setDocument(str);
 		if (!user.getPassword().equals(confirm)) {
-			bindingResult.rejectValue("email", "error.user",
-					"There is already a user registered with the email provided");
+			bindingResult.rejectValue("email", "error.user", "Senhas diferentes");
 			modelAndView.setViewName("registration");
 			modelAndView.addObject("user", new User());
-			return "redirect:/registration/";
+			return "registration";
 
 		}
+
 		if (userExists != null) {
 			bindingResult.rejectValue("email", "error.user",
 					"There is already a user registered with the email provided");
@@ -1145,7 +1484,7 @@ public class LoginController {
 
 		if (bindingResult.hasErrors()) {
 			modelAndView.setViewName("registration");
-			return "redirect:/registration/";
+			return "registration";
 		} else {
 			user.setImage("rejoed05uyghymultqsv");
 			user.generatePin();
@@ -1178,10 +1517,12 @@ public class LoginController {
 		User user = new User();
 		modelAndView.addObject("user", user);
 		modelAndView.addObject("result", user.getName());
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User u = userService.findUserByEmail(auth.getName());
 
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
-
-		Page<User> ur = this.userRepository.findManagers(pageRequest);
+		System.out.println("VEJA ESTE MEU ID " + u.getCompany().getId());
+		List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
 		model.addAttribute("managers", ur);
 
 		modelAndView.setViewName("admin/registermanager");
@@ -1192,7 +1533,12 @@ public class LoginController {
 	public String searchuser(User u, Model model, @RequestParam("email") String email, Principal principal
 
 	) {
+		System.out.println("VEM PRA K");
 		User us = userService.findUserByEmail(email);
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User uA = userService.findUserByEmail(auth.getName());
+
 		User u1 = userService.findUserByEmail(principal.getName());
 		if (u1 == null)
 			u1 = userService.findUserByDocument(principal.getName());
@@ -1202,33 +1548,54 @@ public class LoginController {
 			aux.add(tg);
 		}
 		long x = 1;
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
+
+		PageRequest pageRequestName = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
+		if (us == null) {
+			us = userService.findUserByDocument(email);
+		}
+		System.out.println("VEM PRA K2");
+		if (us == null || isAdmin(us.getId()) || isManager(us.getId())) {
+			model.addAttribute("usernotfound", "verdade");
+			return "manager/controle";
+		}
+
+		List<TransactionCredit> t = transactionRepository.findUser(us.getId());
+
+		model.addAttribute("transactions", t);
+
 		System.out.println("ANTES DE INICIO ---------- AQUI");
 		// UserBalance ub = userbalanceRepository.findOne(x);
 		System.out.println("INICIO ---------- AQUI");
-		if (us != null) {
+		if (us != null && !isAdmin(us.getId()) && !isManager(us.getId())) {
 			model.addAttribute("users", us);
 			System.out.println("1111111111111111111111");
 			UserBalance ub = userbalanceRepository.hasBalance(us.getId(), u1.getCompany().getId());
 			System.out.println("2222222222222222222222222");
+			// List<Button> buttons = buttonService.findAll();
+			Page<Button> buttons = this.buttonRepository.findAllButton(uA.getCompany().getId(), pageRequestName);
+
+			model.addAttribute("buttons", buttons);
 			if (ub != null && ub.getBalance() != null) {
 				NumberFormat nf = NumberFormat.getCurrencyInstance();
 				String s = nf.format(ub.getBalance());
 				model.addAttribute("valor", s);
 			}
-		} else if (us == null) {
+		} else {
 			System.out.println("3333333333333333333333333333");
 			System.out.println("TESTE" + u1.getCompany().getId());
 			System.out.println("4444444444444444444444444");
 			User use = userService.findUserByDocument(email);
 
-			if (use != null) {
+			if (use != null && !isAdmin(use.getId()) && !isManager(use.getId())) {
 				System.out.println("ANTES");
 				UserBalance ub = userbalanceRepository.hasBalance(use.getId(), u1.getCompany().getId());
 				System.out.println("DEPOIS");
 				model.addAttribute("users", use);
-				List<Button> buttons = buttonService.findAll();
+				Page<Button> buttons = this.buttonRepository.findAllButton(uA.getCompany().getId(), pageRequestName);
+
 				Button button = new Button();
-				buttons = buttonService.findAll();
+
 				model.addAttribute("buttons", buttons);
 				if (ub != null && ub.getBalance() != null) {
 					NumberFormat nf = NumberFormat.getCurrencyInstance();
@@ -1259,10 +1626,17 @@ public class LoginController {
 	@RequestMapping(value = "/manager/consumo", method = RequestMethod.POST)
 	public String consumo(@RequestParam("iduser") long iduser, @RequestParam("idbutton") long idbutton,
 			@RequestParam("debitovalue") BigDecimal debito, @RequestParam("description") String description,
-			Model model, RedirectAttributes redir, Principal princi) {
+			@RequestParam("debitopin") int pin, Model model, RedirectAttributes redir, Principal princi) {
 		User user = userService.getOne(iduser);
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String username;
+
+		if (user.getPin() != pin) {
+			model.addAttribute("status", "Consumo não foi lançado. Verifique o pin informado!");
+			redir.addFlashAttribute("status2", "Consumo não foi lançado. Verifique o pin informado!");
+			return searchuser(user, model, user.getDocument(), princi);
+		}
+
 		if (principal instanceof UserDetails) {
 			username = ((UserDetails) principal).getUsername();
 		} else {
@@ -1276,13 +1650,15 @@ public class LoginController {
 		long millis = System.currentTimeMillis();
 
 		TransactionCredit transactioncredit = new TransactionCredit();
-		System.out.println("VEM ATE AQUI");
+		System.out.println("VEM ATE AQUI" + idbutton);
 		UserBalance ub = userbalanceRepository.hasBalance(user.getId(), uaux.getCompany().getId());
 		System.out.println("VEM ATE AQUI 1");
 		if (debito != null) {
 			System.out.println("O ERRO ESTA ABAIXO");
 		}
-		if (debito == null) {
+		Long l = new Long(idbutton);
+		Long l2 = new Long(-1);
+		if (!l.equals(l2)) {
 
 			Button button = buttonService.getOne(idbutton);
 			if (ub.getBalance() != null && button.getValue() != null
@@ -1323,6 +1699,7 @@ public class LoginController {
 				System.out.println("DESCRIPTION" + description);
 				b.setValue(debito);
 				b.setOutros(true);
+				b.setCompany(uaux.getCompany());
 				buttonService.saveButton(b);
 				System.out.println(b.getId());
 				BigDecimal val = debito.negate();
@@ -1356,6 +1733,8 @@ public class LoginController {
 	public String insertcredit(User u, Model model, @RequestParam("users.document") String document,
 			@RequestParam("balance") BigDecimal balance, Principal principal) {
 		User us = userService.findUserByDocument(document);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User uA = userService.findUserByEmail(auth.getName());
 		if (us == null) {
 			User user = userService.findUserByEmail(document);
 			us = user;
@@ -1410,7 +1789,10 @@ public class LoginController {
 		transactioncreditService.saveTransaction(transactioncredit);
 
 		model.addAttribute("users", us);
-		List<Button> buttons = buttonService.findAll();
+		// List<Button> buttons = buttonService.findAll();
+		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
+		Page<Button> buttons = this.buttonRepository.findAllButton(uA.getCompany().getId(), pageRequest);
+
 		model.addAttribute("buttons", buttons);
 		System.out.println("PRINCIPALLLLLLLLLLL" + principal.getName());
 
@@ -1482,12 +1864,18 @@ public class LoginController {
 		ModelAndView modelAndView = new ModelAndView();
 		System.out.println("::::::::::::::::::::::::::::::::::::::::::::");
 		if (user.getId() != -1) {
-			modelAndView.addObject("successMessage", "editado");
 			System.out.println("::::::::::::::::::::::::::::::::::::::::::::111111111111111111111111111111");
-
-			userService.updateManager(user, confirm);
-			List<User> users = userService.findManager();
-			model.addAttribute("managers", users);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			User u = userService.findUserByEmail(auth.getName());
+			User x = userService.getOne(user.getId());
+			if (x.getCompany().getId() == u.getCompany().getId()) {
+				modelAndView.addObject("successMessage", "editado");
+				userService.updateManager(user, confirm);
+			} else {
+				modelAndView.addObject("successMessage", "não foi editado, tente novamente");
+			}
+			List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
+			model.addAttribute("managers", ur);
 			modelAndView.setViewName("admin/registermanager");
 		} else {
 			System.out.println("::::::::::::::::::::::::::::::::::::::::::::2222222222222222222222222222");
@@ -1504,8 +1892,14 @@ public class LoginController {
 				bindingResult.rejectValue("document", "error.user", "Documento ja cadastrado no sistema");
 			}
 			if (bindingResult.hasErrors()) {
-				List<User> users = userService.findManager();
-				model.addAttribute("managers", users);
+				System.out.println("OK");
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				User u = userService.findUserByEmail(auth.getName());
+
+				List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
+
+				model.addAttribute("managers", ur);
+				System.out.println("OK2");
 				modelAndView.setViewName("admin/registermanager");
 			} else {
 				System.out.println("---------------------------------------------------------------");
@@ -1514,13 +1908,18 @@ public class LoginController {
 					uaux = userService.findUserByEmail(principal.getName());
 				user.setCompany(uaux.getCompany());
 				user.setCompany(uaux.getCompany());
-
+				user.setDeleted(false);
 				userService.saveManager(user);
 				modelAndView.addObject("successMessage", "cadastrado");
 				modelAndView.addObject("user", new User());
 			}
-			List<User> users = userService.findManager();
-			model.addAttribute("managers", users);
+			System.out.println("OK3");
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			User u = userService.findUserByEmail(auth.getName());
+			System.out.println("O4");
+			List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
+
+			model.addAttribute("managers", ur);
 			modelAndView.setViewName("admin/registermanager");
 
 		}

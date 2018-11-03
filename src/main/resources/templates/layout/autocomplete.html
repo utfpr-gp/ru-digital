@@ -1,223 +1,288 @@
 <!DOCTYPE html>
-<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="description" content="Programming forum about Java powered by Spring Framework"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-    <title>RU Digital</title>
-       <!-- Compiled and minified CSS -->
-  <link type="text/css" rel="stylesheet"  th:href="@{/sasscompiled/materialize-src/sass/materialize.css}"  media="screen,projection"/>
-	
-	
-    <!-- Compiled and minified JavaScript -->
-    <script type="text/javascript" th:src="@{/js/jquery-3.2.0.min.js}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
-    <script type="text/javascript" th:src="@{/js/jquery.autocomplete.js}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" ></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    
-    
-    <script>
-  
+<meta charset="utf-8" />
+<meta name="description"
+	content="Programming forum about Java powered by Spring Framework" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>RU Digital</title>
+<!-- Compiled and minified CSS -->
+<link type="text/css" rel="stylesheet"
+	th:href="@{/sasscompiled/materialize-src/sass/materialize.css}"
+	media="screen,projection" />
 
-</script>    
-    
-    
+
+<!-- Compiled and minified JavaScript -->
+<script type="text/javascript" th:src="@{/js/jquery-3.2.0.min.js}"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+<script type="text/javascript" th:src="@{/js/jquery.autocomplete.js}"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet" />
+<script type="text/javascript"
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+
+
+
+<script>
+	
+</script>
+
+
 <style>
-table, tr  {
+table, tr {
 	border-bottom: 0px !important;
 }
+
 hr.style-eight:after {
-    content: "§";
-    /* display: inline-block; */
-    position: relative;
-    top: -0.9em;
-    font-size: 1.5em;
-    padding: 0 0.25em;
-    background: #F5F4F4;
-    
+	content: "§";
+	/* display: inline-block; */
+	position: relative;
+	top: -0.9em;
+	font-size: 1.5em;
+	padding: 0 0.25em;
+	background: #F5F4F4;
 }
 
 hr.style-seven:after {
-    background: #EBE9E9;
+	background: #EBE9E9;
 }
+
 hr.style-eight {
-    overflow: visible;
-    padding: 0;
-    border: none;
-    border-top: medium double #ffc107;
-    color: #ffc107;
-    text-align: center;
+	overflow: visible;
+	padding: 0;
+	border: none;
+	border-top: medium double #ffc107;
+	color: #ffc107;
+	text-align: center;
 }
-.page-footer .footer-copyright{
-color: black;
+
+.page-footer .footer-copyright {
+	color: black;
 }
+
 .collection .collection-item.avatar p {
-margin-left: 50px !important;
+	margin-left: 50px !important;
 }
 
-.collection .collection-item.avatar:not(.circle-clipper)>.circle, .collection .collection-item.avatar :not(.circle-clipper)>.circle {
-width: 100px !important;
-height: 100px !important;
+.collection .collection-item.avatar:not (.circle-clipper )>.circle,
+	.collection .collection-item.avatar :not (.circle-clipper )>.circle {
+	width: 100px !important;
+	height: 100px !important;
 }
+
 nav ul a {
-font-size: 18px;
-color: black;
-}
-::-webkit-input-placeholder { /* WebKit browsers */
-    color:    black;
-     opacity: 1 !important;
+	font-size: 18px;
+	color: black;
 }
 
+::-webkit-input-placeholder { /* WebKit browsers */
+	color: black;
+	opacity: 1 !important;
+}
 
 .dropdown-content  li a:hover {
-   background-color: #fff3e0;
+	background-color: #fff3e0;
 }
-
 
 @media screen and (max-width: 450px) {
-   .sidenav-trigger{
-    		transform: translateX(0%) !important;
-     	 }
-     
-     body{
-     	 .sidenav-trigger{
-    		transform: translateX(0%);
-     	 }
-     }
+	.sidenav-trigger {
+		transform: translateX(0%) !important;
+	}
+	body { .sidenav-trigger { transform:translateX(0%);
+		
+	}
 }
-
-
-
+}
 </style>
 <script>
-
-
-
-
-function enviar(){
-	$("#enviarmodal").click ();
-}
-function pegarImagem(){
-	alert();
-}
-$(document).ready(function() {
-	  $('.dropdown-trigger').dropdown({ hover: false, constrainWidth: false });
-	  
-	 var x = document.getElementById('logado').value;
-	 $.ajax({
-	   	    type : "GET",
-	   	    url : "/finduser",
-	   	    data : {
-	   	    "x" : x
-	   	    },
-	   	    success: function(z){
-	   	    	document.getElementById("cloud").src="http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/" + z;
-	   	    }
-	   	});
-	$('#modal4').modal();
-	$('#modal5').modal();
-	$('#modal6').modal();
-	$("#busca").click(function() {  
-		$("#enviarbuscar").click ();
+	function enviar() {
+		$("#enviarmodal").click();
+	}
+	function pegarImagem() {
+		
+	}
+	jQuery(function($) {
+		$('#datet').mask('99/99/9999');
 	});
+	$(document)
+			.ready(
+					function() {
+						$('.dropdown-trigger').dropdown({
+							hover : false,
+							constrainWidth : false
+						});
+						
+						var x = document.getElementById('logado').value;
+						$
+								.ajax({
+									type : "GET",
+									url : "/findcimage",
+									data : {
+										"x" : x
+									},
+									success : function(z) {
+										document.getElementById("cloud").src = "http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/"
+												+ z;
+									}
+								});
+						$('#modal4').modal();
+						$('#modal5').modal();
+						$('#modal6').modal();
+						$("#busca").click(function() {
+							$("#enviarbuscar").click();
+						});
 
-	$('#menucontainer').click(function(e) {
-		 e = e || window.event;
-		    e = e.target || e.srcElement;
-		    console.log(document.getElementById("showcreditos").style.display);
-		    if (document.getElementById("showcreditos").style.display != "none")
-		    	document.getElementById("creditos").style.backgroundColor = "#ffc107";
-		    
-		    if (document.getElementById("showconsumo").style.display != "none")
-		    	document.getElementById("consumo").style.backgroundColor = "#ffc107";
-		    
-		    if (e.id == "creditos")
-		    	document.getElementById("consumo").style.backgroundColor = "#fff176";
-		    
-		    if (e.id == "consumo")
-		    	document.getElementById("creditos").style.backgroundColor = "#fff176";
-		    
-		  event.stopPropagation();
-		});
-	$("#creditos").click(function() {
-		var elementExists = document.getElementById("showcreditos");
-		console.log(document.getElementById('showcreditos').style.display);
-		
-		var  el = document.getElementById('creditos');
-		
-		$("#showconsumo").css("display","none");
-		var disp = document.getElementById('showcreditos').style.display;
-		
-		 $("#outro").maskMoney({
-	         decimal: ",",
-	         thousands: ".",
-	         numeralMaxLength: true
-	     });
-		
-		 if (disp === ""){
-				$("#showcreditos").css("display","none");
-				
-			}
-		 else{
-			 $( "#showcreditos" ).show( "slow", function() {
-				    // Animation complete.
-				 window.scrollTo(0,document.body.scrollHeight/3);
-				  });
-		 }
-	});
-	 $("#consumo").click(function() {
-		 
-		 console.log(document.getElementById('showcreditos').style.display);
-			
-		 document.getElementById("creditos").classList.remove("ativo"); 
-		 $("#outrodebito").maskMoney({
-	         decimal: ",",
-	         thousands: ".",
-	         numeralMaxLength: true
-	     });
-		 $("#showcreditos").css("display","none");
-		var disp = document.getElementById('showconsumo').style.display;
-		 if (disp === ""){
-				$("#showconsumo").css("display","none");
-			}
-		 else{
-			 $( "#showconsumo" ).show( "slow", function() {
-				    // Animation complete.
-				 window.scrollTo(0,document.body.scrollHeight/3);
-				  });
-		 }
-		
-	    });
-		
-    $('#autocomplete-input').devbridgeAutocomplete({
-        serviceUrl: '/suggestion',
-        paramName: 'searchstr',
-        delimiter: ",",
- 	    transformResult: function(response) {
- 		var aux = document.getElementById('autocomplete-input').value;  
- 		var tam = document.getElementById('autocomplete-input').value.length;
- 		var res = aux.substring(0, tam);
- 		return {      	
- 		  //must convert json to javascript object before process
- 		  suggestions: $.map($.parseJSON(response), function(item) {
- 			  var x = item.tagName.substring(0, tam);
- 			  if (x === aux)
- 		      return { value: item.tagName, data: item.id };
- 		   })
- 		            
- 		 };
- 		        
-             }
-    });
+						$('#menucontainer')
+								.click(
+										function(e) {
+											e = e || window.event;
+											e = e.target || e.srcElement;
+											console
+													.log(document
+															.getElementById("showcreditos").style.display);
+											if (document
+													.getElementById("showcreditos").style.display != "none")
+												document
+														.getElementById("creditos").style.backgroundColor = "#ffc107";
 
-  });
-$(document).ready(function(){
-    $('.sidenav').sidenav();
-  });
-	
+											if (document
+													.getElementById("showconsumo").style.display != "none")
+												document
+														.getElementById("consumo").style.backgroundColor = "#ffc107";
+
+											if (e.id == "creditos")
+												document
+														.getElementById("consumo").style.backgroundColor = "#fff176";
+
+											if (e.id == "consumo")
+												document
+														.getElementById("creditos").style.backgroundColor = "#fff176";
+
+											event.stopPropagation();
+										});
+						$("#creditos")
+								.click(
+										function() {
+											var elementExists = document
+													.getElementById("showcreditos");
+											console
+													.log(document
+															.getElementById('showcreditos').style.display);
+
+											var el = document
+													.getElementById('creditos');
+
+											$("#showconsumo").css("display",
+													"none");
+											var disp = document
+													.getElementById('showcreditos').style.display;
+
+											$("#outro").maskMoney({
+												decimal : ",",
+												thousands : ".",
+												numeralMaxLength : true
+											});
+
+											if (disp === "") {
+												$("#showcreditos").css(
+														"display", "none");
+
+											} else {
+												$("#showcreditos")
+														.show(
+																"slow",
+																function() {
+																	// Animation complete.
+																	window
+																			.scrollTo(
+																					0,
+																					document.body.scrollHeight);
+																});
+											}
+										});
+						$("#consumo")
+								.click(
+										function() {
+
+											console
+													.log(document
+															.getElementById('showcreditos').style.display);
+
+											document.getElementById("creditos").classList
+													.remove("ativo");
+											$("#outrodebito").maskMoney({
+												decimal : ",",
+												thousands : ".",
+												numeralMaxLength : true
+											});
+											$("#showcreditos").css("display",
+													"none");
+											var disp = document
+													.getElementById('showconsumo').style.display;
+											if (disp === "") {
+												$("#showconsumo").css(
+														"display", "none");
+											} else {
+												$("#showconsumo")
+														.show(
+																"slow",
+																function() {
+																	// Animation complete.
+																	window
+																			.scrollTo(
+																					0,
+																					document.body.scrollHeight);
+																});
+											}
+
+										});
+
+						$('#autocomplete-input')
+								.devbridgeAutocomplete(
+										{
+											serviceUrl : '/suggestion',
+											paramName : 'searchstr',
+											delimiter : ",",
+											transformResult : function(response) {
+												var aux = document
+														.getElementById('autocomplete-input').value;
+												var tam = document
+														.getElementById('autocomplete-input').value.length;
+												var res = aux.substring(0, tam);
+												return {
+													//must convert json to javascript object before process
+													suggestions : $
+															.map(
+																	$
+																			.parseJSON(response),
+																	function(
+																			item) {
+																		var x = item.tagName
+																				.substring(
+																						0,
+																						tam);
+																		if (x === aux)
+																			return {
+																				value : item.tagName,
+																				data : item.id
+																			};
+																	})
+
+												};
+
+											}
+										});
+
+					});
 </script>
 
 
@@ -225,90 +290,82 @@ $(document).ready(function(){
 </head>
 
 
-<body id = "menucontainer">
+<body id="menucontainer">
+	<div class="">
+		<nav style="background-color: #ffc107;">
+			<div class="nav-wrapper">
+				<div class="container" >
+					<input th:value="${#authentication.name}" id="logado"
+						style="display: none;"> <a href="index.html"
+						class="brand-logo" style="padding-top:7px;"> <img id="cloud" class="circle"
+						style="width: 50px;">
+					</a>
 
-    <ul id="slide-out" class="sidenav">
-      <li><a href="#!">First Sidebar Link</a></li>
-      <li><a href="#!">Second Sidebar Link</a></li>
-      <li class="no-padding">
-        <ul class="collapsible collapsible-accordion">
-          <li>
-            <a class="collapsible-header">Dropdown<i class="material-icons">arrow_drop_down</i></a>
-            <div class="collapsible-body">
-              <ul>
-                <li><a href="#!">First</a></li>
-                <li><a href="#!">Second</a></li>
-                <li><a href="#!">Third</a></li>
-                <li><a href="#!">Fourth</a></li>
-              </ul>
-            </div>
-          </li>
-        </ul>
-      </li>
-    </ul>
-   
-    <a href="#" style="display: none;" id="menu-lateral" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-          
-    <nav style="background-color: #ffc107;">
-        <div class="nav-wrapper">
-            <div class="container">
-           <input  th:value="${#authentication.name}" id="logado"  style="display: none;"/>  
-                <ul id="nav-left" class="left hide-on-med-and-down">
-                    <li><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
-                    <li><a th:href="@{'/manager/controle'}">Controle</a></li>
-                    <li><a th:href="@{'/manager/botoes'}">Opções</a></li>
-                </ul>
-                <a   class='right hide-on-med-and-down  dropdown-trigger ' href='#'  data-target='dropdown1'>
-                <ul id="nav-right" class="right hide-on-med-and-down "  data-target='dropdown1'>
-   				
-                    <li style="margin-top: 10px;"> 
-                    <img    id="cloud"
-	                		
-	                		 class="circle" style=" width: 50px; " />
-                    </li>
-                    
-                </ul>
-                </a>
+					<ul class="right hide-on-med-and-down">
+					    <li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/conta'}">Minha Conta</a></li>
+						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
+						<li><a th:href="@{'/manager/controle'}">Controle</a></li>
+						<li ><a th:href="@{'/manager/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/logout'}">Sair</a></li>
+						
+					</ul>
+					<a href="#" data-target="slide-out" class="sidenav-trigger">
+						<i class="material-icons">menu</i>
+					</a>
+				
+				</div>
+				
+			</div>
+	<ul id="slide-out" class="sidenav">
+  						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/conta'}">Minha Conta</a></li>
+  						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
+						<li><a th:href="@{'/manager/controle'}">Controle</a></li>
+						<li><a th:href="@{'/manager/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/logout'}">Sair</a></li>
+  </ul>
+		</nav>
+		
 
-			  <ul id='dropdown1' class='dropdown-content'  style="width: 800px !important">
-			   
-			    <li><a href="#!"><i class="material-icons">person</i>Acessar como usuário</a></li>
-			    <li><a href="#!"><i class="material-icons">assignment_ind</i>Acessar como administrador</a></li>
-			    <li><a href="/logout"><i class="material-icons">exit_to_app</i>Sair</a></li>
-			  </ul>
+	</div>
 
-            </div>
-        </div>
-    </nav>
-    <main layout:fragment="content">
-        <p>Default content</p>
-    </main>
-    <footer class="page-footer "  style=" margin-top: 82px; background-color: #ffc107;">
-        <div class="container">
-            <div class="row">
-                <div class="col l6 s12">
-                    <h5 class="black-text">UTFCOIN</h5>
-                    <p class="black-text">A Moeda Digital da UTFPR</p>
-                </div>
-                <div class="col l4 offset-l2 s12">
-                    <h5 class="black-text">Links</h5>
-                    <ul>
-                        <li><a class="black-text" href="https://github.com/utfpr-gp/ru-digital">Github</a></li>
-                        <li><a class="black-text" href="https://nameless-wave-82551.herokuapp.com">Heroku</a></li>
-                    <li><a class="black-text" href="http://utfpr.edu.br">UTFPR</a></li>
-                   
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="footer-copyright">
-            <div class="container">
-                Todos os direitos reservados &nbsp;|&nbsp; Luiz Felipe &nbsp;|&nbsp; 2018
-            </div>
-        </div>
-    </footer>
+	<main layout:fragment="content">
+	<p>Default content</p>
+	</main>
+	<footer class="page-footer "
+		style="margin-top: 82px; background-color: #ffc107;">
+		<div class="container">
+			<div class="row">
+				<div class="col l6 s12">
+					<h5 class="black-text">UTFCOIN</h5>
+					<p class="black-text">A Moeda Digital da UTFPR</p>
+				</div>
+				<div class="col l4 offset-l2 s12">
+					<h5 class="black-text">Links</h5>
+					<ul>
+						<li><a class="black-text"
+							href="https://github.com/utfpr-gp/ru-digital">Github</a></li>
+						<li><a class="black-text"
+							href="https://nameless-wave-82551.herokuapp.com">Heroku</a></li>
+						<li><a class="black-text" href="http://utfpr.edu.br">UTFPR</a></li>
 
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container">Todos os direitos reservados
+				&nbsp;|&nbsp; Luiz Felipe &nbsp;|&nbsp; 2018</div>
+		</div>
+	</footer>
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+	    var elems = document.querySelectorAll('.sidenav');
+	    var instances = M.Sidenav.init(elems, {});
+	  });
+		//$(function() {
+			//$('.sidenav').sidenav();
+	//	});
+	</script>
 </body>
 
 </html>
- 

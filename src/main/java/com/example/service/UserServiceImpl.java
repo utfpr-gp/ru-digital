@@ -38,33 +38,8 @@ public class UserServiceImpl implements UserService {
 	public void deleteUser(long id) {
 		User user = getOne(id);
 		System.out.println("DELETE USER!!!!!!!!!!!!");
-
-		System.out.println("NO MEIO --------------------------------------------");
-		Set<Role> roles = new HashSet<Role>();
-		List<Role> ro = roleRepository.findAll();
-		List<User> users = userRepository.findAll();
-		System.out.println("ANTES DO FOR");
-
-		for (User u : users) {
-			if (u.getId() == id) {
-				for (Role s : ro) {
-					System.out.println("DENTRO DO FOR");
-					if (s.getRole().equals("MANAGER")) {
-						roles.remove(s);
-						user.setActive(1);
-						System.out.println("TEM MANAGER");
-					}
-				}
-			}
-		}
-		user.setRoles(roles);
+		user.setDeleted(true);
 		updateUser(user);
-		for (User u : users) {
-			if (u.getId() == id) {
-				userRepository.delete(u);
-			}
-		}
-		System.out.println("DELETE USER!!!!! !!!!!!");
 
 	}
 
@@ -118,13 +93,17 @@ public class UserServiceImpl implements UserService {
 		User x = userRepository.getOne(user.getId());
 		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 				+ x.getPassword());
-
+		System.out.println("MEU GET PASSWORD" + user.getPassword());
+		System.out.println("MEU CONFIM" + confirm);
 		x.setName(user.getName());
 		x.setEmail(user.getEmail());
 		x.setDocument(user.getDocument());
-		if (user.getPassword() == null || user.getPassword().equals(""))
-			System.out.println("ANULADOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-		saveUserManager(x, user.getPassword());
+		if (user.getPassword() != null && !user.getPassword().equals("")) {
+			System.out.println("AINDA VEM AQUI");
+			x.setPassword(bCryptPasswordEncoder.encode(confirm));
+		}
+
+		userRepository.save(x);
 		System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
 
 	}

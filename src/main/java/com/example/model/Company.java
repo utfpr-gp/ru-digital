@@ -43,6 +43,17 @@ public class Company {
 	@Column(name = "balance")
 	private BigDecimal balance;
 
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+	@Column(name = "image")
+	private String image;
+
 	public Company() {
 	}
 

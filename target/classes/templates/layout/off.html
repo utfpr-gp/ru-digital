@@ -21,6 +21,10 @@ color: black;
 }
 </style>
 <script type="text/javascript" >
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, {});
+  });
 $(document).ready(function(){
     $('.modal').modal();
   });
@@ -40,7 +44,7 @@ function verificaCampos(){
 	var email =document.getElementById("email").value;
 	if ((ra || cpf !=null) && (ra || cpf != ""))
 		if ((name && pass && confirm && email !=null) && (name && pass && confirm && email != ""))
-			if (confirm == pass)
+			if (confirm == pass && pass.length > 4)
 				if (validateEmail(email))
 					if ((document.getElementById('yesStudent').checked && auxra) || (document.getElementById('yesVisitor').checked && auxcpf))
 						if (auxemail)
@@ -153,7 +157,7 @@ function validateEmail(email) {
 
 function confirmPass(){
 	var pass = document.getElementById("pass").value;
-	var tam = (pass + "").length;
+	var tam = pass.length;
 	
 	var confirm = document.getElementById("confirm").value;
 	if (pass!=confirm || tam < 5){
@@ -161,6 +165,7 @@ function confirmPass(){
 		$("div#passerror").show();
 	}
 	else{
+		
 		$("div#passerror").hide();
 		$("div#passscs").show();
 	}
@@ -218,6 +223,18 @@ jQuery(function($){
 jQuery(function($){
 	   $("#ra").mask("999999-9", {"placeholder": ""});
 	});
+function formAtt(){
+	checemail(); 
+	
+	if(document.getElementById('yesStudent').checked == true) {
+		chechdoc() ; 
+		}
+	else if(document.getElementById('yesVisitor').checked == true) {
+		checkcpf(); 
+	}
+	confirmPass(); 
+	
+}	
 function yesnoCheck() {
     if (document.getElementById('yesStudent').checked) {
     	if (document.getElementById('ra').value == null || document.getElementById('ra').value == "")
@@ -230,7 +247,7 @@ function yesnoCheck() {
         document.getElementById('ifStudent').style.display = 'block';
        
         document.getElementById('ifVisitor').style.display = 'none';
-        
+        formAtt();
     } 
     if (document.getElementById('yesVisitor').checked) {
     	if (document.getElementById('cpf').value == null || document.getElementById('cpf').value == "")
@@ -263,16 +280,40 @@ font-size: 18px;
 </style>
 </head>
 <body>
+   
+    
+    
     <nav style="background-color: #ffc107;">
-        <div class="nav-wrapper">
-            <div class="container">
-                <ul id="nav-left" class="left hide-on-med-and-down">
-                    <li><a th:href="@{'/'}">Login</a></li>
+			<div class="nav-wrapper">
+				<div class="container" >
+					<input th:value="${#authentication.name}" id="logado"
+						style="display: none;"> <a href="index.html"
+						class="brand-logo" style="padding-top:7px;"> <img 
+						src="/images/logo.png"
+						class="circle"
+						style="width: 50px;">
+					</a>
+
+					<ul class="right hide-on-med-and-down">
+					    <li><a th:href="@{'/'}">Login</a></li>
                     <li><a th:href="@{'/registration'}">Cadastrar</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+						
+					</ul>
+					<a href="#" data-target="slide-out" class="sidenav-trigger">
+						<i class="material-icons">menu</i>
+					</a>
+				
+				</div>
+				
+			</div>
+	<ul id="slide-out" class="sidenav">
+  						 <li><a th:href="@{'/'}">Login</a></li>
+                    <li><a th:href="@{'/registration'}">Cadastrar</a></li>
+  </ul>
+		</nav>
+    
+    
+    
     <main layout:fragment="content">
         <p>Default content</p>
     </main>

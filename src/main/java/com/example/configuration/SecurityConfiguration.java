@@ -62,8 +62,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 				.antMatchers("/emailexists").permitAll().antMatchers("/userexists").permitAll()
 				.antMatchers("/email-send/{id}").permitAll().antMatchers("/registration").permitAll()
-				.antMatchers("/manager/**").access("hasRole('ROLE_MANAGER')").antMatchers("/admin/**").hasRole("ADMIN")
-				.anyRequest().authenticated().anyRequest().authenticated().and().csrf().disable().formLogin()
+
+				.antMatchers("/user/**").access("hasRole('ROLE_USER')").antMatchers("/manager/**")
+				.access("hasRole('ROLE_MANAGER')").antMatchers("/admin/**").hasRole("ADMIN").anyRequest()
+				.authenticated().anyRequest().authenticated().and().csrf().disable().formLogin()
 				.successHandler(successHandler).loginPage("/login").failureUrl("/login?error=true")
 				.usernameParameter("email").passwordParameter("password").and().logout()
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/").and()

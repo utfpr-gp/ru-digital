@@ -24,4 +24,8 @@ public interface ButtonRepository extends JpaRepository<Button, Long> {
 	@Query(value = "UPDATE button set name = ?1 , value = ?2 where button_id = ?3", nativeQuery = true)
 	public void updateButton(String name, BigDecimal val, long id);
 
+	@Query(value = "SELECT * FROM button WHERE  company_id = ?1 AND deleted IS NULL and outros IS NULL  ORDER BY ?#{#pageable}", nativeQuery = true)
+
+	Page<Button> findAllButton(long company, Pageable pageable);
+
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <meta charset="utf-8"/>
     <meta name="description" content="Programming forum about Java powered by Spring Framework"/>
@@ -26,7 +26,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     
 <style>
-
 table, tr  {
 	border-bottom: 0px !important;
 }
@@ -39,9 +38,6 @@ hr.style-eight:after {
     background: white;
     
 }
-
-
-
 hr.style-eight {
     overflow: visible;
     padding: 0;
@@ -61,25 +57,19 @@ color: black;
     color:    black;
      opacity: 1 !important;
 }
-
 .collection .collection-item.avatar .title
 {
-
 }
 .collection .collection-item.avatar p {
 margin-left: 50px !important;
 }
-
 .collection .collection-item.avatar:not(.circle-clipper)>.circle, .collection .collection-item.avatar :not(.circle-clipper)>.circle {
 width: 100px !important;
 height: 100px !important;
 }
-
-
 </style>
 
 <script>
-
 jQuery(function($){
 	   $("#cpf").mask("999.999.999-99");
 	});
@@ -124,9 +114,10 @@ $(document).ready(function() {
 	  $('#modal4').modal();
 	  $('#modal5').modal();
 	  $('#modalgerente').modal();
+	  $('#modaldelgerentes').modal();
 	});
 function modal2(){
-	alert("OI");
+
 	
 }
 	</script>
@@ -134,23 +125,42 @@ function modal2(){
 
 
 <body>
-    <nav style="background-color: #ffc107;">
-        <div class="nav-wrapper">
-            <div class="container">
-                <ul id="nav-left" class="left hide-on-med-and-down">
-                    <li><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
-                    <li><a th:href="@{'/manager/controle'}">Controle</a></li>
-                    <li><a th:href="@{'/manager/botoes'}">Opções</a></li>
-                </ul>
-                <ul id="nav-right" class="right hide-on-med-and-down">
-   
-                    <li><a th:href="@{'/logout'}">Logout</a></li>
-                </ul>
-                
-                
-            </div>
-        </div>
-    </nav>
+   <div class="">
+		<nav style="background-color: #ffc107;">
+			<div class="nav-wrapper">
+				<div class="container" >
+					<input th:value="${#authentication.name}" id="logado"
+						style="display: none;"> <a href="index.html"
+						class="brand-logo" style="padding-top:7px;"> <img id="cloud" class="circle" 
+						style="width: 50px;">
+						
+					</a>
+
+					<ul class="right hide-on-med-and-down">
+					    <li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/conta'}">Minha Conta</a></li>
+						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
+						<li><a th:href="@{'/manager/controle'}">Controle</a></li>
+						<li><a th:href="@{'/manager/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/logout'}">Sair</a></li>
+					</ul>
+					<a href="#" data-target="slide-out" class="sidenav-trigger">
+						<i class="material-icons">menu</i>
+					</a>
+				
+				</div>
+				
+			</div>
+	<ul id="slide-out" class="sidenav">
+	 					<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/conta'}">Minha Conta</a></li>
+  						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
+						<li><a th:href="@{'/manager/controle'}">Controle</a></li>
+						<li><a th:href="@{'/manager/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/logout'}">Sair</a></li>
+  </ul>
+		</nav>
+		
+
+	</div>
     <main layout:fragment="content">
     
         <p>Default content</p>
@@ -180,8 +190,28 @@ function modal2(){
             </div>
         </div>
     </footer>
+<script>
 
+$(document).ready(function() {
+var x = document.getElementById('logado').value;
+$
+		.ajax({
+			type : "GET",
+			url : "/findcimage",
+			data : {
+				"x" : x
+			},
+			success : function(z) {
+				document.getElementById("cloud").src = "http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/"
+						+ z;
+			}
+		});
+});
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, {});
+  });
+</script>
 </body>
 
 </html>
- 

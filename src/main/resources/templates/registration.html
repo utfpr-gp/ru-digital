@@ -26,6 +26,14 @@ hr.style-eight {
 	text-align: center;
 }
 </style>
+<script>
+$(document).ready(function(){ 
+	formAtt();
+});
+
+
+
+</script>
 </head>
 <body>
 	<form th:action="@{/}" method="get">
@@ -62,7 +70,7 @@ hr.style-eight {
 
 						<input type="text" th:field="*{document}"
 							placeholder="&#xf2c2; RA" id="ra"
-							onkeyup="chechdoc() ; verificaCampos(); " class="form-control" />
+							onkeyup="formAtt(); " class="form-control" />
 					</div>
 					<div class="col s1" style="margin-top: 10px;" id="docerror">
 						<i class="material-icons" style="font-size: 30px;">error</i>
@@ -78,7 +86,7 @@ hr.style-eight {
 
 						<input type="text" th:field="*{document}"
 							placeholder="&#xf2c2; CPF" id="cpf"
-							onkeyup="checkcpf(); verificaCampos(); " class="form-control" />
+							onkeyup="formAtt();" class="form-control" />
 					</div>
 					<div class="col s2" style="margin-top: 10px;" id="cpferror">
 						<i class="material-icons" style="font-size: 30px;">error</i>
@@ -96,7 +104,7 @@ hr.style-eight {
 						<label th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
 							class="validation-message"></label> <input type="text"
 							th:field="*{name}" placeholder="&#xf0f0; Nome" id="name"
-							onkeyup="verificaCampos();" class="form-control" />
+							onkeyup="formAtt();" class="form-control" />
 					</div>
 
 				</div>
@@ -107,7 +115,7 @@ hr.style-eight {
 					<div class="col s9">
 						<input type="text" th:field="*{email}"
 							placeholder="&#xf0e0; Email" id="email"
-							onkeyup="checemail(); verificaCampos(); " class="form-control" />
+							onkeyup="formAtt(); " class="form-control" />
 						<label th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
 							class="validation-message"></label>
 					</div>
@@ -122,7 +130,7 @@ hr.style-eight {
 				<div class="form-group">
 					<div class="col s9">
 						<input type="password" th:field="*{password}" id="pass"
-							onkeyup="confirmPass(); verificaCampos();"
+							onkeyup="formAtt();"
 							placeholder="&#xf084; Senha" class="form-control" /> <label
 							th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
 							class="validation-message"></label>
@@ -133,7 +141,7 @@ hr.style-eight {
 					<div class="col s9">
 						<input type="password" name="confirm" id="confirm"
 							
-							onkeyup="confirmPass(); verificaCampos();  "
+							onkeyup="formAtt(); "
 							placeholder="&#xf01e; Confirme a senha" class="form-control" />
 						<label class="validation-message"></label>
 					</div>
@@ -148,7 +156,7 @@ hr.style-eight {
 
 				<div class="form-group">
 					<div class="col s4 offset-s7" onclick="submit();">
-						<button type="submit" class="btn btn-primary btn-block" id="botdb"
+						<button type="submit" style="color: black;" class="btn btn-primary btn-block" id="botdb"
 							disabled="disabled">Cadastrar</button>
 					</div>
 
@@ -164,5 +172,6 @@ hr.style-eight {
 	<script type="text/javascript"
 		src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.js"></script>
 </body>
+
 </html>
 

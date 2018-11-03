@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="description" content="Programming forum about Java powered by Spring Framework"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <title>RU Digital</title>
+  
+	 <link type="text/css" rel="stylesheet"  th:href="@{/sasscompiled/materialize-src/sass/materialize.css}"  media="screen,projection"/>
+	
+		
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.js"></script>
+<style>
+nav ul a{
+color: black;
+}
+hr.style-eight:after {
+    /* display: inline-block; */
+    position: relative;
+    top: -0.9em;
+    font-size: 1.5em;
+    padding: 0 0.25em;
+    background: white;
+    
+}
+
+
+
+hr.style-eight {
+    overflow: visible;
+    padding: 0;
+    border: none;
+    border-top: medium double #ffc107;
+    color: #ffc107;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+    <nav style="background-color: #ffc107;">
+        <div class="nav-wrapper">
+            <div class="container">
+                <ul id="nav-right" class="right hide-on-med-and-down">
+   
+                    <li><a th:href="@{'/logout'}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main layout:fragment="content">
+        <p>Default content</p>
+    </main>
+    <footer class="page-footer "  style=" margin-top: 82px; background-color: #ffc107;">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="black-text">UTFCOIN</h5>
+                    <p class="black-text">A Moeda Digital da UTFPR</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                    <h5 class="black-text">Links</h5>
+                    <ul>
+                        <li><a class="black-text" href="https://github.com/utfpr-gp/ru-digital">Github</a></li>
+                        <li><a class="black-text" href="https://nameless-wave-82551.herokuapp.com">Heroku</a></li>
+                    <li><a class="black-text" href="http://utfpr.edu.br">UTFPR</a></li>
+                   
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                Todos os direitos reservados &nbsp;|&nbsp; Luiz Felipe &nbsp;|&nbsp; 2018
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

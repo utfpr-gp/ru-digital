@@ -27,6 +27,17 @@ function removeGerente(id){
    	    }
    	});
 }
+
+function deleteGer(){
+	removeGerente(document.getElementById("exc").value);
+}
+function preRemove(id){
+	alert("MEU IDDD"+ id);
+	document.getElementById("exc").value = id;
+	
+	$('#modaldelgerentes').modal('open');
+}
+
 	$(document).ready(function(){
 		
 		var mostrar = /*[[${successMessage}]]*/ 'default';
@@ -323,10 +334,10 @@ html, body{
  <section  class = "col s12 " style="margin-top: 55px; ">
 
 <div class="row"  style="padding-top: 3%;">
-		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >LISTAR GERENTES</h5>
+		    	 <h5 style="margin-bottom: 0px; padding-bottom: 0.7%;" >GERENTES</h5>
 		    </div>
     		
-	<div class="col s11 offset-s1">
+	<div class="col s12">
 	
 	 <table th:if="${managers != null}" border="1" id="xxx" class="highlight" >
    
@@ -346,7 +357,7 @@ html, body{
 	    	<td><span class="truncate" th:text="${m.getEmail()}" ></span></td>
 	    	
 	    	<td> <a style="float: right; cursor: pointer;" th:onclick="'javascript:editar(' + ${m.id} +');'"   ><i  class="material-icons left">edit</i>
-            <a th:onclick="'javascript:removeGerente(' + ${m.id} +');'"  >
+            <a  th:onclick="'javascript:preRemove(' + ${m.id} +');'"  >
               
 					
              <i style="color: red; cursor: pointer;" class="material-icons left">delete</i> </a>   </td>
@@ -357,25 +368,47 @@ html, body{
 	</div>    		
     		
     		
+<div id="modaldelgerentes" class="modal">		
+			<div class="modal-content">
+			<h4 style="font-weight: bold;">Confirmar exclusão do gerente ?</h4>
+		      <p>Tem certeza que deseja excluir esse gerente?</p>
+		      <p>Essa informação não poderá ser recuperada mais.</p>
+				
+			<div class="modal-footer">
+			<input id="exc" hidden />
+			<a href="#"
+				onclick="deleteGer();"
+			 class="modal-close waves-effect waves-green btn-flat"> 
+				<i class="material-icons" style="font-size: 50px;">check</i>
+			</a> 
+			</div>
+		</div>
+</div>
 
 
 
-<div id="modalgerente" class="modal"
-				style="width: 40% !important; height: 45% !important; overflow-y: hidden !important; background-color: #e8f5e9;">
-
-				<div class="row">
-					<a href="#!"
-						class=" modal-action modal-close waves-effect waves-green btn-flat"
-						style="float: right;">X</a>
-				</div>
-				<div class="center-align">
+<div id="modalgerente" class="modal">		
+			<div class="modal-content">
+			<h4 style="font-weight: bold;">Controle de Gerentes</h4>
+		      <div class="center-align">
 					<span id="status" th:text="${status}"> </span>
 				</div>
 				<div class="center-align">
 					<p style="display: none; font-size: 30px; font" id="editado">Gerente Editado com Sucesso!</p>
 					<p style="display: none; font-size: 30px; "  id="cadastrado">Gerente Cadastrado com Sucesso!</p>
 				</div>
+			<div class="modal-footer">
+			<input id="exc" hidden />
+			<a href="#"
+				
+			 class="modal-close waves-effect waves-green btn-flat"> 
+				<i class="material-icons" style="font-size: 50px;">check</i>
+			</a> 
 			</div>
+		</div>
+</div>
+
+
             </section>
         </article>
         </div>

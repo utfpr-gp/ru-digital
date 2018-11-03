@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -25,6 +27,18 @@ public class Button {
 	@Column(name = "name")
 	@NotEmpty(message = "*Por favor, informe o nome do botão")
 	private String name;
+
+	@ManyToOne
+	@JoinColumn(name = "company_id")
+	private Company company;
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
 
 	@Column(name = "outros")
 	private Boolean outros;
