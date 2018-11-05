@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout/user">
+<head>
+<title th:text="${status}">404</title>
+</head>
+<body>
+
+	<main layout:fragment="content">
+
+	<style>
+.bleed {
+	padding-left: 30.4%;
+	margin-left: -30.4%;
+	padding-right: 30.4%;
+	margin-right: -30.4%;
+}
+@media screen and (max-width: 522px) {
+  #mt tr td {
+  	  display: inline-block !important;
+  }
+}
+html, body {
+	overflow-x: hidden;
+}
+</style>
+<script>
+$(document).ready(function(){
+    $('.tooltipped').tooltip();
+  });
+function novoPin(){
+	var id = document.getElementById("iduser").value ;  
+	
+	$.ajax({
+   	    type : "GET",
+   	    url : "/novopin",
+   	    data : {
+   	    "id" : id
+   	    },
+   	    success: function(data){
+   	    	document.getElementById('pin').innerHTML = data; 	
+   	    }
+   	});
+	return false;
+}
+
+function verificarSenhas(){
+	senha =  document.getElementById("se").value;
+	confirmar =  document.getElementById("conse").value;
+	if (senha == confirmar && senha.length >4)
+		$('#sbtn').removeAttr('disabled');
+	else
+		$('#sbtn').attr('disabled', 'true');
+	
+}
+</script>
+	<section class="container">
+
+
+		<div class="row">
+			<h3 style="margin-bottom: 0px;">MINHA CONTA</h3>
+			<hr class="col s4  style-eight">
+		</div>
+
+		<section class=" ">
+
+			<div class="bleed col s12 offset-m6"
+				style="background-color: #EBE9E9; padding-top: 0.5%;">
+
+				<div class="col s12 m6 ">
+					<div class="row">
+						<h5
+							style="margin-bottom: 0px; padding-bottom: 0.7%; color: #ff8f00;">DADOS
+							PESSOAIS</h5>
+					</div>
+
+
+				</div>
+
+					<table id="mt">
+				      <tr>
+				        <td>
+				          	<table th:each="u: ${user}">
+
+					<tr>
+						<td><i class="material-icons">perm_identity</i></td>
+						<td style="font-weight: bold;">Nome</td>
+						<td th:text="${u.getName()}">name</td>
+					</tr>
+					<tr>
+						<td><i class="material-icons">contact_mail</i></td>
+						<td style="font-weight: bold;">Email</td>
+						<td th:text="${u.getEmail()}">email</td>
+					</tr>
+					
+					<tr>
+						<td><i class="material-icons">contacts</i></td>
+						<td style="font-weight: bold;">Login</td>
+						<td th:text="${u.getDocument()}">Login</td>
+					</tr>
+
+
+
+				</table>
+				        </td>
+				        <td id="respon"   >
+				        <table >
+				      			<tr >
+				      			<td>
+				      			
+				      				<form action="#" th:action="@{/usuario/edit/test}" enctype="multipart/form-data"  method="post"> 
+						<input class="upload_form" type="file" id="arquivo" name="arquivo" style="display: none;"/>
+						
+						<img  style="cursor: pointer; max-width: 150px;"
+	                		th:attr="src='http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${user.getImage() }}"
+	                		 width='auto' height='150'  onclick="upload();" />
+	                		<p style="margin-top: 0px; padding-left: 30px; cursor: pointer; color:blue;" onclick="upload();">Alterar Foto
+	                		
+	                		 
+						<div class="form-group">
+							<div class="col-sm-9">
+								<button type="submit" id="enviar" style="display: none;" class="btn btn-primary btn-block"  ></button>
+							</div>
+						</div>
+					</form>
+				      			</td>
+				      			</tr>
+				      			
+				      	</table>
+				        </td>
+				      </tr>
+				     
+				    </table>
+			
+			</div>
+
+
+			<div class="bleed col s12 "
+				style=" padding-top: 5%;">
+
+				<div class="col s12 ">
+					<div class="row">
+						<h5
+							style="margin-bottom: 0px; padding-bottom: 0.7%; color: #ff8f00;">SENHA PESSOAL</h5>
+					</div>
+
+
+				</div>
+				<form autocomplete="off" action="#" th:action="@{/usuario/home}" id="myForm"
+					 method="post" class="form-horizontal"
+					role="form">
+					
+				
+				<input id="auxsuc" th:value="${successMessage}" style="display: none;" />	
+				<span th:utext="${successMessage}" id="successMessage" style="color: green;"></span>	
+                <table  th:each="u: ${user}" >
+				  <tr>
+				   <td><i class="material-icons">lock_outline</i></td>
+				   <td style="font-weight: bold;" >
+				   
+				   Nova Senha</td>
+				   <td style="width: 10px;"><span class="fa fa-user-secret "></span> </td>
+				   <td ><input type="password" id="se" onkeyup="verificarSenhas();"   name="password"  /></td>
+								      
+				  </tr>
+				  <tr>
+				  <td><i class="material-icons">refresh</i></td>
+				   <td style="font-weight: bold;" >Confirmar Senha</td>
+				    <td style="width: 10px;"><span class="fa  fa-refresh "></span> </td>
+				 
+				   <td  ><input onkeyup="verificarSenhas();" id="conse"  type="password" name="confirm" /></td>
+								      
+				  </tr>
+				 
+				</table>
+					<div class="form-group row">
+						<div class="right">
+							<button disabled="disabled" id="sbtn" type="submit" style="color:black;" class="btn btn-primary btn-block" onclick="submitSenha();" >ALTERAR</button>
+						</div>
+					</div>
+					
+					</form>
+			</div>
+
+		<div class="bleed col s12 "
+				style="background-color: #EBE9E9; padding-top: 0.5%;">
+
+				<div class="col s12 ">
+					<div class="row">
+						<h5
+							style="margin-bottom: 0px; padding-bottom: 0.7%; color: #ff8f00;">DEFINIR PIN</h5>
+					</div>
+
+
+				</div>
+
+				<blockquote>
+				PIN: número de 4 dígitos que torna ainda mais seguro suas movimentações com o UTFCOIN.
+				<br>
+				Todo débito feito no estabelecimento será solicitado seu PIN pessoal para autorizar o pagamento.
+				</blockquote>
+				<table  th:each="u: ${user}">
+					
+					
+					<tr>
+						<td>
+						<input style="display:none;" id="iduser" th:value="${u.getId()}" />
+						<i class="material-icons">fiber_pin</i></td>
+						<td style="font-weight:bold;" id="pin" th:text="${u.getPin()}"></td>
+						<td><a  onclick="return novoPin();" class="btn-floating waves-effect blue-grey lighten-1 tooltipped" data-position="top" data-tooltip="Gerar novo PIN"><i class="material-icons">refresh</i></a>
+			 </td>
+					</tr>
+					
+					
+
+
+
+				</table>
+				
+			</div>
+		</section>
+	</section>
+	</main>
+</body>
+
+</html>
+

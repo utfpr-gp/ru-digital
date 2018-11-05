@@ -114,17 +114,17 @@ public class LoginController {
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/user", "/user/home" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/usuario", "/usuario/home" }, method = RequestMethod.GET)
 	public ModelAndView user(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findUserByEmail(auth.getName());
 		model.addAttribute("user", user);
-		modelAndView.setViewName("user/home");
+		modelAndView.setViewName("usuario/home");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/admin", "/admin/conta" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/administrador", "/administrador/conta" }, method = RequestMethod.GET)
 	public ModelAndView adminConta(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -162,17 +162,17 @@ public class LoginController {
 			model.addAttribute("diferenca", c);
 		}
 
-		modelAndView.setViewName("admin/conta");
+		modelAndView.setViewName("administrador/conta");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/user", "/user/edit" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/usuario", "/usuario/edit" }, method = RequestMethod.GET)
 	public ModelAndView userEdit(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findUserByEmail(auth.getName());
 		model.addAttribute("user", user);
-		modelAndView.setViewName("user/edit");
+		modelAndView.setViewName("usuario/edit");
 		return modelAndView;
 	}
 
@@ -187,14 +187,24 @@ public class LoginController {
 
 	@RequestMapping("/checkpages")
 	@ResponseBody
-	public BigInteger numberpages(HttpServletRequest request, HttpServletResponse response) {
+	public BigInteger numberpages(@RequestParam(value = "doc", required = false) String doc, HttpServletRequest request,
+			HttpServletResponse response) {
 		System.out.println("LOGADO ESTa");
-		BigInteger x = transactioncreditService.totalTransactions();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		BigInteger x = null;
+		if (doc == null) {
+			User ux = userService.findUserByEmail(auth.getName());
+			x = transactionRepository.totalTransaction(ux.getId());
+		} else {
+			User ux = userService.findUserByDocument(doc);
+			x = transactionRepository.totalTransaction(ux.getId());
+		}
 		System.out.println("MEU X AMIGO" + x);
 		return x;
 	}
 
-	@RequestMapping(value = { "/user", "/user/extrato/geral" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/usuario", "/usuario/extrato/geral" }, method = RequestMethod.POST)
 	public ModelAndView userbyPageGeral(Model model, @RequestParam(value = "pages") int page,
 			@RequestParam(value = "op") String op, @RequestParam(value = "ini") String ini,
 			@RequestParam(value = "fim") String fim,
@@ -221,7 +231,7 @@ public class LoginController {
 			User us = userService.findUserByEmail(aux);
 			u = us;
 		}
-		System.out.println("/user/extrato/geral");
+		System.out.println("/usuario/extrato/geral");
 		long size = 0;
 		if (op.equals("tempocredito")) {
 			long inicio = Long.valueOf(ini).longValue();
@@ -231,7 +241,7 @@ public class LoginController {
 					.getTotalElements();
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
-			System.out.println("/user/extrato/geral             IF1");
+			System.out.println("/usuario/extrato/geral             IF1");
 			model.addAttribute("tipo", "tempodebito");
 
 		} else if (op.equals("tempodebito")) {
@@ -242,27 +252,27 @@ public class LoginController {
 					.getTotalElements();
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
-			System.out.println("/user/extrato/geral             IF2");
+			System.out.println("/usuario/extrato/geral             IF2");
 			model.addAttribute("tipo", "tempocredito");
 
 		} else if (op.equals("credito")) {
 			t = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest);
 			size = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "credito");
-			System.out.println("/user/extrato/geral             IF3");
+			System.out.println("/usuario/extrato/geral             IF3");
 			System.out.println("FITRO DE CREDITO");
 		} else if (op.equals("debito")) {
 			t = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest);
 			size = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "debito");
-			System.out.println("/user/extrato/geral             IF4");
+			System.out.println("/usuario/extrato/geral             IF4");
 			System.out.println("FITRO DE DEBITO");
 		} else if (op.equals("data")) {
 			long inicial = Long.valueOf(ini).longValue();
 			System.out.println("FITRO DE DAATA");
 			long ultimo = Long.valueOf(fim).longValue();
 			model.addAttribute("tipo", "data");
-			System.out.println("/user/extrato/geral             IF5");
+			System.out.println("/usuario/extrato/geral             IF5");
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
 			t = this.transactionRepository.findByDate(inicial, ultimo, empresa, u.getId(), pageRequest);
@@ -270,7 +280,7 @@ public class LoginController {
 					.getTotalElements();
 		} else {
 			t = this.transactionRepository.findAllUser(u.getId(), pageRequest);
-			System.out.println("/user/extrato/geral             IF6");
+			System.out.println("/usuario/extrato/geral             IF6");
 			size = this.transactionRepository.findAllUser(u.getId(), pageRequest).getTotalElements();
 		}
 		if (ini == null || ini.equals("")) {
@@ -287,7 +297,7 @@ public class LoginController {
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/user", "/user/extrato/geral" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/usuario", "/usuario/extrato/geral" }, method = RequestMethod.GET)
 	public ModelAndView userbyPageGeralGet(Model model, @RequestParam(value = "page") int page,
 			@RequestParam(value = "op") String op, @RequestParam(value = "size") long size,
 			@RequestParam(value = "ini") String ini, @RequestParam(value = "fim") String fim,
@@ -316,7 +326,7 @@ public class LoginController {
 		if (op.equals("tempocredito")) {
 			long inicio = Long.valueOf(ini).longValue();
 			long ultimo = Long.valueOf(fim).longValue();
-			System.out.println("/user/extrato/geral             PRIMEIRO CASO");
+			System.out.println("/usuario/extrato/geral             PRIMEIRO CASO");
 			t = this.transactionRepository.findByTc(inicio, ultimo, empresa, u.getId(), pageRequest);
 			size = this.transactionRepository.findByTc(inicio, ultimo, empresa, u.getId(), pageRequest)
 					.getTotalElements();
@@ -331,7 +341,7 @@ public class LoginController {
 			size = this.transactionRepository.findByTd(inicio, ultimo, empresa, u.getId(), pageRequest)
 					.getTotalElements();
 			model.addAttribute("inicial", ini);
-			System.out.println("/user/extrato/geral             SEGUNDO CASO");
+			System.out.println("/usuario/extrato/geral             SEGUNDO CASO");
 
 			model.addAttribute("final", fim);
 			model.addAttribute("tipo", "tempodebito");
@@ -340,7 +350,7 @@ public class LoginController {
 			t = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest);
 			size = this.transactionRepository.findByValuePostive(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "credito");
-			System.out.println("/user/extrato/geral             TERCEIRO CASO");
+			System.out.println("/usuario/extrato/geral             TERCEIRO CASO");
 			System.out.println("PAGE" + page);
 			System.out.println("OP" + op);
 			System.out.println("INI" + ini);
@@ -351,14 +361,14 @@ public class LoginController {
 			t = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest);
 			size = this.transactionRepository.findByValueNegative(empresa, u.getId(), pageRequest).getTotalElements();
 			model.addAttribute("tipo", "debito");
-			System.out.println("/user/extrato/geral             QUARTO CASO");
+			System.out.println("/usuario/extrato/geral             QUARTO CASO");
 			System.out.println("FITRO DE DEBITO");
 		} else if (op.equals("data")) {
 			long inicial = Long.valueOf(ini).longValue();
 			System.out.println("FITRO DE DAATA");
 			long ultimo = Long.valueOf(fim).longValue();
 			model.addAttribute("tipo", "data");
-			System.out.println("/user/extrato/geral             QUINTO CASO");
+			System.out.println("/usuario/extrato/geral             QUINTO CASO");
 			model.addAttribute("inicial", ini);
 			model.addAttribute("final", fim);
 			t = this.transactionRepository.findByDate(inicial, ultimo, empresa, u.getId(), pageRequest);
@@ -368,7 +378,7 @@ public class LoginController {
 
 		else {
 			t = this.transactionRepository.findAllUser(u.getId(), pageRequest);
-			System.out.println("/user/extrato/geral             SEXTO CASO");
+			System.out.println("/usuario/extrato/geral             SEXTO CASO");
 			size = this.transactionRepository.findAllUser(u.getId(), pageRequest).getTotalElements();
 		}
 		model = params(model, u);
@@ -376,7 +386,7 @@ public class LoginController {
 		model.addAttribute("filtro", "filtrogeral");
 		model.addAttribute("size", size);
 		model.addAttribute("empresa", empresa);
-		modelAndView.setViewName("user/extrato");
+		modelAndView.setViewName("usuario/extrato");
 		return modelAndView;
 	}
 
@@ -397,7 +407,7 @@ public class LoginController {
 		return date;
 	}
 
-	@RequestMapping(value = { "/user", "/user/extrato/filterpage" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/usuario", "/usuario/extrato/filterpage" }, method = RequestMethod.POST)
 	public ModelAndView userbyFilter(Model model, @RequestParam(value = "filtro") String filtro,
 			@RequestParam(value = "filtroano") String filtroano, @RequestParam(value = "empresa") long empresa,
 			@RequestParam(value = "filtromes") String filtromes, @RequestParam(value = "usuario") String usuario,
@@ -553,12 +563,12 @@ public class LoginController {
 		model.addAttribute("transactions", t);
 		model.addAttribute("size", size);
 		model.addAttribute("filtro", "filterpage");
-		modelAndView.setViewName("user/extrato");
+		modelAndView.setViewName("usuario/extrato");
 
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/user", "/user/extrato" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/usuario", "/usuario/extrato" }, method = RequestMethod.GET)
 	public @ResponseBody ModelAndView userExtratoAdmin(Model model,
 			@RequestParam(value = "email", required = false) String email, HttpServletRequest request) {
 		System.out.println("TEM EMAIL?????");
@@ -591,16 +601,16 @@ public class LoginController {
 				model.addAttribute("user", filho);
 				Company c = companyRepository.getOne(pai.getCompany().getId());
 				model.addAttribute("c", c);
-				modelAndView.setViewName("user/extrato");
+				modelAndView.setViewName("usuario/extrato");
 				return modelAndView;
 			} else if (isAdmin(pai.getId())) {
 				System.out.println("TA OK ANTES DE REDIREIONAR");
-				modelAndView.setViewName("manager/controle");
+				modelAndView.setViewName("gerente/controle");
 				return modelAndView;
 			} else {
 				System.out.println("TA OK ANTES DE REDIREIONAR");
 				model.addAttribute("user", pai);
-				modelAndView.setViewName("user/extrato");
+				modelAndView.setViewName("usuario/extrato");
 				return modelAndView;
 			}
 
@@ -617,10 +627,10 @@ public class LoginController {
 			model.addAttribute("buttons", buttons);
 			model = params(model, user);
 			model.addAttribute("user", user);
-			modelAndView.setViewName("user/extrato");
+			modelAndView.setViewName("usuario/extrato");
 			return modelAndView;
 		}
-		modelAndView.setViewName("manager/controle");
+		modelAndView.setViewName("gerente/controle");
 		return modelAndView;
 
 	}
@@ -643,7 +653,7 @@ public class LoginController {
 		return model;
 	}
 
-	@RequestMapping(value = { "/user", "/user/extrato/filterpage" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/usuario", "/usuario/extrato/filterpage" }, method = RequestMethod.GET)
 	public String getFilterExtrato(Model model, Principal principal, HttpSession session) {
 		String email = (String) session.getAttribute("email");
 
@@ -652,12 +662,12 @@ public class LoginController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User u = userService.findUserByEmail(auth.getName());
 		if (isAdmin(u.getId()) || isManager(u.getId()))
-			return "redirect:" + "/user/extrato?email=" + user.getDocument();
+			return "redirect:" + "/usuario/extrato?email=" + user.getDocument();
 
-		return "redirect:" + "/user/extrato";
+		return "redirect:" + "/usuario/extrato";
 	}
 
-	@RequestMapping(value = { "/user", "/user/extrato/filtro" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/usuario", "/usuario/extrato/filtro" }, method = RequestMethod.GET)
 	public ModelAndView userExtratoFiltro(Model model, @RequestParam("name") String nome,
 			@RequestParam("dataini") String dataini, @RequestParam("datafim") String datafim,
 			@RequestParam("operator") String operador, @RequestParam("type") String tipo) throws ParseException {
@@ -717,11 +727,11 @@ public class LoginController {
 		model.addAttribute("operators", us);
 		model.addAttribute("buttons", buttons);
 		model.addAttribute("user", user);
-		modelAndView.setViewName("user/extrato");
+		modelAndView.setViewName("usuario/extrato");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/manager", "/manager/controle" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/gerente", "/gerente/controle" }, method = RequestMethod.GET)
 	public ModelAndView Controle(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -740,11 +750,11 @@ public class LoginController {
 		model.addAttribute("user", user);
 		model.addAttribute("button", button);
 		// model.addAttribute("buttons", buttons);
-		modelAndView.setViewName("manager/controle");
+		modelAndView.setViewName("gerente/controle");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/manager", "/manager/botoes" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/gerente", "/gerente/botoes" }, method = RequestMethod.GET)
 	public ModelAndView botoes(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -757,7 +767,7 @@ public class LoginController {
 		Page<Button> buts = this.buttonRepository.findAllButton(user.getCompany().getId(), pageRequest);
 
 		model.addAttribute("buttonsme", buts);
-		modelAndView.setViewName("manager/botoes");
+		modelAndView.setViewName("gerente/botoes");
 		return modelAndView;
 	}
 
@@ -769,7 +779,7 @@ public class LoginController {
 		return bt;
 	}
 
-	@RequestMapping("/admin/manager/deletar")
+	@RequestMapping("/administrador/gerente/deletar")
 	@ResponseBody
 	public void deletarmanager(@RequestParam long id, HttpServletRequest request, HttpServletResponse response) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -855,7 +865,7 @@ public class LoginController {
 
 		Page<TransactionCredit> t = transactionRepository.findAllUser(u.getId(), pageRequest);
 		model.addAttribute("transactions", t);
-		modelAndView.setViewName("manager/buscar?email=" + id);
+		modelAndView.setViewName("gerente/buscar?email=" + id);
 		return modelAndView;
 
 	}
@@ -883,6 +893,21 @@ public class LoginController {
 			s = nf.format(ub.getBalance());
 			model.addAttribute("valor", s);
 		}
+		return s;
+
+	}
+
+	@RequestMapping("/checarmeses")
+	@ResponseBody
+	public List<String> checarMese(@RequestParam(value = "usuario", required = false) String usuario,
+			HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		User user = null;
+		if (usuario != null)
+			user = userService.findUserByDocument(usuario);
+		else
+			user = userService.findUserByEmail(auth.getName());
+		List<String> s = transactionRepository.dataPresent(user.getId());
 		return s;
 
 	}
@@ -974,17 +999,17 @@ public class LoginController {
 		return vec;
 	}
 
-	@RequestMapping(value = { "/admin", "/manager/botoes/editar" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/administrador", "/gerente/botoes/editar" }, method = RequestMethod.GET)
 	public ModelAndView botoeseditar(@RequestParam long id) {
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("manager/botoes");
+		modelAndView.setViewName("gerente/botoes");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/admin", "/manager/botoes/novo" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/administrador", "/gerente/botoes/novo" }, method = RequestMethod.GET)
 	public ModelAndView novoView() {
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("manager/botoes");
+		modelAndView.setViewName("gerente/botoes");
 		return modelAndView;
 	}
 
@@ -1092,7 +1117,7 @@ public class LoginController {
 		return "login";
 	}
 
-	@RequestMapping(value = { "/admin", "/manager/botoes" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/administrador", "/gerente/botoes" }, method = RequestMethod.POST)
 	public ModelAndView novoBotao(Button button, Model model,
 			@RequestParam(value = "ideditar", required = false) long id) {
 		ModelAndView modelAndView = new ModelAndView();
@@ -1117,7 +1142,7 @@ public class LoginController {
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
 		Page<Button> buts = this.buttonRepository.findAllButton(user.getCompany().getId(), pageRequest);
 		model.addAttribute("buttonsme", buts);
-		modelAndView.setViewName("manager/botoes");
+		modelAndView.setViewName("gerente/botoes");
 		return modelAndView;
 	}
 
@@ -1164,7 +1189,7 @@ public class LoginController {
 		return false;
 	}
 
-	@RequestMapping(value = { "/user", "/user/edit/test" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/usuario", "/usuario/edit/test" }, method = RequestMethod.POST)
 
 	public String test(@RequestParam("arquivo") MultipartFile arquivo, Model model) throws IOException {
 		System.out.println("ANTES");
@@ -1178,12 +1203,12 @@ public class LoginController {
 		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
 		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
 		model.addAttribute("user", user);
-		modelAndView.setViewName("user/home");
+		modelAndView.setViewName("usuario/home");
 
-		return "redirect:" + "/user/home";
+		return "redirect:" + "/usuario/home";
 	}
 
-	@RequestMapping(value = { "/admin", "/admin/edit/test" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/administrador", "/administrador/edit/test" }, method = RequestMethod.POST)
 
 	public String Admintest(@RequestParam("arquivo") MultipartFile arquivo, Model model) throws IOException {
 		System.out.println("ANTES");
@@ -1197,12 +1222,12 @@ public class LoginController {
 		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
 		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
 		model.addAttribute("user", user);
-		modelAndView.setViewName("user/home");
+		modelAndView.setViewName("usuario/home");
 
-		return "redirect:" + "/user/home";
+		return "redirect:" + "/usuario/home";
 	}
 
-	@RequestMapping(value = { "/admin", "/admin/edit/company" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/administrador", "/administrador/edit/company" }, method = RequestMethod.POST)
 
 	public String AdminCompany(@RequestParam("arquivo") MultipartFile arquivo, Model model) throws IOException {
 		System.out.println("ANTES");
@@ -1217,9 +1242,9 @@ public class LoginController {
 		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
 		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
 		model.addAttribute("userf", user);
-		modelAndView.setViewName("user/home");
+		modelAndView.setViewName("usuario/home");
 
-		return "redirect:" + "/admin/conta";
+		return "redirect:" + "/administrador/conta";
 	}
 
 	@Bean
@@ -1237,7 +1262,7 @@ public class LoginController {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	@RequestMapping(value = { "/user", "/user/home" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/usuario", "/usuario/home" }, method = RequestMethod.POST)
 	public ModelAndView userEdited(Model model, @RequestParam String password, @RequestParam String confirm,
 			Principal principal) {
 
@@ -1269,7 +1294,7 @@ public class LoginController {
 		if (x)
 			modelAndView.addObject("successMessage", "Conta alterada com sucesso");
 
-		modelAndView.setViewName("user/home");
+		modelAndView.setViewName("usuario/home");
 		userService.updateUser(u);
 
 		return modelAndView;
@@ -1400,10 +1425,10 @@ public class LoginController {
 			System.out.println("VOCE JA ESTA LOGADO");
 			if (isUser(u.getId())) {
 				System.out.println("OPA ATE AQUI VEM");
-				return "redirect:" + "/user/home";
+				return "redirect:" + "/usuario/home";
 			}
 			if (isAdmin(u.getId()))
-				return "redirect:" + "/manager/controle";
+				return "redirect:" + "/gerente/controle";
 			if (isManager(u.getId()))
 				return "redirect:" + "/manage/controler";
 
@@ -1412,11 +1437,11 @@ public class LoginController {
 		System.setProperty("userDetails", principal.getName());
 
 		if (isAdmin(u.getId()))
-			return "redirect:" + "/manager/controle";
+			return "redirect:" + "/gerente/controle";
 		if (isManager(u.getId()))
-			return "redirect:" + "/manager";
+			return "redirect:" + "/gerente";
 		if (isUser(u.getId()))
-			return "redirect:" + "/user";
+			return "redirect:" + "/usuario";
 
 		return "";
 	}
@@ -1428,25 +1453,25 @@ public class LoginController {
 		return isUser(u.getId());
 	}
 
-	@RequestMapping(value = { "/manager/products" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/gerente/products" }, method = RequestMethod.GET)
 	public ModelAndView ManagerProducts() {
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("manager/products");
+		modelAndView.setViewName("gerente/products");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = "/registration", method = RequestMethod.GET)
-	public ModelAndView registration() {
+	@RequestMapping(value = "/cadastro", method = RequestMethod.GET)
+	public ModelAndView cadastro() {
 		ModelAndView modelAndView = new ModelAndView();
 		User user = new User();
 
 		Boolean var = true;
 		modelAndView.addObject("user", user);
-		modelAndView.setViewName("registration");
+		modelAndView.setViewName("cadastro");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = "/registration", method = RequestMethod.POST)
+	@RequestMapping(value = "/cadastro", method = RequestMethod.POST)
 	public String createNewUser(@Valid User user, BindingResult bindingResult, @RequestParam String hid,
 			@RequestParam String confirm, HttpServletRequest request) throws ServletException {
 		System.out.println("AaaAaAaaAaa" + hid);
@@ -1462,9 +1487,9 @@ public class LoginController {
 		user.setDocument(str);
 		if (!user.getPassword().equals(confirm)) {
 			bindingResult.rejectValue("email", "error.user", "Senhas diferentes");
-			modelAndView.setViewName("registration");
+			modelAndView.setViewName("cadastro");
 			modelAndView.addObject("user", new User());
-			return "registration";
+			return "cadastro";
 
 		}
 
@@ -1483,8 +1508,8 @@ public class LoginController {
 		}
 
 		if (bindingResult.hasErrors()) {
-			modelAndView.setViewName("registration");
-			return "registration";
+			modelAndView.setViewName("cadastro");
+			return "cadastro";
 		} else {
 			user.setImage("rejoed05uyghymultqsv");
 			user.generatePin();
@@ -1502,16 +1527,16 @@ public class LoginController {
 			modelAndView.addObject("user", new User());
 			// request.login(user.getEmail(), user.getPassword());
 
-			modelAndView.setViewName("user/home");
+			modelAndView.setViewName("usuario/home");
 
 		}
 		System.out.println("MEU SENHA" + antes);
 		request.login(user.getEmail(), antes);
 
-		return "redirect:/user/home";
+		return "redirect:/usuario/home";
 	}
 
-	@RequestMapping(value = "/admin/registermanager", method = RequestMethod.GET)
+	@RequestMapping(value = "/administrador/gerentes", method = RequestMethod.GET)
 	public ModelAndView regis(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		User user = new User();
@@ -1525,11 +1550,11 @@ public class LoginController {
 		List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
 		model.addAttribute("managers", ur);
 
-		modelAndView.setViewName("admin/registermanager");
+		modelAndView.setViewName("administrador/gerentes");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = "/manager/buscar", method = RequestMethod.GET)
+	@RequestMapping(value = "/gerente/buscar", method = RequestMethod.GET)
 	public String searchuser(User u, Model model, @RequestParam("email") String email, Principal principal
 
 	) {
@@ -1557,7 +1582,7 @@ public class LoginController {
 		System.out.println("VEM PRA K2");
 		if (us == null || isAdmin(us.getId()) || isManager(us.getId())) {
 			model.addAttribute("usernotfound", "verdade");
-			return "manager/controle";
+			return "gerente/controle";
 		}
 
 		List<TransactionCredit> t = transactionRepository.findUser(us.getId());
@@ -1607,23 +1632,23 @@ public class LoginController {
 				model.addAttribute("usernotfound", "verdade");
 		}
 
-		return "manager/controle";
+		return "gerente/controle";
 	}
 
 	private static final String AJAX_HEADER_NAME = "X-Requested-With";
 	private static final String AJAX_HEADER_VALUE = "XMLHttpRequest";
 
-	@RequestMapping(value = "/manager/consumo", method = RequestMethod.GET)
+	@RequestMapping(value = "/gerente/consumo", method = RequestMethod.GET)
 	public String getConsumo() {
-		return "manager/controle";
+		return "gerente/controle";
 	}
 
-	@RequestMapping(value = "/manager/insertcredit", method = RequestMethod.GET)
+	@RequestMapping(value = "/gerente/insertcredit", method = RequestMethod.GET)
 	public String getCredits() {
-		return "manager/controle";
+		return "gerente/controle";
 	}
 
-	@RequestMapping(value = "/manager/consumo", method = RequestMethod.POST)
+	@RequestMapping(value = "/gerente/consumo", method = RequestMethod.POST)
 	public String consumo(@RequestParam("iduser") long iduser, @RequestParam("idbutton") long idbutton,
 			@RequestParam("debitovalue") BigDecimal debito, @RequestParam("description") String description,
 			@RequestParam("debitopin") int pin, Model model, RedirectAttributes redir, Principal princi) {
@@ -1729,7 +1754,7 @@ public class LoginController {
 
 	}
 
-	@RequestMapping(value = "/manager/insertcredit", method = RequestMethod.POST)
+	@RequestMapping(value = "/gerente/insertcredit", method = RequestMethod.POST)
 	public String insertcredit(User u, Model model, @RequestParam("users.document") String document,
 			@RequestParam("balance") BigDecimal balance, Principal principal) {
 		User us = userService.findUserByDocument(document);
@@ -1799,7 +1824,7 @@ public class LoginController {
 		return searchuser(us, model, us.getDocument(), principal);
 	}
 
-	@RequestMapping(value = "/manager/creditos", method = RequestMethod.GET)
+	@RequestMapping(value = "/gerente/creditos", method = RequestMethod.GET)
 	public ModelAndView getchuser() {
 		aux = new ArrayList<Tag>();
 		for (int i = 0; i < userService.findAll().size(); i++) {
@@ -1810,11 +1835,11 @@ public class LoginController {
 		User user = new User();
 		modelAndView.addObject("user", user);
 
-		modelAndView.setViewName("manager/creditos");
+		modelAndView.setViewName("gerente/creditos");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = "/admin/teste", method = RequestMethod.GET)
+	@RequestMapping(value = "/administrador/teste", method = RequestMethod.GET)
 	public ModelAndView testeUser() {
 		aux = new ArrayList<Tag>();
 		for (int i = 0; i < userService.findAll().size(); i++) {
@@ -1825,11 +1850,11 @@ public class LoginController {
 		User user = new User();
 		modelAndView.addObject("user", user);
 
-		modelAndView.setViewName("admin/teste");
+		modelAndView.setViewName("administrador/teste");
 		return modelAndView;
 	}
 
-	@RequestMapping(value = "/manager/getlist", method = RequestMethod.GET)
+	@RequestMapping(value = "/gerente/getlist", method = RequestMethod.GET)
 	public @ResponseBody List<Tag> getTags(@RequestParam String tagName) {
 		System.out.println("OLAAAA" + tagName);
 		return simulateSearchResult(tagName);
@@ -1858,7 +1883,7 @@ public class LoginController {
 		return result;
 	}
 
-	@RequestMapping(value = "/admin/registermanager", method = RequestMethod.POST)
+	@RequestMapping(value = "/administrador/gerentes", method = RequestMethod.POST)
 	public ModelAndView createNewManager(@Valid User user, BindingResult bindingResult, Model model,
 			@RequestParam("confirm") String confirm, Principal principal) {
 		ModelAndView modelAndView = new ModelAndView();
@@ -1868,6 +1893,28 @@ public class LoginController {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			User u = userService.findUserByEmail(auth.getName());
 			User x = userService.getOne(user.getId());
+			User userExists = userService.findUserByEmail(user.getEmail());
+			User userExists2 = userService.findUserByDocument(user.getDocument());
+			if (userExists != null && !x.getEmail().equals(user.getEmail())) {
+				bindingResult.rejectValue("email", "error.user", "Email ja esta sendo usado por outro usuario");
+				List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
+
+				model.addAttribute("managers", ur);
+				System.out.println("OK2");
+				modelAndView.addObject("successMessage", "não foi editado, tente novamente");
+				modelAndView.setViewName("administrador/gerentes");
+				return modelAndView;
+			}
+			if (userExists2 != null && !x.getDocument().equals(user.getDocument())) {
+				bindingResult.rejectValue("document", "error.user", "Documento ja cadastrado no sistema");
+				List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
+
+				model.addAttribute("managers", ur);
+				System.out.println("OK2");
+				modelAndView.addObject("successMessage", "não foi editado, tente novamente");
+				modelAndView.setViewName("administrador/gerentes");
+				return modelAndView;
+			}
 			if (x.getCompany().getId() == u.getCompany().getId()) {
 				modelAndView.addObject("successMessage", "editado");
 				userService.updateManager(user, confirm);
@@ -1876,7 +1923,7 @@ public class LoginController {
 			}
 			List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
 			model.addAttribute("managers", ur);
-			modelAndView.setViewName("admin/registermanager");
+			modelAndView.setViewName("administrador/gerentes");
 		} else {
 			System.out.println("::::::::::::::::::::::::::::::::::::::::::::2222222222222222222222222222");
 
@@ -1900,7 +1947,7 @@ public class LoginController {
 
 				model.addAttribute("managers", ur);
 				System.out.println("OK2");
-				modelAndView.setViewName("admin/registermanager");
+				modelAndView.setViewName("administrador/gerentes");
 			} else {
 				System.out.println("---------------------------------------------------------------");
 				User uaux = userService.findUserByDocument(principal.getName());
@@ -1920,20 +1967,20 @@ public class LoginController {
 			List<User> ur = this.userRepository.userCompany(u.getCompany().getId(), u.getId());
 
 			model.addAttribute("managers", ur);
-			modelAndView.setViewName("admin/registermanager");
+			modelAndView.setViewName("administrador/gerentes");
 
 		}
 		return modelAndView;
 	}
 
-	@RequestMapping(value = "/manager/home", method = RequestMethod.GET)
+	@RequestMapping(value = "/gerente/home", method = RequestMethod.GET)
 	public ModelAndView home() {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findUserByEmail(auth.getName());
 		modelAndView.addObject("userName", "Welcome " + user.getName() + " (" + user.getEmail() + ")");
 		modelAndView.addObject("adminMessage", "Content Available Only for Users with Admin Role");
-		modelAndView.setViewName("manager/home");
+		modelAndView.setViewName("gerente/home");
 		return modelAndView;
 	}
 

@@ -61,13 +61,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers("/login/senha").permitAll().antMatchers("/").permitAll().antMatchers("/login").permitAll()
 
 				.antMatchers("/emailexists").permitAll().antMatchers("/userexists").permitAll()
-				.antMatchers("/email-send/{id}").permitAll().antMatchers("/registration").permitAll()
+				.antMatchers("/email-send/{id}").permitAll().antMatchers("/cadastro").permitAll()
+				.antMatchers("/usuario/**").access("hasRole('ROLE_USER')").antMatchers("/user/**")
+				.access("hasRole('ROLE_USER')").antMatchers("/gerente/**").access("hasRole('ROLE_MANAGER')")
 
-				.antMatchers("/user/**").access("hasRole('ROLE_USER')").antMatchers("/manager/**")
-				.access("hasRole('ROLE_MANAGER')").antMatchers("/admin/**").hasRole("ADMIN").anyRequest()
-				.authenticated().anyRequest().authenticated().and().csrf().disable().formLogin()
-				.successHandler(successHandler).loginPage("/login").failureUrl("/login?error=true")
-				.usernameParameter("email").passwordParameter("password").and().logout()
+				.antMatchers("/administrador/**").hasRole("ADMIN").anyRequest().authenticated().anyRequest()
+				.authenticated().and().csrf().disable().formLogin().successHandler(successHandler).loginPage("/login")
+				.failureUrl("/login?error=true").usernameParameter("email").passwordParameter("password").and().logout()
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/").and()
 				.exceptionHandling().accessDeniedPage("/403");
 

@@ -137,10 +137,10 @@ function modal2(){
 					</a>
 
 					<ul class="right hide-on-med-and-down">
-					    <li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/conta'}">Minha Conta</a></li>
-						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
-						<li><a th:href="@{'/manager/controle'}">Controle</a></li>
-						<li><a th:href="@{'/manager/botoes'}">Opções</a></li>
+					    <li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/conta'}">Minha Conta</a></li>
+						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/gerentes'}">Gerentes</a></li>
+						<li><a th:href="@{'/gerente/controle'}">Controle</a></li>
+						<li><a th:href="@{'/gerente/botoes'}">Opções</a></li>
 						<li><a th:href="@{'/logout'}">Sair</a></li>
 					</ul>
 					<a href="#" data-target="slide-out" class="sidenav-trigger">
@@ -151,10 +151,10 @@ function modal2(){
 				
 			</div>
 	<ul id="slide-out" class="sidenav">
-	 					<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/conta'}">Minha Conta</a></li>
-  						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/admin/registermanager'}">Gerentes</a></li>
-						<li><a th:href="@{'/manager/controle'}">Controle</a></li>
-						<li><a th:href="@{'/manager/botoes'}">Opções</a></li>
+	 					<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/conta'}">Minha Conta</a></li>
+  						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/gerentes'}">Gerentes</a></li>
+						<li><a th:href="@{'/gerente/controle'}">Controle</a></li>
+						<li><a th:href="@{'/gerente/botoes'}">Opções</a></li>
 						<li><a th:href="@{'/logout'}">Sair</a></li>
   </ul>
 		</nav>

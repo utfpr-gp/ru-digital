@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org" 
+xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="utf-8"/>
     <meta name="description" content="Programming forum about Java powered by Spring Framework"/>
@@ -279,7 +281,7 @@ th a:hover {
  
     
     
-    	<nav style="background-color: #ffc107;">
+    	<nav style="background-color: #ffc107;" sec:authorize="!hasAuthority('ROLE_ADMIN') && !hasAuthority('ROLE_MANAGER')">
 			<div class="nav-wrapper">
 				<div class="container" >
 					<input th:value="${#authentication.name}" id="logado"
@@ -291,8 +293,8 @@ th a:hover {
 					</a>
 
 					<ul class="right hide-on-med-and-down">
-					   <li><a th:href="@{'/user/home'}">Conta</a></li>
-                     <li><a th:href="@{'/user/extrato'}">Extrato</a></li>
+					   <li><a th:href="@{'/usuario/home'}">Conta</a></li>
+                     <li><a th:href="@{'/usuario/extrato'}">Extrato</a></li>
                       <li><a th:href="@{'/logout'}">Sair</a></li>
 					</ul>
 					<a href="#" data-target="slide-out" class="sidenav-trigger">
@@ -303,11 +305,47 @@ th a:hover {
 				
 			</div>
 	<ul id="slide-out" class="sidenav">
-	 					<li><a th:href="@{'/user/home'}">Conta</a></li>
-                     <li><a th:href="@{'/user/extrato'}">Extrato</a></li>
+	 					<li><a th:href="@{'/usuario/home'}">Conta</a></li>
+                     <li><a th:href="@{'/usuario/extrato'}">Extrato</a></li>
                       <li><a th:href="@{'/logout'}">Sair</a></li>
   </ul>
 		</nav>
+		
+		
+		
+			<nav style="background-color: #ffc107;" sec:authorize="hasAuthority('ROLE_ADMIN') || hasAuthority('ROLE_MANAGER')">
+			<div class="nav-wrapper">
+				<div class="container" >
+					<input th:value="${#authentication.name}" id="logado"
+						style="display: none;"> <a href="index.html"
+						class="brand-logo" style="padding-top:7px;"> <img id="cloud" class="circle"
+						style="width: 50px;">
+					</a>
+
+					<ul class="right hide-on-med-and-down">
+					    <li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/conta'}">Minha Conta</a></li>
+						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/registermanager'}">Gerentes</a></li>
+						<li><a th:href="@{'/gerente/controle'}">Controle</a></li>
+						<li ><a th:href="@{'/gerente/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/logout'}">Sair</a></li>
+						
+					</ul>
+					<a href="#" data-target="slide-out" class="sidenav-trigger">
+						<i class="material-icons">menu</i>
+					</a>
+				
+				</div>
+				
+			</div>
+	<ul id="slide-out" class="sidenav">
+  						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/conta'}">Minha Conta</a></li>
+  						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/registermanager'}">Gerentes</a></li>
+						<li><a th:href="@{'/gerente/controle'}">Controle</a></li>
+						<li><a th:href="@{'/gerente/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/logout'}">Sair</a></li>
+  </ul>
+		</nav>
+		
     
     <main layout:fragment="content" >
         <p>Default content</p>

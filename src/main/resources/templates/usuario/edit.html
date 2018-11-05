@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/user">
+<head>
+    <title th:text="${status}">404</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+</head>
+
+<body>
+
+    
+    <style>
+textarea, input {
+  padding:10px;
+	font-family: FontAwesome, "Open Sans", Verdana, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}</style>
+    <main layout:fragment="content" class="">
+
+        <section class="row container">
+       <div class="row">
+    	 <h3 style="margin-bottom: 0px;">EDITAR CONTA</h3>
+         <hr  class="col s4  style-eight" >
+    </div>
+            <div class="col s10 offset-s3">
+				<div class="col s10 offset-s3">
+					<form action="#" th:action="@{/usuario/edit/test}" enctype="multipart/form-data"  method="post"> 
+						<input class="upload_form" type="file" id="arquivo" name="arquivo" style="display: none;"/>
+						<img  style="cursor: pointer;"
+	                		th:attr="src='http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${user.getImage() }}"
+	                		 width='100' height='150' onclick="upload();" />
+						<div class="form-group">
+							<div class="col-sm-9">
+								<button type="submit" id="enviar" style="display: none;" class="btn btn-primary btn-block"  ></button>
+							</div>
+						</div>
+					</form>
+				</div>
+                <form autocomplete="off" action="#" th:action="@{/usuario/edit}" id="myForm"
+					 method="post" class="form-horizontal"
+					role="form">
+					
+				
+				<input id="auxsuc" th:value="${successMessage}" style="display: none;" />	
+				<span th:utext="${successMessage}" id="successMessage" style="color: green;"></span>	
+                <table style="width:60%" th:each="u: ${user}" >
+				  <tr>
+				   <td style="font-weight: bold;" >Nova Senha</td>
+				   <td style="width: 10px;"><span class="fa fa-user-secret "></span> </td>
+				   <td ><input type="password"   name="password"  /></td>
+								      
+				  </tr>
+				  <tr>
+				   <td style="font-weight: bold;" >Confirmar Senha</td>
+				    <td style="width: 10px;"><span class="fa  fa-refresh "></span> </td>
+				 
+				   <td  ><input  type="password" name="confirm" /></td>
+								      
+				  </tr>
+				 
+				</table>
+					<div class="form-group">
+						<div class="col s7">
+							<button type="submit" style="float:right;" class="btn btn-primary btn-block" onclick="submit();" >Editar</button>
+						</div>
+					</div>
+					
+					</form>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

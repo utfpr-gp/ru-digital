@@ -1,6 +1,7 @@
 package com.example.repository;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -27,6 +28,9 @@ public interface TransactionCreditRepository extends JpaRepository<TransactionCr
 
 	List<TransactionCredit> findUser(long user_id);
 
+	@Query(value = "SELECT data FROM transactioncredit WHERE user_id = ?1", nativeQuery = true)
+	List<String> dataPresent(long user_id);
+
 	@Query(value = "SELECT * FROM transactioncredit WHERE value <  0 and company_id = ?1 and user_id=?2 ORDER BY ?#{#pageable}", nativeQuery = true)
 	Page<TransactionCredit> findByValueNegative(long company_id, long user_id, Pageable pageable);
 
@@ -50,6 +54,9 @@ public interface TransactionCreditRepository extends JpaRepository<TransactionCr
 
 	@Query(value = "SELECT SUM(value) AS 'total' FROM transactioncredit WHERE company_id = ?1 and value < 0", nativeQuery = true)
 	BigDecimal sumBalancesNegative(long user_id);
+
+	@Query(value = "SELECT count(*) FROM transactioncredit WHERE user_id = ?1", nativeQuery = true)
+	BigInteger totalTransaction(long user_id);
 
 	@Query(value = "SELECT SUM(value) AS 'total' FROM transactioncredit WHERE company_id = ?1 and value < 0  and milis >  ?2 and milis < ?3", nativeQuery = true)
 	BigDecimal sumBalancesNegativeData(long user_id, long ini, long fim);

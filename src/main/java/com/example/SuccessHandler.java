@@ -29,11 +29,11 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
 		boolean hasUserRoleManager = authentication.getAuthorities().stream()
 				.anyMatch(r -> r.getAuthority().equals("ROLE_MANAGER"));
 		if (hasUserRoleAdmin)
-			url = "/manager/controle";
+			url = "/gerente/controle";
 		else if (hasUserRoleManager)
-			url = "/manager/controle";
+			url = "/gerente/controle";
 		else if (hasUserRoleUser)
-			url = "/user/home";
+			url = "/usuario/home";
 		redirectStrategy.sendRedirect(arg0, arg1, url);
 
 	}

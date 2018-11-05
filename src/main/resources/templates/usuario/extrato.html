@@ -69,6 +69,9 @@
 				usuario = email
 			else if (email0 != null)
 				usuario = email0;
+			else{
+				usuario = null;
+			}
 			$.ajax({
 				type : "GET",
 				url : "/checarmeses",
@@ -76,6 +79,7 @@
 					"usuario" : usuario
 				},
 				success : function(data) {
+					
 					var arrayLength = data.length;
 					var auxa = [];
 					var auxm = [];
@@ -137,8 +141,9 @@
 							var m = TodayDate.getMonth() + 1;
 							var x = "05";
 							var select = 0;
-							if (!api && email != null) {
-
+							
+							if (api!=null &&  !api && email == null) {
+								
 								select = document.querySelector('#company');
 								select
 										.addEventListener(
@@ -165,25 +170,7 @@
 
 												});
 
-							} else {
-								empresa = /*[[${empresaadm}]]*/'empresaadm';
-								email = /*[[${email}]]*/'email';
-								$
-										.ajax({
-											type : "GET",
-											url : "/checarsaldoempresa",
-											data : {
-												"empresa" : empresa,
-												"email" : email
-											},
-											success : function(data) {
-												document
-														.getElementById('valorempresa').innerHTML = data;
-
-											}
-										});
-
-							}
+							} 
 							var tipo = ".", ini = ".", fim = ".", op = ".";
 							tipo = /*[[${tipo}]]*/'tipo';
 
@@ -205,14 +192,16 @@
 
 							var inc = 0;
 							var x;
+							doc = usuario;
 							$
 									.ajax({
 										type : "GET",
 										url : "/checkpages",
 										data : {
-
+											"doc" : doc
 										},
 										success : function(data) {
+											
 											if (size != null && size >= 0) {
 
 												data = size;
@@ -262,6 +251,7 @@
 												"empresa" : empresa
 											},
 											success : function(data) {
+												
 												document
 														.getElementById('valorempresa').innerHTML = data;
 
@@ -409,6 +399,8 @@ html, body {
 		<div class="row ">
 			<h3 style="margin-bottom: 0px;">EXTRATO</h3>
 			<hr class=" col m3 s7  style-eight ">
+			<input th:value="${#authentication.name}" id="logado"
+						style="display: none;">
 		</div>
 		<div sec:authorize="!hasAuthority('ROLE_ADMIN')" class="bleed"
 			style="background-color: #EBE9E9;">
@@ -605,7 +597,7 @@ html, body {
 
 
 		<div class="col s12">
-			<form th:action="@{/user/extrato/filtro}" style="display: none;">
+			<form th:action="@{/usuario/extrato/filtro}" style="display: none;">
 				<input type="text" name="name" id="name" th:value="${name}" /> <input
 					type="text" name="operator" id="operator" th:value="${operator}" />
 				<input type="text" name="type" id="type" th:value="${type}" /> <input
@@ -614,7 +606,7 @@ html, body {
 					type="submit" value="Search" id="enviarbuscar"
 					onmouseover="passForm();" />
 			</form>
-			<form th:action="@{/user/extrato/filtros}" style="display: none;">
+			<form th:action="@{/usuario/extrato/filtros}" style="display: none;">
 				<input type="text" name="type" id="type" th:value="${type}" /> <input
 					type="text" name="month" id="month" th:value="${month}" /> <input
 					type="text" name="year" id="year" th:value="${year}" /> <input
@@ -642,7 +634,7 @@ html, body {
 
 
 			<form autocomplete="off" action="#"
-				th:action="@{/user/extrato/bypage}" method="post"
+				th:action="@{/usuario/extrato/bypage}" method="post"
 				style="display: none;">
 				<div class="form-group">
 					<div class="col-sm-9">
@@ -656,7 +648,7 @@ html, body {
 			</form>
 
 			<form autocomplete="off" action="#"
-				th:action="@{/user/extrato/geral}" method="post"
+				th:action="@{/usuario/extrato/geral}" method="post"
 				style="display: none;">
 				<div class="form-group">
 					<div class="col-sm-9">
@@ -679,7 +671,7 @@ html, body {
 
 
 			<form autocomplete="off" action="#"
-				th:action="@{/user/extrato/filterpage}" method="post"
+				th:action="@{/usuario/extrato/filterpage}" method="post"
 				style="display: none;">
 				<div class="form-group">
 					<div class="col-sm-9">

@@ -337,7 +337,7 @@ html, body {
 			<div class="row">
 				<div class="col-md-6 col-md-offset-3">
 
-					<form th:object="${users}" th:action="@{/manager/buscar}"
+					<form th:object="${users}" th:action="@{/gerente/buscar}"
 						method="get">
 						<div class="col s10 ">
 							<input type="text" name="email" id="autocomplete-input"
@@ -600,7 +600,7 @@ html, body {
 
 
 		<form autocomplete="off" action="#"
-			th:action="@{/manager/insertcredit}" method="post"
+			th:action="@{/gerente/insertcredit}" method="post"
 			th:object="${user}" role="form" style="display: none;">
 			<input id="aux2" th:if="${users != null}"
 				th:value="${users.document}" style="display: none;"
@@ -616,7 +616,7 @@ html, body {
 				<h4>Confirmar Crédito?</h4>
 
 				<form autocomplete="off" action="#"
-					th:action="@{/manager/insertcredit}" method="post"
+					th:action="@{/gerente/insertcredit}" method="post"
 					th:object="${user}" role="form">
 					
 					<div class="row">
@@ -741,7 +741,7 @@ html, body {
 
 
 
-		<form th:action="@{/manager/consumo}" method="post"
+		<form th:action="@{/gerente/consumo}" method="post"
 			style="display: none;">
 
 			<input type="text" th:value="${idbutton}" name="idbutton"
