@@ -114,13 +114,13 @@ public class LoginController {
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/usuario", "/usuario/home" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/usuario", "/usuario/inicio" }, method = RequestMethod.GET)
 	public ModelAndView user(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findUserByEmail(auth.getName());
 		model.addAttribute("user", user);
-		modelAndView.setViewName("usuario/home");
+		modelAndView.setViewName("usuario/inicio");
 		return modelAndView;
 	}
 
@@ -1203,9 +1203,9 @@ public class LoginController {
 		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
 		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
 		model.addAttribute("user", user);
-		modelAndView.setViewName("usuario/home");
+		modelAndView.setViewName("usuario/inicio");
 
-		return "redirect:" + "/usuario/home";
+		return "redirect:" + "/usuario/inicio";
 	}
 
 	@RequestMapping(value = { "/administrador", "/administrador/edit/test" }, method = RequestMethod.POST)
@@ -1222,9 +1222,9 @@ public class LoginController {
 		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
 		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
 		model.addAttribute("user", user);
-		modelAndView.setViewName("usuario/home");
+		modelAndView.setViewName("usuario/inicio");
 
-		return "redirect:" + "/usuario/home";
+		return "redirect:" + "/usuario/inicio";
 	}
 
 	@RequestMapping(value = { "/administrador", "/administrador/edit/company" }, method = RequestMethod.POST)
@@ -1242,7 +1242,7 @@ public class LoginController {
 		String x = cloudHost.getImageUrl(cloudHost.last_public_id);
 		System.out.println("OIIIIIIIIIIIIIIIIIIIIIIII" + x);
 		model.addAttribute("userf", user);
-		modelAndView.setViewName("usuario/home");
+		modelAndView.setViewName("usuario/inicio");
 
 		return "redirect:" + "/administrador/conta";
 	}
@@ -1262,7 +1262,7 @@ public class LoginController {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	@RequestMapping(value = { "/usuario", "/usuario/home" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/usuario", "/usuario/inicio" }, method = RequestMethod.POST)
 	public ModelAndView userEdited(Model model, @RequestParam String password, @RequestParam String confirm,
 			Principal principal) {
 
@@ -1294,7 +1294,7 @@ public class LoginController {
 		if (x)
 			modelAndView.addObject("successMessage", "Conta alterada com sucesso");
 
-		modelAndView.setViewName("usuario/home");
+		modelAndView.setViewName("usuario/inicio");
 		userService.updateUser(u);
 
 		return modelAndView;
@@ -1425,7 +1425,7 @@ public class LoginController {
 			System.out.println("VOCE JA ESTA LOGADO");
 			if (isUser(u.getId())) {
 				System.out.println("OPA ATE AQUI VEM");
-				return "redirect:" + "/usuario/home";
+				return "redirect:" + "/usuario/inicio";
 			}
 			if (isAdmin(u.getId()))
 				return "redirect:" + "/gerente/controle";
@@ -1527,13 +1527,13 @@ public class LoginController {
 			modelAndView.addObject("user", new User());
 			// request.login(user.getEmail(), user.getPassword());
 
-			modelAndView.setViewName("usuario/home");
+			modelAndView.setViewName("usuario/inicio");
 
 		}
 		System.out.println("MEU SENHA" + antes);
 		request.login(user.getEmail(), antes);
 
-		return "redirect:/usuario/home";
+		return "redirect:/usuario/inicio";
 	}
 
 	@RequestMapping(value = "/administrador/gerentes", method = RequestMethod.GET)
