@@ -482,8 +482,6 @@ public class LoginController {
 			System.out.println("ANO JA CONVERTIDO" + ano);
 			long miliInicial = yearToDateInitial(ano);
 			long miliUltimo = yearToDateEnd(ano);
-			System.out.println("MILESEGUNDOS INICIAL!!!!!" + miliInicial);
-			System.out.println("MILESEGUNDOS FINAL!!!!!" + miliUltimo);
 			t = this.transactionRepository.findByTc(miliInicial, miliUltimo, empresa, u.getId(), pageRequest);
 			size = this.transactionRepository.findByTc(miliInicial, miliUltimo, empresa, u.getId(), pageRequest)
 					.getTotalElements();
