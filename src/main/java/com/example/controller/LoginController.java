@@ -1017,6 +1017,13 @@ public class LoginController {
 	@Autowired
 	UserBalanceRepository userbalanceRepository;
 
+	@RequestMapping(value = { "/login/senha" }, method = RequestMethod.GET)
+	public ModelAndView LoginSenha() {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("login");
+		return modelAndView;
+	}
+
 	@RequestMapping(value = { "/login/senha" }, method = RequestMethod.POST)
 	public ModelAndView novaSenha(Model model, @RequestParam(value = "email") String email) throws MessagingException {
 		ModelAndView modelAndView = new ModelAndView();
@@ -1046,8 +1053,9 @@ public class LoginController {
 				reset.setToken(token);
 				reset.setUser(u);
 				tokenService.saveToken(reset);
-			} else
+			} else {
 				token = x.getToken();
+			}
 			sendMailForgetPass(u, token);
 			model.addAttribute("resposta", "encontrado");
 		}
