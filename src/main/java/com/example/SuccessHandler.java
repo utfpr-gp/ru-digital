@@ -33,7 +33,7 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
 		else if (hasUserRoleManager)
 			url = "/gerente/controle";
 		else if (hasUserRoleUser)
-			url = "/usuario/home";
+			url = "/usuario/inicio";
 		redirectStrategy.sendRedirect(arg0, arg1, url);
 
 	}
