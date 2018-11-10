@@ -6525,5 +6525,12 @@ input[type=range]::-ms-thumb {
     bottom: auto;
     text-align: center;
     margin-top: 1.2rem; } }
+    
+.bfooter{
+	 display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+   
+}   
 
 /*# sourceMappingURL=../../../../../../../target/materialize-src/sass/materialize.css.map */
