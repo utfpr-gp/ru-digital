@@ -752,7 +752,7 @@ public class LoginController {
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "/gerente", "/gerente/botoes" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/gerente", "/gerente/opcoes" }, method = RequestMethod.GET)
 	public ModelAndView botoes(Model model) {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -760,11 +760,11 @@ public class LoginController {
 		Button button = new Button();
 		model.addAttribute("user", user);
 		model.addAttribute("button", button);
-
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
 		Page<Button> buts = this.buttonRepository.findAllButton(user.getCompany().getId(), pageRequest);
-
 		model.addAttribute("buttonsme", buts);
+		int s = buttonService.findAll().size();
+		model.addAttribute("sb", s);
 		modelAndView.setViewName("gerente/botoes");
 		return modelAndView;
 	}
@@ -1123,13 +1123,14 @@ public class LoginController {
 		return "login";
 	}
 
-	@RequestMapping(value = { "/administrador", "/gerente/botoes" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/administrador", "/gerente/opcoes" }, method = RequestMethod.POST)
 	public ModelAndView novoBotao(Button button, Model model,
 			@RequestParam(value = "ideditar", required = false) long id) {
 		ModelAndView modelAndView = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = userService.findUserByEmail(auth.getName());
 		System.out.println("ID DE MEU BOTAO" + id);
+
 		if (id == -1 && button != null && button.getName() != null && button.getValue() != null
 				&& button.getName() != "") {
 			System.out.println("CHAMDAOAOAOAOAOOAOAOAOOAOAOOAOAOA");
@@ -1148,6 +1149,9 @@ public class LoginController {
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "name");
 		Page<Button> buts = this.buttonRepository.findAllButton(user.getCompany().getId(), pageRequest);
 		model.addAttribute("buttonsme", buts);
+		int s = buttonService.findAll().size();
+		System.out.println("sssssssssssssssssssssssssssssssssssssssssssssss BOTAO" + s);
+		model.addAttribute("sb", s);
 		modelAndView.setViewName("gerente/botoes");
 		return modelAndView;
 	}

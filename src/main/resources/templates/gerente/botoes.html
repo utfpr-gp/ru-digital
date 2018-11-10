@@ -20,33 +20,18 @@ html, body{
   overflow-x: hidden;
 }
 </style>
-<script>
-
+<script th:inline="javascript">
+/*<![CDATA[*/
 $(document).ready(function(){ 
 	 var count = $('#xxx tr').length;
 	 var i =0;
-	 for (i=0; i<= count; i++){
-		 var id = i;
-		  $.ajax({
-		   	    type : "GET",
-		   	    url : "/convert",
-		   		 ajaxI: i,
-		   	    data : {
-		   	    "id" : id
-		   	    },
-		   	    success: function(data){
-		   	    i = this.ajaxI;
-		   	     if (data){
-		   	    	 res = document.getElementById("Value"+i).innerText.replace(".", ",");
-					 document.getElementById("Value"+i).innerText = res;
-				 }
-		   	    }
-		   	});
-		 
-		 
-		 
-		
-		 
+	 var sb = /*[[${sb}]]*/ 'default';
+	 for (i=0; i<= sb; i++){
+		if (document.getElementById("Value"+i) != null){
+			res = document.getElementById("Value"+i).innerText.replace(".", ",");
+			 document.getElementById("Value"+i).innerText = res;
+		}
+	 
 
 	 }
 	$("#value").maskMoney({
@@ -57,7 +42,7 @@ $(document).ready(function(){
 	
 	});
 
-
+/*]]>*/
 </script>
     <link
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
@@ -223,7 +208,7 @@ th a:hover {
 	   	    "id" : id
 	   	    },
 	   	    success: function(){
-	   	    	var link = "http://localhost:8030/gerente/botoes?show=true";
+	   	    	var link = "http://localhost:8030/gerente/opcoes?show=true";
 	   	    	$(location).attr('href',link); 
 	   	    	
 	   	    }
@@ -266,7 +251,7 @@ th a:hover {
     	 if(mostrar != null && mostrar.valueOf()  != 'default' ){
     			 $('#modal2').modal('open');
 		  }
-    	 if (window.location.href == "http://localhost:8030/gerente/botoes?show=true"){
+    	 if (window.location.href == "http://localhost:8030/gerente/opcoes?show=true"){
 	   	     	$('#modaldeletar').modal('open');
     	 }
     	   		
@@ -316,7 +301,7 @@ td i{
 						 </button>
 			</div>
             <section class=" col s12">
-            <form autocomplete="off" action="#" th:action="@{/gerente/botoes}" method="post" th:object="${button}" role="form">
+            <form autocomplete="off" action="#" th:action="@{/gerente/opcoes}" method="post" th:object="${button}" role="form">
 					<div class="form-group">
 						<div class="col-sm-9">
 						
