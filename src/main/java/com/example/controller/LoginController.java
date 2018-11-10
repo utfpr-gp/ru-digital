@@ -193,7 +193,7 @@ public class LoginController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		BigInteger x = null;
-		if (doc == null) {
+		if (doc.equals("NULLO")) {
 			User ux = userService.findUserByEmail(auth.getName());
 			x = transactionRepository.totalTransaction(ux.getId());
 		} else {
@@ -214,18 +214,25 @@ public class LoginController {
 		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
 		ModelAndView modelAndView = new ModelAndView();
 		Page<TransactionCredit> t = null;
-		model.addAttribute("emailu", email);
+
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User ux = userService.findUserByEmail(auth.getName());
+		model.addAttribute("currentcp", ux.getCompany().getId());
+		String aux = null;
+		if (email.equals("-1")) {
+			aux = principal.getName();
+		} else {
+			aux = email;
+			if (ux.getCompany().getId() != empresa) {
+				modelAndView.setViewName("/gerente/controle");
+				return modelAndView;
+			}
+		}
 
 		if (isAdmin(ux.getId()))
 			empresa = ux.getCompany().getId();
 		model.addAttribute("empresafiltrada", empresa);
-		String aux = null;
-		if (email.equals("-1")) {
-			aux = principal.getName();
-		} else
-			aux = email;
+		model.addAttribute("emailu", aux);
 		User u = userService.findUserByDocument(aux);
 		if (u == null) {
 			User us = userService.findUserByEmail(aux);
@@ -307,17 +314,24 @@ public class LoginController {
 		ModelAndView modelAndView = new ModelAndView();
 		System.out.println("WARD");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		model.addAttribute("emailu", email);
+
 		User ux = userService.findUserByEmail(auth.getName());
-		if (isAdmin(ux.getId()))
-			empresa = ux.getCompany().getId();
+
 		model.addAttribute("empresafiltrada", empresa);
 		Page<TransactionCredit> t = null;
 		String aux = null;
 		if (email.equals("-1")) {
 			aux = principal.getName();
-		} else
+		} else {
 			aux = email;
+			if (ux.getCompany().getId() != empresa) {
+				modelAndView.setViewName("/gerente/controle");
+				return modelAndView;
+			}
+		}
+
+		model.addAttribute("currentcp", ux.getCompany().getId());
+		model.addAttribute("emailu", aux);
 		User u = userService.findUserByDocument(aux);
 		if (u == null) {
 			User us = userService.findUserByEmail(aux);
@@ -422,12 +436,21 @@ public class LoginController {
 		model.addAttribute("company", company);
 		model.addAttribute("filtros", "ok");
 		String aux = null;
+		ModelAndView modelAndView = new ModelAndView();
+		User ux = null;
+		ux = userService.findUserByEmail(principal.getName());
+		if (ux == null)
+			ux = userService.findUserByDocument(principal.getName());
+
+		System.out.println(">>>>>>>>>>>>>>>>>>>>PEGOU");
+		if (ux.getCompany() != null)
+			model.addAttribute("currentcp", ux.getCompany().getId());
+		System.out.println(">>>>>>>>>>>>>>>>>>>>PEGOU");
 		if (usuario != null && usuario.equals("-1"))
 			aux = principal.getName();
 		else {
 			aux = usuario;
 			model.addAttribute("emailu", usuario);
-
 		}
 		System.out.println(">>>>>>>>>>>>>>>>>>>>OK");
 		User u = userService.findUserByDocument(aux);
@@ -436,12 +459,7 @@ public class LoginController {
 			u = us;
 		}
 		System.out.println(">>>>>>>>>>>>>>>>>>>>OK2" + principal.getName());
-		User ux = userService.findUserByEmail(principal.getName());
-		if (ux == null) {
-			System.out.println("PQ NULO");
-			ux = userService.findUserByDocument(principal.getName());
 
-		}
 		if (ux != null && ux.getCompany() != null && ux.getCompany().getId() != null)
 			model.addAttribute("empresafiltrada", ux.getCompany().getId());
 		else
@@ -466,7 +484,7 @@ public class LoginController {
 			System.out.println(">>>>>>>>>>>>>>>>>>>>MILIS" + tot);
 		}
 		PageRequest pageRequest = new PageRequest(0, 5, Sort.Direction.valueOf("ASC"), "data");
-		ModelAndView modelAndView = new ModelAndView();
+
 		Page<TransactionCredit> t = null;
 		model.addAttribute("empresa", empresa);
 		long size = 0;
@@ -901,7 +919,7 @@ public class LoginController {
 			HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = null;
-		if (usuario != null)
+		if (!usuario.equals("NULLO"))
 			user = userService.findUserByDocument(usuario);
 		else
 			user = userService.findUserByEmail(auth.getName());
