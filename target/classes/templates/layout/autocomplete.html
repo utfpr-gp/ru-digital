@@ -290,7 +290,7 @@ nav ul a {
 </head>
 
 
-<body id="menucontainer">
+<body id="menucontainer" class="bfooter">
 	<div class="">
 		<nav style="background-color: #ffc107;">
 			<div class="nav-wrapper">
@@ -305,7 +305,7 @@ nav ul a {
 					    <li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/conta'}">Minha Conta</a></li>
 						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/gerentes'}">Gerentes</a></li>
 						<li><a th:href="@{'/gerente/controle'}">Controle</a></li>
-						<li ><a th:href="@{'/gerente/botoes'}">Opções</a></li>
+						<li ><a th:href="@{'/gerente/opcoes'}">Opções</a></li>
 						<li><a th:href="@{'/logout'}">Sair</a></li>
 						
 					</ul>
@@ -320,7 +320,7 @@ nav ul a {
   						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/conta'}">Minha Conta</a></li>
   						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/gerentes'}">Gerentes</a></li>
 						<li><a th:href="@{'/gerente/controle'}">Controle</a></li>
-						<li><a th:href="@{'/gerente/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/gerente/opcoes'}">Opções</a></li>
 						<li><a th:href="@{'/logout'}">Sair</a></li>
   </ul>
 		</nav>
@@ -328,7 +328,7 @@ nav ul a {
 
 	</div>
 
-	<main layout:fragment="content">
+	<main layout:fragment="content" style="flex: 1 0 auto;">
 	<p>Default content</p>
 	</main>
 	<footer class="page-footer "

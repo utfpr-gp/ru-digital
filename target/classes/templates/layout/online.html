@@ -124,7 +124,7 @@ function modal2(){
 </head>
 
 
-<body>
+<body class="bfooter">
    <div class="">
 		<nav style="background-color: #ffc107;">
 			<div class="nav-wrapper">
@@ -140,7 +140,7 @@ function modal2(){
 					    <li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/conta'}">Minha Conta</a></li>
 						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/gerentes'}">Gerentes</a></li>
 						<li><a th:href="@{'/gerente/controle'}">Controle</a></li>
-						<li><a th:href="@{'/gerente/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/gerente/opcoes'}">Opções</a></li>
 						<li><a th:href="@{'/logout'}">Sair</a></li>
 					</ul>
 					<a href="#" data-target="slide-out" class="sidenav-trigger">
@@ -154,14 +154,14 @@ function modal2(){
 	 					<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/conta'}">Minha Conta</a></li>
   						<li sec:authorize="hasAuthority('ROLE_ADMIN')"><a th:href="@{'/administrador/gerentes'}">Gerentes</a></li>
 						<li><a th:href="@{'/gerente/controle'}">Controle</a></li>
-						<li><a th:href="@{'/gerente/botoes'}">Opções</a></li>
+						<li><a th:href="@{'/gerente/opcoes'}">Opções</a></li>
 						<li><a th:href="@{'/logout'}">Sair</a></li>
   </ul>
 		</nav>
 		
 
 	</div>
-    <main layout:fragment="content">
+    <main layout:fragment="content" style="flex: 1 0 auto;">
     
         <p>Default content</p>
     </main>

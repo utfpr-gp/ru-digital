@@ -21,6 +21,7 @@ color: black;
 }
 </style>
 <script type="text/javascript" >
+
 document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.sidenav');
     var instances = M.Sidenav.init(elems, {});
@@ -279,11 +280,11 @@ font-size: 18px;
 }
 </style>
 </head>
-<body>
+<body class="bfooter" >
    
     
     
-    <nav style="background-color: #ffc107;">
+    <nav style="background-color: #ffc107;" class="target">
 			<div class="nav-wrapper">
 				<div class="container" >
 					<input th:value="${#authentication.name}" id="logado"
@@ -314,10 +315,10 @@ font-size: 18px;
     
     
     
-    <main layout:fragment="content">
+    <main layout:fragment="content" style="flex: 1 0 auto;">
         <p>Default content</p>
     </main>
-    <footer class="page-footer "  style=" margin-top: 82px; background-color: #ffc107;">
+    <footer class="page-footer ft "  style=" margin-top: 82px; background-color: #ffc107;">
         <div class="container">
             <div class="row">
                 <div class="col l6 s12">
