@@ -1,4 +1,5 @@
 # ru-digital
+É um sistema desenvolvido principalmente para automatizar saldos financeiros em restaurantes universitários. Inicialmente o sistema foi desenvolvido para suportar apenas um restaurante, após verificar a necessidade de permitir também outros estabelecimentos o sistema foi ampliado.
 
 
 ## Requisitos para rodar a aplicação
@@ -6,6 +7,19 @@
 - Java instalado
 - Maven para gerenciar as dependências
 - Mysql instalado para armazenar os dados
+
+## Tecnologias
+- Spring
+- Hibernate
+- Materialize
+- Jquery
+- Cloudinary
+
+## Ferramentas
+
+- Spring
+- Mysql
+- Spring boot
 
 ## Instruções para rodar a aplicação
 
