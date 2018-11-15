@@ -28,7 +28,14 @@
 - Mudar as credencias para envio de email com SMTP (spring.mail.username e spring.mail.password)
 - Acessar a pasta do projeto via terminal e rodar mvn clean install para instalar as dependências
 - Rodar mvn spring-boot:run no terminal
-
+- Duas empresas já são cadastradas automaticamente no banco para uso RU e Lanchenete
+- Acesso administrativo RU:
+                              login:  1111111
+                              senha: mudar123
+                              
+- Acesso administrativo Lanchonete:   
+                              login:  0000000
+                              senha: mudar123
 ## Aplicação online
 
 https://nameless-wave-82551.herokuapp.com
