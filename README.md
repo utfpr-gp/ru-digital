@@ -38,4 +38,9 @@
                               senha: mudar123
 ## Aplicação online
 
+
+Digital Ocean:
+https://utfcoin.com
+
+Heroku:
 https://nameless-wave-82551.herokuapp.com
