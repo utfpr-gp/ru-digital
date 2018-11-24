@@ -29,7 +29,7 @@ textarea, input {
 					<form action="#" th:action="@{/usuario/edit/test}" enctype="multipart/form-data"  method="post"> 
 						<input class="upload_form" type="file" id="arquivo" name="arquivo" style="display: none;"/>
 						<img  style="cursor: pointer;"
-	                		th:attr="src='http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${user.getImage() }}"
+	                		th:attr="src='https://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${user.getImage() }}"
 	                		 width='100' height='150' onclick="upload();" />
 						<div class="form-group">
 							<div class="col-sm-9">

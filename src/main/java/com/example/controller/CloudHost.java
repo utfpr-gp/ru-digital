@@ -56,7 +56,7 @@ public class CloudHost {
 		return last_public_id;
 	}
 
-	String urlHead = "http://res.cloudinary.com/dqltxfvpx/image/upload";
+	String urlHead = "https://res.cloudinary.com/dqltxfvpx/image/upload";
 
 	public String getLastImageUrl() {
 		return urlHead + "/q_100/" + last_public_id;

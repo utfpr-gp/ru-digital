@@ -1,6 +1,7 @@
 com/example/controller/EmailController.class
 com/example/model/TransactionCredit.class
 com/example/service/ButtonServiceImpl.class
+com/example/DemoApplication$1.class
 com/example/model/Company.class
 com/example/UsuarioSistema.class
 com/example/service/UserBalanceService.class

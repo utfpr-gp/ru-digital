@@ -1091,7 +1091,7 @@ public class LoginController {
 
 		String htmlMsg = "Olá " + u.getName() + "\n Você solicitou mudança de senha no sistema UTFCOIN. <br> \n "
 				+ "Para recuperar a sua senha click no link abaixo: <br> "
-				+ " <a href='https://nameless-wave-82551.herokuapp.com/reset?token=" + rash + "&email=" + u.getEmail()
+				+ " <a href='https://www.utfcoin.com/reset?token=" + rash + "&email=" + u.getEmail()
 				+ " '  >Resetar senha</a>  <br> <br> "
 				+ "Caso não tenha solicitado alteração, ignore essa mensagem e nos informe."
 				+ "<br> Atenciosamente, UTFCOIN";
@@ -1542,7 +1542,7 @@ public class LoginController {
 			user.setImage("rejoed05uyghymultqsv");
 			user.generatePin();
 			userService.saveUser(user);
-			final String uri = "https://nameless-wave-82551.herokuapp.com/email-send/{id}";
+			final String uri = "https://www.utfcoin.com/email-send/{id}";
 			Map<String, String> params = new HashMap<String, String>();
 			params.put("id", user.getId() + "");
 

@@ -25,6 +25,14 @@
     
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     
+ <style>
+.bfooter{
+	 display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+   
+}   
+</style>
 <style>
 table, tr  {
 	border-bottom: 0px !important;
@@ -177,7 +185,7 @@ function modal2(){
                     <h5 class="black-text">Links</h5>
                     <ul>
                         <li><a class="black-text" href="https://github.com/utfpr-gp/ru-digital">Github</a></li>
-                        <li><a class="black-text" href="https://nameless-wave-82551.herokuapp.com">Heroku</a></li>
+                        <li><a class="black-text" href="https://www.utfcoin.com">Heroku</a></li>
                     <li><a class="black-text" href="http://utfpr.edu.br">UTFPR</a></li>
                    
                     </ul>
@@ -202,7 +210,7 @@ $
 				"x" : x
 			},
 			success : function(z) {
-				document.getElementById("cloud").src = "http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/"
+				document.getElementById("cloud").src = "https://res.cloudinary.com/dqltxfvpx/image/upload/q_100/"
 						+ z;
 			}
 		});

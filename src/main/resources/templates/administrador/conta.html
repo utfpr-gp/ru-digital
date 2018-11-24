@@ -153,7 +153,7 @@ html, body{
 				      				<form action="#" th:action="@{/administrador/edit/company}" enctype="multipart/form-data"  method="post"> 
 						<input class="upload_form" type="file" id="arquivo" name="arquivo" style="display: none;"/>
 						<img  style="cursor: pointer; max-width: 150px;" th:if="${company.getImage()!=null}"
-	                		th:attr="src='http://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${company.getImage() }}"
+	                		th:attr="src='https://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${company.getImage() }}"
 	                		 width='auto' height='150'  onclick="upload();" />
 	                		  <img th:if="${company.getImage() == null}"
 									src="/images/logo.png"
