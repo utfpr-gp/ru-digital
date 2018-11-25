@@ -22,7 +22,7 @@ function removeGerente(id){
    	    "id" : id
    	    },
    	    success: function(){
-   	    	var link = "https://www.utfcoin.com/administrador/gerentes";    
+   	    	var link = "https://utfcoin.com/administrador/gerentes";    
    	        $(location).attr('href',link); 
    	    }
    	});
@@ -32,7 +32,7 @@ function deleteGer(){
 	removeGerente(document.getElementById("exc").value);
 }
 function preRemove(id){
-	alert("MEU IDDD"+ id);
+
 	document.getElementById("exc").value = id;
 	
 	$('#modaldelgerentes').modal('open');

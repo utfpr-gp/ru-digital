@@ -23,8 +23,7 @@
 		<div id="pagination-short"></div>
 	</div>
 
-	<script src="materialize-pagination.js"></script>
-
+	
 	<style>
 .pagination li.active {
 	background-color: #ffc107 !important;
@@ -72,6 +71,8 @@
 			else{
 				usuario = "NULLO";
 			}
+			
+
 			$.ajax({
 				type : "GET",
 				url : "/checarmeses",
@@ -79,7 +80,7 @@
 					"usuario" : usuario
 				},
 				success : function(data) {
-					
+				
 					var arrayLength = data.length;
 					var auxa = [];
 					var auxm = [];
@@ -233,6 +234,7 @@
 																			ini,
 																			fim,
 																			empresa);
+																	
 																}
 															});
 
@@ -252,7 +254,8 @@
 												"empresa" : empresa
 											},
 											success : function(data) {
-												
+												if (document
+														.getElementById('valorempresa') !=null)
 												document
 														.getElementById('valorempresa').innerHTML = data;
 
@@ -265,6 +268,7 @@
 		function callPage(page, tipo, ini, fim, empresao) {
 			//document.getElementById("page").value = page;
 			//document.getElementById("enviarpage").click();
+
 			api = /*[[${api}]]*/'api';
 			email = /*[[${emailu}]]*/'emailu';
 			var amp = 0, empresa = 0;
@@ -277,7 +281,8 @@
 				empresa = /*[[${empresafiltrada}]]*/'empresafiltrada';
 				usuario = email + "";
 			}
-
+			
+			
 			document.getElementById("op").value = tipo;
 			document.getElementById("pages").value = page;
 			document.getElementById("ini").value = ini;
@@ -289,7 +294,7 @@
 		}
 
 		function buscas() {
-
+			
 			var i = 0;
 			var tipo;
 			for (i = 1; i <= 12; i++) {
@@ -365,7 +370,7 @@
 			document.getElementById("empresa").value = empresa;
 
 			document.getElementById("usuario").value = usuario;
-
+			
 			document.getElementById("enviarfiltro").click();
 		}
 

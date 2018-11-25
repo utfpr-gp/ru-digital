@@ -195,9 +195,13 @@ public class LoginController {
 		BigInteger x = null;
 		if (doc.equals("NULLO")) {
 			User ux = userService.findUserByEmail(auth.getName());
+			if (ux == null)
+				ux = userService.findUserByDocument(doc);
 			x = transactionRepository.totalTransaction(ux.getId());
 		} else {
 			User ux = userService.findUserByDocument(doc);
+			if (ux == null)
+				ux = userService.findUserByEmail(auth.getName());
 			x = transactionRepository.totalTransaction(ux.getId());
 		}
 		System.out.println("MEU X AMIGO" + x);
@@ -210,27 +214,45 @@ public class LoginController {
 			@RequestParam(value = "fim") String fim,
 
 			@RequestParam(value = "empresa") long empresa, @RequestParam(value = "emailgeral") String email,
-			Principal principal) {
+			Principal principal, HttpSession session) {
+		String emails = (String) session.getAttribute("email");
 		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
-		ModelAndView modelAndView = new ModelAndView();
-		Page<TransactionCredit> t = null;
 
+		ModelAndView modelAndView = new ModelAndView();
+
+		Page<TransactionCredit> t = null;
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User ux = userService.findUserByEmail(auth.getName());
-		model.addAttribute("currentcp", ux.getCompany().getId());
+		if (ux == null)
+			ux = userService.findUserByDocument(auth.getName());
+		if (ux != null) {
+			if (isAdmin(ux.getId()) || isManager(ux.getId())) {
+				model.addAttribute("api", true);
+				model.addAttribute("empresaadm", ux.getCompany().getId());
+				email = emails;
+			}
+		}
+		if (ux.getCompany()!=null && ux.getCompany().getId()!=null)
+			model.addAttribute("currentcp", ux.getCompany().getId());
+	
 		String aux = null;
 		if (email.equals("-1")) {
+			System.out.println("PASSO 5");
 			aux = principal.getName();
 		} else {
+			System.out.println("PASSO 6");
 			aux = email;
-			if (ux.getCompany().getId() != empresa) {
+			if (ux.getCompany()!=null && ux.getCompany().getId()!=null && ux.getCompany().getId() != empresa) {
+				System.out.println("PASSO 7");
 				modelAndView.setViewName("/gerente/controle");
+				email = emails;
 				return modelAndView;
 			}
 		}
 
 		if (isAdmin(ux.getId()))
 			empresa = ux.getCompany().getId();
+
 		model.addAttribute("empresafiltrada", empresa);
 		model.addAttribute("emailu", aux);
 		User u = userService.findUserByDocument(aux);
@@ -309,14 +331,22 @@ public class LoginController {
 			@RequestParam(value = "op") String op, @RequestParam(value = "size") long size,
 			@RequestParam(value = "ini") String ini, @RequestParam(value = "fim") String fim,
 			@RequestParam(value = "empresa") long empresa, @RequestParam(value = "emailgeral") String email,
-			Principal principal) {
+			Principal principal, HttpSession session) {
 		PageRequest pageRequest = new PageRequest(page - 1, 5, Sort.Direction.valueOf("ASC"), "data");
 		ModelAndView modelAndView = new ModelAndView();
 		System.out.println("WARD");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
+		String emails = (String) session.getAttribute("email");
 		User ux = userService.findUserByEmail(auth.getName());
-
+		if (ux == null)
+			ux = userService.findUserByDocument(auth.getName());
+		if (ux != null) {
+			if (isAdmin(ux.getId()) || isManager(ux.getId())) {
+				model.addAttribute("api", true);
+				model.addAttribute("empresaadm", ux.getCompany().getId());
+				email = emails;
+			}
+		}
 		model.addAttribute("empresafiltrada", empresa);
 		Page<TransactionCredit> t = null;
 		String aux = null;
@@ -324,13 +354,13 @@ public class LoginController {
 			aux = principal.getName();
 		} else {
 			aux = email;
-			if (ux.getCompany().getId() != empresa) {
+			if (ux.getCompany()!=null && ux.getCompany().getId()!=null && ux.getCompany().getId() != empresa) {
 				modelAndView.setViewName("/gerente/controle");
 				return modelAndView;
 			}
 		}
-
-		model.addAttribute("currentcp", ux.getCompany().getId());
+		if (ux.getCompany()!=null && ux.getCompany().getId()!=null)
+			model.addAttribute("currentcp", ux.getCompany().getId());
 		model.addAttribute("emailu", aux);
 		User u = userService.findUserByDocument(aux);
 		if (u == null) {
@@ -425,7 +455,10 @@ public class LoginController {
 	public ModelAndView userbyFilter(Model model, @RequestParam(value = "filtro") String filtro,
 			@RequestParam(value = "filtroano") String filtroano, @RequestParam(value = "empresa") long empresa,
 			@RequestParam(value = "filtromes") String filtromes, @RequestParam(value = "usuario") String usuario,
-			Principal principal) {
+			Principal principal, HttpSession session) {
+		String email = (String) session.getAttribute("email");
+
+		
 		System.out.println(">>>>>>>>>>>>>>>>>>>>" + filtro);
 		System.out.println(">>>>>>>>>>>>>>>>>>>>MES" + filtromes);
 		System.out.println(">>>>>>>>>>>>>>>>>>>>ANO" + filtroano);
@@ -433,6 +466,7 @@ public class LoginController {
 		System.out.println(">>>>>>>>>>>>>>>>>>>>USUARIO" + usuario);
 		List<Company> company = companyRepository.findAll();
 		model.addAttribute("company", company);
+		
 		model.addAttribute("company", company);
 		model.addAttribute("filtros", "ok");
 		String aux = null;
@@ -441,7 +475,10 @@ public class LoginController {
 		ux = userService.findUserByEmail(principal.getName());
 		if (ux == null)
 			ux = userService.findUserByDocument(principal.getName());
-
+		if (isAdmin(ux.getId()) || isManager(ux.getId())) {
+			model.addAttribute("api", true);
+			usuario = email;
+		}
 		System.out.println(">>>>>>>>>>>>>>>>>>>>PEGOU");
 		if (ux.getCompany() != null)
 			model.addAttribute("currentcp", ux.getCompany().getId());
@@ -460,8 +497,10 @@ public class LoginController {
 		}
 		System.out.println(">>>>>>>>>>>>>>>>>>>>OK2" + principal.getName());
 
-		if (ux != null && ux.getCompany() != null && ux.getCompany().getId() != null)
+		if (ux != null && ux.getCompany() != null && ux.getCompany().getId() != null) {
 			model.addAttribute("empresafiltrada", ux.getCompany().getId());
+			model.addAttribute("empresaadm", ux.getCompany().getId());
+		}
 		else
 			model.addAttribute("empresafiltrada", company);
 		System.out.println(">>>>>>>>>>>>>>>>>>>>OK3");
@@ -675,8 +714,13 @@ public class LoginController {
 
 		User user = userService.findUserByDocument(email);
 		System.out.println("OI" + email);
+		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User u = userService.findUserByEmail(auth.getName());
+		if (isAdmin(u.getId()) || isManager(u.getId())) {
+			model.addAttribute("api", true);
+			model.addAttribute("empresaadm", u.getCompany().getId());
+		}
 		if (isAdmin(u.getId()) || isManager(u.getId()))
 			return "redirect:" + "/usuario/extrato?email=" + user.getDocument();
 
@@ -919,10 +963,16 @@ public class LoginController {
 			HttpServletRequest request, HttpServletResponse response, Principal principal, Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		User user = null;
-		if (!usuario.equals("NULLO"))
+		if (!usuario.equals("NULLO")) {
 			user = userService.findUserByDocument(usuario);
-		else
+			if (user == null)
+				userService.findUserByEmail(auth.getName());
+		}
+		else {
 			user = userService.findUserByEmail(auth.getName());
+			if (user == null)
+				user = userService.findUserByDocument(usuario);
+		}
 		List<String> s = transactionRepository.dataPresent(user.getId());
 		return s;
 
@@ -1091,7 +1141,7 @@ public class LoginController {
 
 		String htmlMsg = "Olá " + u.getName() + "\n Você solicitou mudança de senha no sistema UTFCOIN. <br> \n "
 				+ "Para recuperar a sua senha click no link abaixo: <br> "
-				+ " <a href='https://www.utfcoin.com/reset?token=" + rash + "&email=" + u.getEmail()
+				+ " <a href='https://utfcoin.com/reset?token=" + rash + "&email=" + u.getEmail()
 				+ " '  >Resetar senha</a>  <br> <br> "
 				+ "Caso não tenha solicitado alteração, ignore essa mensagem e nos informe."
 				+ "<br> Atenciosamente, UTFCOIN";
@@ -1542,7 +1592,7 @@ public class LoginController {
 			user.setImage("rejoed05uyghymultqsv");
 			user.generatePin();
 			userService.saveUser(user);
-			final String uri = "https://www.utfcoin.com/email-send/{id}";
+			final String uri = "https://utfcoin.com/email-send/{id}";
 			Map<String, String> params = new HashMap<String, String>();
 			params.put("id", user.getId() + "");
 

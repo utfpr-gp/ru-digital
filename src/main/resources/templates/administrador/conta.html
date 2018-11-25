@@ -19,8 +19,6 @@ function change() {
 	var mes = x.options[x.selectedIndex].value;
 	var ano = a.options[a.selectedIndex].value;
 	var date = new Date();
-	alert(ano);
-	alert(mes);
 	if (ano == 0){
 		 d = new Date();
 		finalmili = d.valueOf();
@@ -54,7 +52,7 @@ function change() {
 		},
 		success : function(
 				data) {
-			alert("PASSOU VEJA TERMINAL");
+		
 			
 			document.getElementById("c").innerHTML=  data[0];
 			document.getElementById("d").innerHTML= data[1];
