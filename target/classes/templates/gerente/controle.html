@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout/autocomplete">
+<head>
+<meta charset="utf-8" />
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+	rel="stylesheet">
+<title>UTFCOIN - Controle</title>
+
+<script type="text/javascript" th:src="@{/js/jquery.autocomplete.js}"></script>
+<style>
+input, input::-webkit-input-placeholder {
+	font-size: 20px;
+	line-height: 3;
+}
+
+.esconder {
+	display: none;
+}
+
+.ativo {
+	border-bottom: 5px solid black;
+}
+
+/* GENERAL BUTTON STYLING */
+.btn {
+	color: black;
+	font-size: 23px;
+	font-weight: bold;
+	text-transform: uppercase;
+	background-color: #fff176;
+	height: 60px;
+	width: 300px;
+	opacity: 1 !important;
+}
+
+.btn i {
+	line-height: 40px;
+}
+
+button:hover {
+	background-color: #ffca28 !important;
+}
+
+.bleed {
+	padding-left: 30.4%;
+	margin-left: -30.4%;
+	padding-right: 30.4%;
+	margin-right: -30.4%;
+}
+
+html, body {
+	overflow-x: hidden;
+}
+
+@media screen and (max-width: 483px) {
+	#btdebito{
+		margin-left: 0% !important;
+	}
+	#cc{
+		display: none;
+	}
+	#dd{
+		display: none;
+	}
+}
+
+
+
+.modal-header {
+	position: sticky;
+	top: 0;
+	background: white; // the color of your modal background height : 32px;
+	padding: 4px;
+	//
+	Material
+	guidelines
+	suggests
+	"Iconography
+	in
+	toolbars
+	align
+	to
+	a
+	4dp/px
+	square
+	baseline
+	grid."
+}
+</style>
+
+<script>
+	jQuery(function($) {
+		$('#datet').mask('99/99/9999');
+	});
+	var p = "inicio";
+	var iddebito = -1;
+
+	if (window.history.replaceState) { // para evitar que o formulario seja enviado novamente no ctrl f5
+		window.history.replaceState(null, null, window.location.href);
+	}
+
+	function informacaoBotao(id) {
+		idbutton = id;
+		iduser = document.getElementById('sela').value;
+		document.getElementById("iduser").value = iduser;
+
+		document.getElementById("idbutton").value = idbutton;
+		document.getElementById("debitovalue").value = null;
+		document.getElementById("description").value = "";
+		$("#consumos").click();
+
+	}
+
+	function mostrarDebito(id) {
+		w = document.getElementById(id + "valorbotao").value;
+		var newchar = ',';
+		mystring = w.split('.').join(newchar);
+		document.getElementById('outrodebito').value = mystring;
+		iddebito = id;
+
+	}
+
+	function mostrarDebitoatual() {
+		var id = document.getElementById("doccliente").innerHTML;
+		if (iddebito != -1){
+			iduser = document.getElementById('sela').value;
+			document.getElementById("iduser").value = iduser;
+			document.getElementById("idbutton").value = iddebito;
+			
+			document.getElementById("desccon").style.display = "none";
+			document.getElementById("vldebit").value = "R$ "
+					+ document.getElementById("outrodebito").value;
+			$('#modal6').modal('open');
+		}
+			//informacaoBotao(iddebito);
+		else if (document.getElementById("outrodebito").value != "") {
+			iduser = document.getElementById('sela').value;
+			document.getElementById("iduser").value = iduser;
+			document.getElementById("idbutton").value = -1;
+			document.getElementById("vldebit").value = "R$ "
+					+ document.getElementById("outrodebito").value;
+			$('#modal6').modal('open');
+		}
+
+	}
+
+	function atualizaoutro() {
+		iddebito = -1;
+	}
+
+	$(function() {
+		$(function() {
+
+			var status = $("#status").val();
+			if (status != null && status != "")
+				$('#modal5').modal('open');
+		});
+		auxme = 0;
+
+		$('#creditos').hover(function() {
+			$(this).css('cursor', 'pointer');
+		});
+		$('#consumo').hover(function() {
+			$(this).css('cursor', 'pointer');
+		});
+		$("#creditos").click(function() {
+			$("#creditos").fadeTo("slow", 0.8);
+			if (auxme == 1) {
+				$("#consumo").fadeTo("slow", 0.3);
+			}
+			auxme = 2;
+		});
+		$("#consumo").click(function() {
+			$("#consumo").fadeTo("slow", 0.8);
+			if (auxme == 2) {
+				$("#creditos").fadeTo("slow", 0.3);
+			}
+			auxme = 1;
+		});
+
+	});
+
+	function wait(ms) {
+		var start = new Date().getTime();
+		var end = start;
+		while (end < start + ms) {
+			end = new Date().getTime();
+		}
+	}
+	function manual() {
+		document.getElementById('outro').style.display = "none";
+		wait(300);
+		$('#outro').fadeIn(200, function() {
+
+		});
+		p = "botao";
+	}
+
+	function novomanual() {
+		document.getElementById('outrodebito').style.display = "none";
+		wait(300);
+		$('#outrodebito').fadeIn(200, function() {
+
+		});
+
+	}
+	function mostrartot(x) {
+		var z = document.getElementById('outro').value;
+		if (z == "")
+			return;
+		if (p == "botao")
+			$("#enviarmodal2").click();
+		else {
+			var newdois = '';
+			document.getElementById('vlaux').value = "R$ " + z;
+			z = z.split('.').join(newdois);
+			z = z.split(',').join(".");
+			document.getElementById('vl').value = z;
+			document.getElementById('balance').value = z;
+			$('#modal4').modal('open');
+		}
+
+	}
+
+	String.prototype.replaceAt = function(index, replacement) {
+		return this.substr(0, index) + replacement
+				+ this.substr(index + replacement.length);
+	}
+
+	function debitoManual() {
+		var str = document.getElementById("outrodebito").value;
+		var newchar = '.';
+		var newdois = '';
+		mystring = str.split('.').join(newdois);
+		mystring = mystring.split(',').join(newchar);
+		document.getElementById("debitovalue").value = mystring;
+		var pin = document.getElementById("pinpessoal").value;
+		document.getElementById("debitopin").value = pin;
+		document.getElementById("description").value = document
+				.getElementById("desccon").value;
+		document.getElementById("idbutton").value = iddebito;
+		var numbers = /^[-+]?[0-9]+$/;
+	      if(pin.match(numbers))
+	      {
+	      	$("#consumos").click();
+	      }
+	      else{
+	    	  alert("Apenas números são permitidos para o PIN");
+	      }
+		
+		
+	}
+	function input() {
+		p = "input";
+	}
+	function inserircreditos(x) {
+		if (x == -1) {
+			x = document.getElementById('outro').value;
+		} else {
+			document.getElementById('outro').value = x + ",00";
+		}
+		document.getElementById('vl').value = x;
+		document.getElementById('vlaux').value = x;
+		document.getElementById('balance').value = x;
+		document.getElementById('balance2').value = x;
+		$('#outro').fadeIn("slow");
+
+	}
+
+	function validatePin(evt) {
+		var theEvent = evt || window.event;
+
+		// Handle paste
+		if (theEvent.type === 'paste') {
+			key = event.clipboardData.getData('text/plain');
+		} else {
+			// Handle key press
+			var key = theEvent.keyCode || theEvent.which;
+			key = String.fromCharCode(key);
+		}
+		var regex = /[0-9]|\./;
+		if (!regex.test(key)) {
+			theEvent.returnValue = false;
+			if (theEvent.preventDefault)
+				theEvent.preventDefault();
+		}
+	}
+	function antes() {
+		document.getElementById("id").value = document
+				.getElementById("doccliente").innerHTML;
+	}
+
+	function func() {
+		doc  = document.getElementById("doccliente").innerHTML;
+		 window.location = "https://utfcoin.com/usuario/extrato?email="+ doc;
+	}
+
+	function mostrarTr() {
+		var date = document.getElementById("datet").value;
+		var tamanho = document.getElementById("tamanho").innerHTML;
+
+		for (var i = 1; i <= tamanho; i++) {
+			aux = document.getElementById("d" + i).innerHTML.substring(0, 10);
+			if (aux == date)
+				document.getElementById("t" + i).classList.remove("esconder");
+			else
+				document.getElementById("t" + i).classList.add("esconder");
+		}
+	}
+</script>
+</head>
+
+<body>
+
+	<main layout:fragment="content"> <header class="row">
+		<div th:if="${users == null && usernotfound == null}" 
+			style="margin-top: 25px;"
+			class="col s7 offset-s5">
+			<img th:src="@{/images/logo_inicial.png}" width="160" height="160" alt="Logo" />
+
+
+		</div>
+
+
+
+	</header>
+	<article class="container" style="padding-top: 3%;">
+
+		<section></section>
+
+
+		<div class="container">
+
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3">
+
+					<form th:object="${users}" th:action="@{/gerente/buscar}"
+						method="get">
+						<div class="col s10 ">
+							<input type="text" name="email" id="autocomplete-input"
+								th:value="${email}" placeholder="Ra ou CPF" />
+
+						</div>
+
+						<div class="col s2">
+							<label> <a
+								class="waves-effect waves-light btn-floating btn-large amber accent-3 "><i
+									class="material-icons" style="font-size: 35px; color: black;"
+									id="busca">search</i></a>
+							</label>
+
+						</div>
+						<p th:if="${usernotfound}">
+							<i class="col s8 offset-s4 material-icons"
+								style="font-size: 150px;">mood_bad</i>
+						</p>
+						<p th:if="${usernotfound}" class="col s10 offset-s2 "
+							style="font-weight: bold;">Cliente não encontrado. Verifique
+							o campo informado</p>
+						<input type="submit" value="Search" id="enviarbuscar"
+							style="display: none;" />
+
+
+					</form>
+					<input id="status" type="hidden" name="status" th:value="${status}" />
+				</div>
+			</div>
+		</div>
+
+
+
+
+		<div class="section row center" style="padding-top: 50px;"
+			th:if="${users != null}">
+			<div class="avatar row bleed grey lighten-3" style="margin-bottom: 0px !important; " th:each="u: ${users}">
+				
+				<div class="col s12 ">
+					<div class="row">
+						<h5 class="left"
+							style=" color: #ff8f00;">INFORMAÇÕES
+							PESSOAIS</h5>
+					</div>
+				</div>
+				<div class="col s12 ">
+					<ul class="col s12">
+						<li class="" style=""><img
+							th:attr="src='https://res.cloudinary.com/dqltxfvpx/image/upload/q_100/'+ @{${u.getImage() }}"
+							class="circle"
+							style="height: 100px; width: 100px;" /></li>
+					</ul>
+					<input class="title" id="sela" style="display: none;"
+						th:value="${users.getId()}" />
+
+					<div class="col s12">
+						<span class="title" th:text="${u.getName()}"></span>
+					</div>
+					<div class="col s12">
+						<span class="title" th:text="${u.getEmail()}"></span>
+					</div>
+					<div class="col s12">
+						<span class="title" id="doccliente" th:text="${u.getDocument()}"></span>
+					</div>
+
+					<div class="col s12">
+						<a href="" onclick="func(); return false;">Histórico de
+							Consumo</a>
+					</div>
+					
+					
+
+				</div>
+			</div>
+
+
+			<div class="" th:each="u: ${users}"
+				style="margin-bottom: 20px;">
+				<div class="col s12 ">
+					<div class="row">
+						<h5 class="left"
+							style=" color: #ff8f00;">SALDO
+							ATUAL</h5>
+					</div>
+				</div>
+				
+				
+				<div class="col s12">
+
+
+
+
+					<span th:if="${valor == null }" class="title"
+						style="font-size: 42px; font-weight: bold;"
+						th:text="'R$ ' + 0 +',' + 0 + '0'"></span> <span class="title"
+						th:if="${valor != null }"
+						style="font-size: 42px; font-weight: bold;" th:text="${valor}"></span>
+
+				</div>
+			</div>
+		</div>
+		<span class="title" th:text="${userDetails}"></span>
+
+
+
+
+		<div class="row bleed" style="background-color: #F5F4F4;"
+			th:if="${users != null && usernotfound == null}">
+			<div class="col s12 ">
+					<div class="row">
+						<h5 class="left"
+							style=" color: #ff8f00;">AÇÕES
+							</h5>
+					</div>
+				</div>
+	
+
+			<div class="col s6 bots">
+				<button class=" waves-effect waves-light btn col s12 " id="consumo">
+					<i class="fa  fa-minus-circle fa-lg" id="dd"
+						style="color: red; margin-right: 10px; font-size: 35px;"></i>
+					Consumo
+				</button>
+			</div>
+			<div class="col s6 bots">
+				<button class=" waves-effect waves-blue btn col s12 " id="creditos"
+					style="margin-bottom: 20px;">
+					<i class="fa  fa-plus-circle fa-lg" id="cc"
+						style="color: green; font-size: 35px; margin-right: 10px;"></i>Créditos
+				</button>
+			</div>
+
+
+
+		</div>
+
+
+		<div style="display: none;" id="showconsumo">
+
+			<div th:if="${buttons!=null && buttons.getTotalElements()!=0 }" class="row  " id="nmanual">
+			
+					
+				<div class="col s12 ">
+					<div class="row">
+						<h5 class="left"
+							style=" color: #ff8f00;">OPÇÕES DE
+					CONSUMO
+							</h5>
+					</div>
+				</div>
+
+				<div th:each="b: ${buttons}" style="margin-left: 7%;">
+					<div th:if="${b.getOutros() == null && b.getDeleted() == NULL}">
+						<input style="display: none;" th:id="${b.getId()} + 'valorbotao'"
+							th:value="${b.getValue()}" /> <a th:id="${b.getId()}"
+							class="truncate amber accent-3 btn-large col s3  "
+							onclick="novomanual(); mostrarDebito(this.id);"><span
+							style="color: black;" th:text="${b.getName()}"></span><i
+							class="material-icons right" style="color: black;">send</i></a>
+						<p class="col s1" style="margin-bottom: 10%;"></p>
+					</div>
+				</div>
+
+			</div>
+
+
+		
+
+			<div class="row">
+				<div class="col s12 ">
+					<div class="row">
+						<h5 class="left"
+							style=" color: #ff8f00;">VALOR DE CONSUMO
+							</h5>
+					</div>
+				</div>
+				<input class="" type="text" name="auxod" id="auxod"
+					style="display: none; font-size: 45px; font-weight: bold; margin-left: 7%;" />
+				<input class="col s10 m4" type="text" name="outrodebito" maxlength="7"
+					onclick="atualizaoutro();" id="outrodebito"
+					style="font-size: 45px; font-weight: bold; "
+					placeholder="Valor" />
+				<a class="truncate light-blue accent-2 btn-large s12 m4    " 
+					id="btdebito" style="color: black; margin-left: 10%;" onclick="mostrarDebitoatual()"><span
+					th:text="DEBITAR" style="font-size: 23px; font-weight: bold;"></span><i
+					style="margin-left: 10px; font-size: 27px;"
+					class="fa  fa-minus-circle"></i></a>
+
+			</div>
+		</div>
+
+		<div class="row " style="display: none;" id="showcreditos">
+			
+			<div class="row" style="height: 240px;">
+			
+				<h5 style="color: #ff8f00; padding-bottom: 20px;">OPÇÕES DE CRÉDITO</h5>
+				
+
+				<div id="manualoff" class="truncate" style="margin-left: 7%;">
+
+					<a class="amber accent-3  btn-large col s2 " style="color: black;"
+						onclick="manual(); inserircreditos(2); "><span th:text="2"></span><i
+						class="material-icons right">monetization_on</i></a>
+					<p class="col s1" style="margin-bottom: 10%;"></p>
+					<a class="amber accent-3  btn-large col s2  " style="color: black;"
+						onclick="manual();inserircreditos(5);"><span th:text="5"></span><i
+						class="material-icons right">monetization_on</i></a>
+					<p class="col s1" style="margin-bottom: 10%;"></p>
+					<a class="amber accent-3  btn-large col s2  " style="color: black;"
+						onclick="manual();inserircreditos(10);"><span th:text="10"></span><i
+						class="material-icons right">monetization_on</i></a>
+					<p class="col s1" style="margin-bottom: 10%;"></p>
+					<a class="amber accent-3  btn-large col s2  " style="color: black;"
+						onclick="manual();inserircreditos(15);"><span th:text="15"></span><i
+						class="material-icons right">monetization_on</i></a>
+					<p class="col s1" style="margin-bottom: 10%;"></p>
+					<a class="amber accent-3 btn-large col s2  " style="color: black;"
+						onclick="manual();inserircreditos(20);"><span th:text="20"></span><i
+						class="material-icons right">monetization_on</i></a>
+					<p class="col s1" style="margin-bottom: 10%;"></p>
+					<a class="amber accent-3 btn-large col s2  " style="color: black;"
+						onclick="manual();inserircreditos(25);"><span th:text="25"></span><i
+						class="material-icons right">monetization_on</i></a>
+					<p class="col s1" style="margin-bottom: 10%;"></p>
+					<a class="amber accent-3 btn-large col s2  " style="color: black;"
+						onclick="manual();inserircreditos(50);"><span th:text="50"></span><i
+						class="material-icons right">monetization_on</i></a>
+					<p class="col s1" style="margin-bottom: 10%;"></p>
+					<a class="amber accent-3  btn-large col s2  " style="color: black;"
+						onclick="manual();inserircreditos(100);"><span th:text="100"></span><i
+						class="material-icons right">monetization_on</i></a>
+					<p class="col s1" style="margin-bottom: 10%;"></p>
+				</div>
+			</div>
+			<div class="row bleed" style="background-color: #F5F4F4">
+			<div class="col s12 ">
+					<div class="row">
+						<h5 class="left"
+							style=" color: #ff8f00;">VALOR DE CRÉDITO
+							</h5>
+					</div>
+				</div>
+				
+
+				<input class="col s10 m4" type="text" name="outro" onclick="input();"
+					id="outro" maxlength="7"
+					style="font-size: 45px; font-weight: bold; margin-left: 7%;"
+					placeholder="Valor" />
+				<p class="col s1" style="margin-bottom: 55px;"></p>
+				<a class="green darken-3  btn-large col s8 m4  truncate" id="btoutro"
+					style="color: black;" onclick="mostrartot(-1);"><span
+					th:text="CREDITAR  " style="font-size: 23px; font-weight: bold;">
+				</span><i style="margin-left: 10px; font-size: 27px;" class="fa  fa-money "></i></a>
+
+
+			</div>
+		</div>
+
+
+
+		<form autocomplete="off" action="#"
+			th:action="@{/gerente/insertcredit}" method="post"
+			th:object="${user}" role="form" style="display: none;">
+			<input id="aux2" th:if="${users != null}"
+				th:value="${users.document}" style="display: none;"
+				name="users.document" /> <input id="balance2" name="balance"
+				th:value="${balance}" /> <a href="#" onclick="enviar();"
+				style="color: green; float: right;"> <i class="material-icons"
+				style="font-size: 50px;">check</i></a> <input type="submit"
+				id="enviarmodal2" value="Creditar" />
+		</form>
+
+		<div id="modal4" class="modal">
+			<div class="modal-content">
+				<h4>Confirmar Crédito?</h4>
+
+				<form autocomplete="off" action="#"
+					th:action="@{/gerente/insertcredit}" method="post"
+					th:object="${user}" role="form">
+					
+					<div class="row">
+
+						<input id="auxcreditonaoexisteainda" value=""
+							style="display: none;" /> <input id="auxxxxxx"
+							th:if="${users != null}" th:value="${users.document}"
+							style="display: none;" name="users.document" />
+
+						<div class="col s12">
+							<table cellspacing="0" cellpadding="0">
+								<tr class="col s12" style="border: none;">
+									<td style="display: none;"><input id="vl"
+										style="border: none; font-size: 45px; color: #212121;"
+										disabled="disabled" /></td>
+									<td><input id="vlaux"
+										style="border: none; font-size: 45px; color: #212121;"
+										disabled="disabled" /></td>
+
+								</tr>
+
+							</table>
+							<input id="balance" name="balance" th:value="${balance}"
+								style="display: none;" />
+
+
+						</div>
+						
+					</div>
+					<input
+								type="submit" id="enviarmodal" style="display: none;"
+								value="Creditar" />
+				</form>
+			</div>
+			<div class="modal-footer">
+			
+			<a href="#"
+			onclick="enviar();"
+			 class="modal-close waves-effect waves-green btn-flat"> 
+				<i class="material-icons" style="font-size: 50px;">check</i>
+			</a> 
+			</div>
+		</div>
+
+
+
+
+
+
+		<div id="modal5" class="modal">
+			
+			<div class="modal-content">
+				<h4 th:if="${status != 'Consumo lanncado!' && status!= 'Créditos Inseridos!'}" >Erro ao processar consumo</h4>
+				<h4  th:if="${status == 'Consumo lanncado!'}">Consumo lançado!</h4>
+				<h4  th:if="${status == 'Créditos Inseridos!'}">Créditos inseridos</h4>
+				
+			
+			<div class="center-align">
+				<span id="status" th:text="${status}"> </span>
+			</div>
+			<div class="center-align">
+				<a href="#" style="color: green;"
+					th:if="${status == 'Consumo lanncado!' || status == 'Créditos Inseridos!'}"> <i
+					class="material-icons" style="font-size: 120px;">check</i></a> <a
+					href="#" style="color: red;"
+					th:if="${status != 'Consumo lanncado!' && status != 'Créditos Inseridos!'}"> <i
+					class="material-icons" style="font-size: 120px;">error_outline</i></a>
+			</div>
+				
+			<div class="modal-footer">
+			
+			<a href="#"
+			
+			 class="modal-close waves-effect waves-green btn-flat"> 
+				<i class="material-icons" style="font-size: 50px;">check</i>
+			</a> 
+			</div>
+		</div>
+		</div>
+
+
+
+		<div id="modal6" class="modal">
+			<div class="modal-content">
+				<h4>Confirmar Débito?</h4>
+
+				<form autocomplete="off" action="#" th:object="${user}" role="form">
+				<div class="row">
+
+					<input id="aux123" value="" style="display: none;" /> <input
+						id="aux321" th:if="${users != null}" th:value="${users.document}"
+						style="display: none;" name="users.document" />
+
+					<div class="col s12">
+						
+						<input class="center" id="vldebit"
+									style="border: none; font-size: 45px; color: #212121;"
+									disabled="disabled" />
+					<input class="col s10"
+									placeholder="Descrição" id="desccon" />	
+				    <input class="col s10" type="password" name="pin" 
+					id="pinpessoal" maxlength="4" placeholder="Pin" />
+						<input id="balancedebit" name="balancedebit" 
+							th:value="${balancedebit}" style="display: none;" />
+
+
+					</div>
+					
+				</div>
+
+			</form>
+			</div>
+			<div class="modal-footer">
+			
+			<a href="#"
+			onclick="debitoManual();" 
+			 class="modal-close waves-effect waves-green btn-flat"> 
+				<i class="material-icons" style="font-size: 50px;">check</i>
+			</a> 
+			</div>
+		</div>
+
+
+
+		<form th:action="@{/gerente/consumo}" method="post"
+			style="display: none;">
+
+			<input type="text" th:value="${idbutton}" name="idbutton"
+				id="idbutton" /> <input type="text" th:value="${iduser}"
+				name="iduser" id="iduser" /> <input type="text"
+				th:value="${debitovalue}" name="debitovalue" id="debitovalue" />
+				<input type="text"
+				th:value="${debitopin}" name="debitopin" id="debitopin" /> 
+				 <input
+				type="text" th:value="${description}" name="description"
+				id="description" /> <input type="submit" value="enviar"
+				id="consumos" />
+		</form>
+	</article>
+	</main>
+
+
+
+</body>
+
+
+</html>

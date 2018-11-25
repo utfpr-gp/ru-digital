@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout/user">
+<head>
+
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+	rel="stylesheet">
+
+<title>UTFCOIN - Extrato</title>
+</head>
+
+<body>
+
+
+
+	<main layout:fragment="content" class="">
+
+	<div class="container">
+		<div id="pagination-long"></div>
+		<div id="pagination-short"></div>
+	</div>
+
+	
+	<style>
+.pagination li.active {
+	background-color: #ffc107 !important;
+}
+</style>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		function nmes(m) {
+			if (m == 1)
+				return "Janeiro";
+			else if (m == 2)
+				return "Fevereiro";
+			else if (m == 3)
+				return "Março";
+			else if (m == 4)
+				return "Abril";
+			else if (m == 5)
+				return "Maior";
+			else if (m == 6)
+				return "Junho";
+			else if (m == 7)
+				return "Julho";
+			else if (m == 8)
+				return "Agosto";
+			else if (m == 9)
+				return "Setembro";
+			else if (m == 10)
+				return "Outubro";
+			else if (m == 11)
+				return "Novembro";
+			else if (m == 12)
+				return "Dezembro";
+		}
+
+		$(function() {
+
+			$('select').formSelect();
+			email0 = /*[[${email}]]*/'email';
+			email = /*[[${emailu}]]*/'emailu';
+			if (email != null)
+				usuario = email
+			else if (email0 != null)
+				usuario = email0;
+			else{
+				usuario = "NULLO";
+			}
+			
+
+			$.ajax({
+				type : "GET",
+				url : "/checarmeses",
+				data : {
+					"usuario" : usuario
+				},
+				success : function(data) {
+				
+					var arrayLength = data.length;
+					var auxa = [];
+					var auxm = [];
+					for (var i = 0; i < arrayLength; i++) {
+
+						var mes = data[i].substr(3, 2);
+						var ano = data[i].substr(6, 4);
+						auxa[i] = ano;
+						auxm[i] = mes;
+					}
+					var uniquea = auxa.filter(onlyUnique);
+					var uniquem = auxm.filter(onlyUnique);
+					for (var i = 0; i < uniquea.length; i++) {
+						$('#ano').append(
+								'<option value="'+ uniquea[i]  +'" >'
+										+ uniquea[i] + '</option>');
+
+					}
+					for (var i = 0; i < uniquem.length; i++) {
+						mes = nmes(uniquem[i]);
+						$('#meses').append(
+								'<option value="'+ uniquem[i]  +'" >' + mes
+										+ '</option>');
+					}
+
+					$('select').formSelect();
+				}
+			});
+			$("#company").formSelect();
+
+		});
+
+		function onlyUnique(value, index, self) {
+			return self.indexOf(value) === index;
+		}
+		function meses(id) {
+			var currentTime = new Date();
+			var year = currentTime.getFullYear();
+			var ini = new Date(year, id - 1, 1);
+			var fim = new Date(year, id, 1);
+			if (id == 12) {
+				fim = new Date(year + 1, 0, 1);
+			}
+
+			tot = fim.getTime() - ini.getTime();
+			document.getElementById("op").value = "data";
+			document.getElementById("pages").value = 1;
+			document.getElementById("ini").value = ini.getTime();
+			document.getElementById("fim").value = fim.getTime();
+			document.getElementById("enviarpagec").click();
+		}
+		$(document)
+				.ready(
+						function() {
+							c = /*[[${c}]]*/'c';
+							api = /*[[${api}]]*/'api';
+							email = /*[[${email}]]*/'email';
+							var TodayDate = new Date();
+							var m = TodayDate.getMonth() + 1;
+							var x = "05";
+							var select = 0;
+							
+							if (api!=null &&  !api && email == null) {
+								
+								select = document.querySelector('#company');
+								select
+										.addEventListener(
+												'change',
+												function() {
+													var amp = document
+															.getElementById("company");
+													var empresa = amp.options[amp.selectedIndex].value;
+
+													$
+															.ajax({
+																type : "GET",
+																url : "/checarsaldoempresa",
+																data : {
+																	"empresa" : empresa
+																},
+																success : function(
+																		data) {
+																	document
+																			.getElementById('valorempresa').innerHTML = data;
+
+																}
+															});
+
+												});
+
+							} 
+							var tipo = ".", ini = ".", fim = ".", op = ".";
+							tipo = /*[[${tipo}]]*/'tipo';
+
+							ini = /*[[${inicial}]]*/'inicial';
+
+							fim = /*[[${final}]]*/'fim';
+
+							size = /*[[${size}]]*/'size';
+
+							empresa = /*[[${empresa}]]*/'empresa';
+
+							var spans = document
+									.getElementsByClassName("price-amount");
+							var price = [];
+							for (i = 0; i < spans.length; i++) {
+								var res = spans[i].innerHTML.replace(".", ",");
+								spans[i].innerHTML = res;
+							}
+							
+							var inc = 0;
+							var x;
+							doc = usuario;
+							
+							$
+									.ajax({
+										type : "GET",
+										url : "/checkpages",
+										data : {
+											"doc" : doc
+										},
+										success : function(data) {
+											
+											if (size != null && size >= 0) {
+
+												data = size;
+											}
+
+											for (x = 0; x < data; x = x + 5) {
+												inc++;
+											}
+											if (data <= 5)
+												inc = 1;
+
+											$('#example')
+													.materializePagination(
+															{
+
+																lastPage : inc,
+
+																firstPage : 1,
+
+																onClickCallback : function(
+																		requestedPage) {
+																	console
+																			.log('Requested page from #pagination-long: '
+																					+ requestedPage);
+																	callPage(
+																			requestedPage,
+																			tipo,
+																			ini,
+																			fim,
+																			empresa);
+																	
+																}
+															});
+
+										}
+									});
+
+							if (empresa != null) {
+								var amp = document.getElementById("company");
+								$('#company').val(empresa);
+								$('#company').formSelect();
+
+								$
+										.ajax({
+											type : "GET",
+											url : "/checarsaldoempresa",
+											data : {
+												"empresa" : empresa
+											},
+											success : function(data) {
+												if (document
+														.getElementById('valorempresa') !=null)
+												document
+														.getElementById('valorempresa').innerHTML = data;
+
+											}
+										});
+							}
+
+						});
+
+		function callPage(page, tipo, ini, fim, empresao) {
+			//document.getElementById("page").value = page;
+			//document.getElementById("enviarpage").click();
+
+			api = /*[[${api}]]*/'api';
+			email = /*[[${emailu}]]*/'emailu';
+			var amp = 0, empresa = 0;
+			if (email == null) {
+				empresa = empresao;
+				usuario = "-1";
+			}
+
+			else {
+				empresa = /*[[${empresafiltrada}]]*/'empresafiltrada';
+				usuario = email + "";
+			}
+			
+			
+			document.getElementById("op").value = tipo;
+			document.getElementById("pages").value = page;
+			document.getElementById("ini").value = ini;
+			document.getElementById("fim").value = fim;
+			document.getElementById("e").value = empresa;
+			document.getElementById("emailgeral").value = usuario + "";
+			document.getElementById("enviarpagec").click();
+
+		}
+
+		function buscas() {
+			
+			var i = 0;
+			var tipo;
+			for (i = 1; i <= 12; i++) {
+				if ($("#m" + i + " a").hasClass("active"))
+					m = i;
+
+			}
+			api = /*[[${api}]]*/'api';
+			email = /*[[${email}]]*/'email';
+
+			var e = document.getElementById("ano");
+			var ano = e.options[e.selectedIndex].value;
+			var amp = 0, empresa = 0;
+
+			if (!api) {
+				amp = document.getElementById("company");
+				empresa = amp.options[amp.selectedIndex].value;
+				usuario = "-1";
+			}
+
+			else {
+				empresa = /*[[${empresaadm}]]*/'empresaadm';
+
+				usuario = email + "";
+			}
+
+			var x = document.getElementById("meses");
+			var mes = x.options[x.selectedIndex].value;
+
+			var c = document.getElementById('r1').checked;
+			var d = document.getElementById('r2').checked;
+
+			if (c && !d) {
+				//document.getElementById("enviarfiltro").click();
+				//alert("Credito");
+				tipo = "c";
+			}
+
+			else if (!c && d)
+				tipo = "d";
+			else
+				tipo = "cd";
+
+			var aux;
+			if (ano == 0 && mes == 0 && tipo == "cd")
+				aux = "FILTRAR POR TUDO";
+			if (ano != 0 && mes == 0 && tipo != "cd")
+				if (tipo == "c")
+					aux = "ANOC";
+				else
+					aux = "ANOD";
+			else if (ano != 0 && mes == 0 && tipo == "cd")
+				aux = "ANOCD";
+			else if (ano == 0 && mes != 0)
+				aux = "NOTFOUND";
+			else if (ano != 0 && mes != 0 && tipo != "cd")
+				if (tipo == "c")
+					aux = "TC";
+				else
+					aux = "TD";
+			else if (ano == 0 && mes == 0 && tipo != "cd")
+				if (tipo == "c")
+					aux = "C";
+				else
+					aux = "D";
+			else if (ano != 0 && mes != 0
+					&& (tipo == "cd" || (tipo != "c" && tipo != "d")))
+				aux = "T";
+
+			document.getElementById("filtro").value = aux;
+			document.getElementById("filtroano").value = ano;
+			document.getElementById("filtromes").value = mes;
+			document.getElementById("empresa").value = empresa;
+
+			document.getElementById("usuario").value = usuario;
+			
+			document.getElementById("enviarfiltro").click();
+		}
+
+		/*]]>*/
+	</script>
+
+	<section class=" container">
+		<style>
+textarea, input {
+	padding: 10px;
+	font-family: FontAwesome, "Open Sans", Verdana, sans-serif;
+	font-style: normal;
+	font-weight: normal;
+	text-decoration: inherit;
+}
+
+.result-selected {
+	display: none !important;
+}
+
+.bleed {
+	padding-left: 30.4%;
+	margin-left: -30.4%;
+	padding-right: 30.4%;
+	margin-right: -30.4%;
+}
+
+html, body {
+	overflow-x: hidden;
+}
+</style>
+		<div class="row ">
+			<h3 style="margin-bottom: 0px;">EXTRATO</h3>
+			<hr class=" col m3 s7  style-eight ">
+			<input th:value="${#authentication.name}" id="logado"
+						style="display: none;">
+		</div>
+		<div sec:authorize="!hasAuthority('ROLE_ADMIN')" class="bleed"
+			style="background-color: #EBE9E9;">
+			<div class="row" style="padding-top: 0.5%;">
+				<h5
+					style="margin-bottom: 0px; padding-bottom: 0.7%; color: #ff8f00;">EMPRESA</h5>
+
+
+
+				<div class="col s12" style="padding-top: 3%; padding-bottom: 1%;">
+					<select class="form-control" id="company" name="company">
+						<option th:each="c : ${company}" th:value="${c.id}"
+							th:text="${c.name}">Empresa</option>
+					</select>
+
+
+				</div>
+			</div>
+		</div>
+		<div class="row" sec:authorize="!hasAuthority('ROLE_ADMIN')">
+			<h5 style="margin-bottom: 0px; padding-bottom: 0.7%; color: #ff8f00;">SALDOS</h5>
+
+
+			<div class="col s12 m6">
+				<h6 style="margin-bottom: 0px; padding-bottom: 0.7%; color: black;">Saldo
+					da Empresa</h6>
+
+
+				<span th:if="${valor == null }" class="title col s12"
+					style="font-size: 42px; font-weight: bold;"
+					th:text="'R$ ' + 0 +',' + 0 + '0'"></span> <span id="valorempresa"
+					class="title col s12" th:if="${valor != null }"
+					style="font-size: 42px; font-weight: bold;" th:text="${valor}"></span>
+
+			</div>
+
+			<div class="col s12 m6">
+				<h6 style="margin-bottom: 0px; padding-bottom: 0.7%; color: black;">Saldo
+					Global</h6>
+
+
+
+
+				<span th:if="${somatotal == null  }" class="title"
+					style="font-size: 42px; font-weight: bold;"
+					th:text="'R$ ' + 0 +',' + 0 + '0'"></span> <span class="title"
+					th:if="${somatotal != null }"
+					style="font-size: 42px; font-weight: bold;" th:text="${somatotal}"></span>
+
+			</div>
+
+		</div>
+
+
+		<div class="bleed"
+			style="background-color: #EBE9E9; padding-top: 0.5%;">
+			<div class="row">
+				<h5
+					style="margin-bottom: 0px; padding-bottom: 0.7%; color: #ff8f00;">FILTRO
+					DE EXTRATO</h5>
+
+
+				<div class="row" style="padding-top: 3%;">
+					<div class="col s12">
+						<span class="center-align" style="font-weight: bold;">Tipo</span>
+					</div>
+				</div>
+				<div class=" row">
+
+					<div class="col s12 m6 ">
+						<label> <input name="group1" type="checkbox" id="r1" /> <span>Crédito</span>
+						</label>
+					</div>
+					<div class="col s12 m6">
+						<label> <input name="group1" type="checkbox" id="r2" /> <span>Débito</span>
+						</label>
+					</div>
+				</div>
+
+
+				<div class="row">
+
+
+
+
+
+					<div class="col s12 m6 ">
+						<span class="center-align" style="font-weight: bold;">Ano</span> <select
+							id="ano">
+							<option value="0">Todos</option>
+						</select>
+
+					</div>
+
+					<div class="col s12 m6 ">
+						<span class="center-align" style="font-weight: bold;">Mês</span> <select
+							id="meses">
+							<option value="0">Todos</option>
+
+						</select>
+
+					</div>
+				</div>
+				<div class="row">
+					<div class="col s6 offset-s6">
+						<a class="waves-effect waves-light btn"
+							style="color: black; float: right;" onclick="buscas();"><i
+							class="material-icons right">search</i>Buscar</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+
+
+		<div th:if="${filtro != null  }">
+			<div class="row ">
+
+				<h5
+					style="margin-bottom: 0px; padding-bottom: 0.7%; color: #ff8f00;">EXTRATO
+					DETALHADO</h5>
+
+
+			</div>
+
+
+
+
+
+			<div class="row">
+
+				<div class="col s12 ">
+					<table
+						th:if="${transactions!=null &&  transactions.getTotalElements() > 0}"
+						border="1" id="xxx" class="highlight responsive-table">
+
+						<thead>
+							<tr>
+								<th class="">Data</th>
+								<th class="">Valor</th>
+								<th class="">tipo</th>
+								<th class="">Caixa</th>
+							</tr>
+						</thead>
+						<tbody>
+
+							<tr th:each="t: ${transactions}" th:if = " ${currentcp == NULL || t.getCompany().getId() == currentcp}">
+
+
+								<span style="display: none;" class="truncate"
+									th:text="${t.getId()}" th:id="${t.getId()}"></span>
+								<td><span class=" truncate" th:text="${t.getData()}"></span></td>
+								<td><span class=" truncate price-amount"
+									th:text="'R$ ' + ${t.getValue()}" th:if="${t.button == null}"
+									style="color: green;"> </span><span
+									class=" truncate price-amount"
+									th:text="'R$ ' + ${t.getValue()}" th:if="${t.button != null}"
+									style="color: red;"> </span></td>
+								<td th:if="${t.getValue()>0 }"><span class=" truncate"
+									th:text="Crédito"></span></td>
+								<td th:if="${t.getValue()<0 }"><span class=" truncate"
+									th:text="Débito"></span></td>
+
+								<td><span class=" truncate" th:text="${t.getOperator()}"></span></td>
+
+							</tr>
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div
+				th:if="${transactions == null ||  transactions.getTotalElements() == 0}"
+				class="col s7 offset-s5">
+
+				<p class="center-align">
+					<i class=" material-icons " style="font-size: 150px;">mood_bad</i>
+				</p>
+				<div class="col s12">
+					<p style="font-weight: bold;" class="center-align">Não foram
+						encontrados registros de extrato</p>
+				</div>
+			</div>
+
+			<div
+				th:if="${transactions != null && transactions.getTotalElements() > 0}"
+				id="example"></div>
+		</div>
+
+
+
+
+
+		<div class="col s12">
+			<form th:action="@{/usuario/extrato/filtro}" style="display: none;">
+				<input type="text" name="name" id="name" th:value="${name}" /> <input
+					type="text" name="operator" id="operator" th:value="${operator}" />
+				<input type="text" name="type" id="type" th:value="${type}" /> <input
+					type="text" name="dataini" id="dataini" th:value="${dataini}" /> <input
+					type="text" name="datafim" id="datafim" th:value="${datafim}" /> <input
+					type="submit" value="Search" id="enviarbuscar"
+					onmouseover="passForm();" />
+			</form>
+			<form th:action="@{/usuario/extrato/filtros}" style="display: none;">
+				<input type="text" name="type" id="type" th:value="${type}" /> <input
+					type="text" name="month" id="month" th:value="${month}" /> <input
+					type="text" name="year" id="year" th:value="${year}" /> <input
+					type="submit" value="Search" id="enviarbuscar"
+					onmouseover="passForm();" />
+			</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			<form autocomplete="off" action="#"
+				th:action="@{/usuario/extrato/bypage}" method="post"
+				style="display: none;">
+				<div class="form-group">
+					<div class="col-sm-9">
+
+						<input type="text" th:value="${page}" name="page" id="page"
+							placeholder="Page" class="form-control" />
+					</div>
+				</div>
+				<input type="submit" value="Search" id="enviarpage" />
+
+			</form>
+
+			<form autocomplete="off" action="#"
+				th:action="@{/usuario/extrato/geral}" method="post"
+				style="display: none;">
+				<div class="form-group">
+					<div class="col-sm-9">
+						<input type="text" th:value="${op}" name="op" id="op"
+							placeholder="Page" class="form-control" /> <input type="text"
+							th:value="${pages}" name="pages" id="pages" placeholder="Page"
+							class="form-control" /> <input type="text" th:value="${ini}"
+							name="ini" id="ini" placeholder="Page" class="form-control" /> <input
+							type="text" th:value="${fim}" name="fim" id="fim"
+							placeholder="Page" class="form-control" /> <input type="text"
+							th:value="${empresa}" name="empresa" id="e" placeholder="Page"
+							class="form-control" /> <input type="text"
+							th:value="${emailgeral}" name="emailgeral" id="emailgeral"
+							placeholder="Page" class="form-control" />
+					</div>
+				</div>
+				<input type="submit" value="Search" id="enviarpagec" />
+
+			</form>
+
+
+			<form autocomplete="off" action="#"
+				th:action="@{/usuario/extrato/filterpage}" method="post"
+				style="display: none;">
+				<div class="form-group">
+					<div class="col-sm-9">
+						<input type="text" th:value="${usuario}" name="usuario"
+							id="usuario" placeholder="Page" class="form-control" /> <input
+							type="text" th:value="${empresa}" name="empresa" id="empresa"
+							placeholder="Page" class="form-control" /> <input type="text"
+							th:value="${filtro}" name="filtro" id="filtro" placeholder="Page"
+							class="form-control" /> <input type="text"
+							th:value="${filtroano}" name="filtroano" id="filtroano"
+							placeholder="Page" class="form-control" /> <input type="text"
+							th:value="${filtromes}" name="filtromes" id="filtromes"
+							placeholder="Page" class="form-control" />
+
+					</div>
+				</div>
+				<input type="submit" value="Search" id="enviarfiltro" />
+
+			</form>
+
+
+		</div>
+	</section>
+
+	</main>
+
+
+
+</body>
+
+
+
+
+
+</html>
+
+
